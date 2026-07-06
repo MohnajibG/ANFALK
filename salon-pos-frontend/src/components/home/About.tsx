@@ -15,7 +15,7 @@ export default function About() {
           <img
             src="https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=1200&q=80"
             alt="About ANFAL K"
-            className="h-[28rem] w-full rounded-[20px] object-cover"
+            className="h-112 w-full rounded-[20px] object-cover"
           />
 
           <div className="absolute inset-2 rounded-[20px] bg-black/10" />

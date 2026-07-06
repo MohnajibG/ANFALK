@@ -1,7 +1,38 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import {
+  LayoutDashboard,
+  ShoppingCart,
+  Users,
+  Receipt,
+  LogOut,
+} from "lucide-react";
+
+const links = [
+  {
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    path: "/cashier",
+  },
+  {
+    label: "Point of Sale",
+    icon: ShoppingCart,
+    path: "/cashier/pos",
+  },
+  {
+    label: "Customers",
+    icon: Users,
+    path: "/cashier/customers",
+  },
+  {
+    label: "Tickets",
+    icon: Receipt,
+    path: "/cashier/tickets",
+  },
+];
 
 export default function CashierLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const logout = () => {
     localStorage.clear();
@@ -9,24 +40,61 @@ export default function CashierLayout() {
   };
 
   return (
-    <div className="ak-page flex min-h-screen flex-col lg:flex-row">
-      <aside className="ak-sidebar w-full p-5 text-center lg:min-h-screen lg:w-64 lg:p-6 lg:text-left">
-        <h1 className="ak-logo mb-1 text-2xl">CASHIER</h1>
-        <p className="ak-logo-subtitle mb-10 text-[0.58rem]">ANFAL K</p>
+    <div className="flex min-h-screen bg-[#F6F6F6]">
+      {/* SIDEBAR */}
+      <aside className="flex w-72 flex-col bg-[#111111] text-[#FFF4D6]">
+        {/* LOGO */}
+        <div className="border-b border-white/10 p-6">
+          <h1 className="font-[Cinzel] text-2xl tracking-[3px]">ANFAL K</h1>
 
-        <nav className="flex gap-2 overflow-x-auto text-sm font-semibold lg:block lg:space-y-3 lg:overflow-visible">
-          <p className="ak-nav-item">Dashboard</p>
-          <p className="ak-nav-item">POS</p>
-          <p className="ak-nav-item">Clients</p>
-          <p className="ak-nav-item">History</p>
+          <p className="text-xs tracking-[4px] text-white/60">INSTITUTE</p>
+
+          <p className="mt-4 text-xs font-semibold uppercase tracking-[2px] text-[#D8B98A]">
+            CASHIER
+          </p>
+        </div>
+
+        {/* NAVIGATION */}
+        <nav className="flex-1 space-y-2 p-4">
+          {links.map((link) => {
+            const Icon = link.icon;
+
+            const active =
+              location.pathname === link.path ||
+              (link.path !== "/cashier" &&
+                location.pathname.startsWith(link.path));
+
+            return (
+              <button
+                key={link.path}
+                onClick={() => navigate(link.path)}
+                className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm transition ${
+                  active
+                    ? "bg-[#3E2C23] text-[#FFF4D6]"
+                    : "text-white/70 hover:bg-white/10"
+                }`}
+              >
+                <Icon size={18} />
+                {link.label}
+              </button>
+            );
+          })}
         </nav>
 
-        <button onClick={logout} className="ak-button mt-10 w-full py-3">
-          Sign Out
-        </button>
+        {/* FOOTER */}
+        <div className="border-t border-white/10 p-4">
+          <button
+            onClick={logout}
+            className="flex w-full items-center gap-3 rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-300 transition hover:bg-red-500/20"
+          >
+            <LogOut size={18} />
+            Sign Out
+          </button>
+        </div>
       </aside>
 
-      <main className="flex-1 p-4 sm:p-6">
+      {/* MAIN CONTENT */}
+      <main className="flex-1 overflow-auto bg-[#F8F8F8] p-8">
         <Outlet />
       </main>
     </div>

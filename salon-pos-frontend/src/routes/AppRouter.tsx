@@ -15,6 +15,7 @@ import Clients from "../pages/admin/Clients";
 import Employees from "../pages/admin/Employees";
 
 import POS from "../pages/cashier/POS";
+import Services from "../pages/admin/Services";
 
 export default function AppRouter() {
   return (
@@ -40,6 +41,7 @@ export default function AppRouter() {
           <Route index element={<Dashboard />} />
           <Route path="clients" element={<Clients />} />
           <Route path="employees" element={<Employees />} />
+          <Route path="services" element={<Services />} />
         </Route>
 
         {/* ===================== */}

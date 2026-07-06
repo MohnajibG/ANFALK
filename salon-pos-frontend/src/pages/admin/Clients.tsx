@@ -35,6 +35,7 @@ export default function Clients() {
   const filtered = clients.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase()),
   );
+  console.log(setClients);
 
   return (
     <div className="space-y-6">

@@ -6,7 +6,7 @@ export default function Dashboard() {
       {/* HEADER */}
       <div className="ak-card px-5 py-7 text-center sm:px-8 lg:text-left">
         <p className="ak-kicker">Admin</p>
-        <h1 className="mt-3 font-[Cinzel] text-3xl font-bold text-[#0b0b0b]">
+        <h1 className="mt-3 font-[Cinzel] text-3xl font-bold text-[#0b0b0b] ">
           Admin Dashboard
         </h1>
         <p className="ak-muted mt-2">A clear overview of institute activity.</p>
@@ -41,10 +41,7 @@ export default function Dashboard() {
         </motion.div>
 
         {/* TOP SERVICES */}
-        <motion.div
-          whileHover={{ scale: 1.01 }}
-          className="ak-card p-5 sm:p-6"
-        >
+        <motion.div whileHover={{ scale: 1.01 }} className="ak-card p-5 sm:p-6">
           <h2 className="mb-4 font-semibold text-[#0b0b0b]">Top Services</h2>
 
           <ul className="ak-muted space-y-3 text-sm font-medium">
