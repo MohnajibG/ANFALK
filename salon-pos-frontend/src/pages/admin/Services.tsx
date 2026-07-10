@@ -1,200 +1,165 @@
-import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Search, Scissors } from "lucide-react";
-
-type Speciality = "Coiffure" | "Manucure" | "Maquillage";
+import { Scissors, Clock, Star } from "lucide-react";
 
 type Service = {
   id: string;
   name: string;
-  price: number;
-  speciality: Speciality;
+  category: string;
   duration: number;
-  active: boolean;
+  price: number;
+  completed: number;
+  rating: number;
 };
 
-const initialServices: Service[] = [
+const linaServices: Service[] = [
   {
     id: "1",
-    name: "Brushing",
-    price: 25,
-    speciality: "Coiffure",
-    duration: 30,
-    active: true,
+    name: "Hair Coloring",
+    category: "Hair",
+    duration: 120,
+    price: 75,
+    completed: 156,
+    rating: 4.9,
   },
+
   {
     id: "2",
-    name: "Coupe",
-    price: 40,
-    speciality: "Coiffure",
-    duration: 45,
-    active: true,
+    name: "Balayage",
+    category: "Hair",
+    duration: 180,
+    price: 120,
+    completed: 98,
+    rating: 5,
   },
+
   {
     id: "3",
-    name: "Pose complète",
-    price: 50,
-    speciality: "Manucure",
-    duration: 60,
-    active: true,
+    name: "Hair Cut",
+    category: "Hair",
+    duration: 45,
+    price: 40,
+    completed: 240,
+    rating: 4.8,
   },
+
   {
     id: "4",
-    name: "Maquillage mariée",
-    price: 80,
-    speciality: "Maquillage",
+    name: "Hair Treatment",
+    category: "Care",
     duration: 90,
-    active: false,
+    price: 60,
+    completed: 84,
+    rating: 4.9,
   },
 ];
 
-export default function Services() {
-  const [services] = useState(initialServices);
-  const [search, setSearch] = useState("");
-  const [open, setOpen] = useState(false);
-
-  const filtered = services.filter((s) =>
-    s.name.toLowerCase().includes(search.toLowerCase()),
-  );
-
+export default function MyServices() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* HEADER */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="font-[Cinzel] text-3xl text-[#3E2C23]">Prestations</h1>
-          <p className="text-gray-500">Gestion des services du salon</p>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-3xl bg-[#3E2C23] p-8 text-[#FFF4D6]"
+      >
+        <h1 className="font-[Cinzel] text-4xl">My Services</h1>
+
+        <p className="mt-2 text-white/80">
+          Your professional services and performance.
+        </p>
+      </motion.div>
+
+      {/* STATS */}
+
+      <div className="grid gap-6 md:grid-cols-3">
+        <div className="rounded-2xl bg-white p-6 shadow">
+          <p className="text-gray-500">Total Services</p>
+
+          <h2 className="mt-2 text-3xl font-bold text-[#3E2C23]">4</h2>
         </div>
 
-        <button
-          onClick={() => setOpen(true)}
-          className="flex items-center gap-2 rounded-xl bg-[#3E2C23] px-4 py-2 text-[#FFF4D6]"
-        >
-          <Plus size={18} />
-          Ajouter
-        </button>
+        <div className="rounded-2xl bg-white p-6 shadow">
+          <p className="text-gray-500">Completed This Month</p>
+
+          <h2 className="mt-2 text-3xl font-bold text-[#3E2C23]">98</h2>
+        </div>
+
+        <div className="rounded-2xl bg-white p-6 shadow">
+          <p className="text-gray-500">Average Rating</p>
+
+          <h2 className="mt-2 text-3xl font-bold text-[#3E2C23]">4.9 ⭐</h2>
+        </div>
       </div>
 
-      {/* SEARCH */}
-      <div className="relative">
-        <Search className="absolute left-3 top-3 text-gray-400" size={18} />
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Rechercher une prestation..."
-          className="w-full rounded-xl border bg-white py-3 pl-10 pr-4 outline-none focus:border-[#3E2C23]"
-        />
-      </div>
+      {/* SERVICES */}
 
-      {/* GRID */}
-      <div className="grid gap-6 md:grid-cols-3">
-        {filtered.map((service) => (
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {linaServices.map((service) => (
           <motion.div
             key={service.id}
             whileHover={{ y: -5 }}
-            className="rounded-2xl bg-white p-6 shadow"
+            className="rounded-2xl bg-white p-6 shadow-sm"
           >
-            {/* HEADER */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Scissors size={18} className="text-[#3E2C23]" />
+              <div className="flex items-center gap-3">
+                <div className="rounded-full bg-[#FFF4D6] p-3">
+                  <Scissors size={22} className="text-[#3E2C23]" />
+                </div>
+
                 <h3 className="font-semibold text-[#3E2C23]">{service.name}</h3>
               </div>
 
-              <span
-                className={`rounded-full px-2 py-1 text-xs ${
-                  service.active
-                    ? "bg-green-100 text-green-600"
-                    : "bg-red-100 text-red-500"
-                }`}
-              >
-                {service.active ? "Actif" : "Inactif"}
+              <span className="rounded-full bg-green-100 px-3 py-1 text-xs text-green-700">
+                Active
               </span>
             </div>
 
-            {/* INFO */}
-            <div className="mt-4 space-y-2 text-sm text-gray-600">
+            <div className="mt-5 space-y-3 text-sm text-gray-600">
               <p>
-                Spécialité :{" "}
-                <span className="font-medium text-[#3E2C23]">
-                  {service.speciality}
+                Category :
+                <span className="ml-2 font-semibold text-[#3E2C23]">
+                  {service.category}
                 </span>
               </p>
 
+              <p className="flex items-center gap-2">
+                <Clock size={16} />
+                {service.duration} minutes
+              </p>
+
               <p>
-                Durée :{" "}
-                <span className="font-medium text-[#3E2C23]">
-                  {service.duration} min
+                Price :
+                <span className="ml-2 font-bold text-[#3E2C23]">
+                  €{service.price}
                 </span>
               </p>
             </div>
 
-            {/* PRICE */}
-            <div className="mt-6 flex items-center justify-between">
-              <span className="text-xl font-bold text-[#3E2C23]">
-                {service.price} €
-              </span>
+            <div className="mt-6 border-t pt-5">
+              <div className="flex justify-between">
+                <div>
+                  <p className="text-xs text-gray-500">Completed</p>
 
-              <button className="rounded-xl bg-[#3E2C23] px-3 py-1 text-sm text-[#FFF4D6]">
-                Modifier
-              </button>
+                  <h4 className="text-xl font-bold text-[#3E2C23]">
+                    {service.completed}
+                  </h4>
+                </div>
+
+                <div>
+                  <p className="text-xs text-gray-500">Rating</p>
+
+                  <h4 className="flex items-center gap-1 text-xl font-bold text-[#3E2C23]">
+                    <Star size={18} className="fill-[#3E2C23]" />
+
+                    {service.rating}
+                  </h4>
+                </div>
+              </div>
             </div>
           </motion.div>
         ))}
       </div>
-
-      {/* MODAL */}
-      {open && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40">
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="w-full max-w-md rounded-2xl bg-white p-6"
-          >
-            <h2 className="text-xl font-semibold text-[#3E2C23]">
-              Ajouter une prestation
-            </h2>
-
-            <div className="mt-4 space-y-3">
-              <input
-                placeholder="Nom"
-                className="w-full rounded-xl border p-3"
-              />
-
-              <input
-                placeholder="Prix"
-                type="number"
-                className="w-full rounded-xl border p-3"
-              />
-
-              <input
-                placeholder="Durée (min)"
-                type="number"
-                className="w-full rounded-xl border p-3"
-              />
-
-              <select className="w-full rounded-xl border p-3">
-                <option>Coiffure</option>
-                <option>Manucure</option>
-                <option>Maquillage</option>
-              </select>
-            </div>
-
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                onClick={() => setOpen(false)}
-                className="rounded-xl border px-4 py-2"
-              >
-                Annuler
-              </button>
-
-              <button className="rounded-xl bg-[#3E2C23] px-4 py-2 text-[#FFF4D6]">
-                Enregistrer
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      )}
     </div>
   );
 }
