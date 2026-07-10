@@ -17,6 +17,10 @@ import Employees from "../pages/admin/Employees";
 import POS from "../pages/cashier/POS";
 import Services from "../pages/admin/Services";
 
+import EmployeeDashboard from "../pages/employee/Dashboard";
+import MyAppointments from "../pages/employee/MyAppointments";
+import MyStatistics from "../pages/employee/MyStatistics";
+
 export default function AppRouter() {
   return (
     <BrowserRouter>
@@ -74,7 +78,9 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<div>Employee Dashboard</div>} />
+          <Route index element={<EmployeeDashboard />} />
+          <Route path="appointments" element={<MyAppointments />} />
+          <Route path="statistics" element={<MyStatistics />} />
         </Route>
       </Routes>
     </BrowserRouter>

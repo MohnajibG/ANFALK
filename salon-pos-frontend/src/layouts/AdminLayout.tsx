@@ -90,7 +90,7 @@ export default function AdminLayout() {
       </aside>
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 p-4 sm:p-6">
+      <main className="flex-1 flex justify-center items-center gap-5 p-4 sm:p-6">
         <Outlet />
       </main>
     </div>

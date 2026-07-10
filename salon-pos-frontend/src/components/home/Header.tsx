@@ -47,9 +47,12 @@ export default function Header() {
           : "bg-white/80 py-5 backdrop-blur-sm"
       }`}
     >
-      <div className="ak-container flex items-center justify-between">
+      <div className="ak-container flex items-center justify-center gap-6 lg:justify-between">
         {/* Logo */}
-        <a href="#home" className="select-none">
+        <a
+          href="#home"
+          className="select-none flex flex-col items-center gap-0.5"
+        >
           <h1 className="ak-logo text-2xl sm:text-3xl">ANFAL K</h1>
 
           <p className="ak-logo-subtitle mt-1 text-[0.56rem] sm:text-[0.64rem]">
@@ -69,10 +72,7 @@ export default function Header() {
             </a>
           ))}
 
-          <a
-            href="/login"
-            className="ak-button group px-6 py-3"
-          >
+          <a href="/login" className="ak-button group px-6 py-3">
             Sign In
             <ArrowRight
               size={18}
@@ -82,7 +82,10 @@ export default function Header() {
         </nav>
 
         {/* Mobile button */}
-        <button onClick={() => setOpen(!open)} className="ak-button ak-button-light px-3 py-3 lg:hidden">
+        <button
+          onClick={() => setOpen(!open)}
+          className="ak-button ak-button-light px-3 py-3 lg:hidden"
+        >
           {open ? (
             <X size={24} color="#302821" />
           ) : (
