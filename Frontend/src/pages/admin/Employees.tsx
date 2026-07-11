@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Search,
@@ -61,6 +62,7 @@ const employeesData: Employee[] = [
 
 export default function Employees() {
   const [search, setSearch] = useState("");
+  const navigate = useNavigate();
 
   const employees = employeesData.filter((employee) =>
     employee.name.toLowerCase().includes(search.toLowerCase()),
@@ -240,10 +242,13 @@ font-semibold
 
               <div className="flex gap-2">
                 <button
+                  onClick={() => navigate(`/admin/employees/${employee.id}`)}
                   className="
 rounded-lg
 bg-[#FFF4D6]
 p-2
+transition
+hover:scale-105
 "
                 >
                   <Eye size={16} />
