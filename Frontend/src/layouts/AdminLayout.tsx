@@ -50,7 +50,7 @@ export default function AdminLayout() {
       <aside className="ak-sidebar flex w-full flex-col lg:min-h-screen lg:w-72">
         {/* LOGO */}
         <div className="border-b border-[#e8e2d8] p-5 text-center lg:p-6 lg:text-left">
-          <h1 className="ak-logo text-2xl">ANFAL K</h1>
+          <h1 className="ak-logo text-2xl">ANFEL K</h1>
           <p className="ak-logo-subtitle mt-1 text-[0.58rem]">INSTITUTE</p>
         </div>
 

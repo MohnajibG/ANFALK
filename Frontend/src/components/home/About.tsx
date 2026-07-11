@@ -14,7 +14,7 @@ export default function About() {
         >
           <img
             src="https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=1200&q=80"
-            alt="About ANFAL K"
+            alt="About ANFEL K"
             className="h-112 w-full rounded-[20px] object-cover"
           />
 
@@ -35,7 +35,7 @@ export default function About() {
           </h2>
 
           <p className="ak-muted mt-6 text-lg leading-8">
-            ANFAL K Institute brings together technique, care, and a serene
+            ANFEL K Institute brings together technique, care, and a serene
             studio experience for clients who want beauty services that feel
             refined from start to finish.
           </p>

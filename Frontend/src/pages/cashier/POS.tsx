@@ -134,7 +134,7 @@ export default function POS() {
         <div>
           <p className="ak-kicker">Cashier</p>
 
-          <h1 className="font-[Cinzel] text-3xl font-bold">ANFAL K POS</h1>
+          <h1 className="font-[Cinzel] text-3xl font-bold">ANFEL K POS</h1>
 
           <p className="ak-muted">Create a new customer ticket</p>
         </div>

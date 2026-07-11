@@ -15,7 +15,7 @@ export default function Profile() {
     role: "Hair Stylist",
     speciality: "Coiffure",
     phone: "06 12 34 56 78",
-    email: "sarah@anfalk.com",
+    email: "sarah@anfelk.com",
     joined: "January 2025",
     status: "Active",
     experience: "5 years",

@@ -53,7 +53,7 @@ export default function Header() {
           href="#home"
           className="select-none flex flex-col items-center gap-0.5"
         >
-          <h1 className="ak-logo text-2xl sm:text-3xl">ANFAL K</h1>
+          <h1 className="ak-logo text-2xl sm:text-3xl">ANFEL K</h1>
 
           <p className="ak-logo-subtitle mt-1 text-[0.56rem] sm:text-[0.64rem]">
             Institute

@@ -4,7 +4,7 @@ export default function Contact() {
   const details = [
     { icon: <MapPin size={20} />, text: "Aulnay-sous-Bois, France" },
     { icon: <Phone size={20} />, text: "+33 6 00 00 00 00" },
-    { icon: <Camera size={20} />, text: "@anfalk_institute" },
+    { icon: <Camera size={20} />, text: "@anfelk_institute" },
   ];
 
   return (

@@ -58,7 +58,7 @@ export default function Login() {
 
         <div className="absolute bottom-16 left-10 right-10 text-white">
           <h1 className="font-[Cinzel] text-5xl font-bold uppercase tracking-[0.12em] text-white">
-            ANFAL K
+            ANFEL K
           </h1>
           <p className="mt-2 text-xs font-bold uppercase tracking-[0.42em] text-white/80">
             Institute
@@ -73,78 +73,78 @@ export default function Login() {
           animate={{ opacity: 1, y: 0 }}
           className="ak-card w-full max-w-md p-6 sm:p-10"
         >
-        <h2 className="font-[Cinzel] text-3xl text-[#0b0b0b]">Sign In</h2>
+          <h2 className="font-[Cinzel] text-3xl text-[#0b0b0b]">Sign In</h2>
 
-        <p className="ak-muted mt-2 text-sm">
-          Access the ANFAL K Institute management area.
-        </p>
+          <p className="ak-muted mt-2 text-sm">
+            Access the ANFEL K Institute management area.
+          </p>
 
-        {/* 🔥 TEST BUTTONS */}
-        <div className="mt-8 space-y-3">
-          <button
-            onClick={() => loginAs("admin")}
-            className="ak-button w-full py-3"
-          >
-            Admin Dashboard
-          </button>
-
-          <button
-            onClick={() => loginAs("cashier")}
-            className="ak-button ak-button-light w-full py-3"
-          >
-            Cashier POS
-          </button>
-
-          <button
-            onClick={() => loginAs("employee")}
-            className="ak-button ak-button-light w-full py-3"
-          >
-            Employee Area
-          </button>
-        </div>
-
-        {/* DIVIDER */}
-        <div className="ak-muted my-6 text-center text-xs font-semibold uppercase tracking-[0.24em]">
-          or continue with email
-        </div>
-
-        {/* FORM */}
-        <form onSubmit={handleLogin} className="space-y-5">
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            type="email"
-            placeholder="Email"
-            className="ak-input"
-          />
-
-          <div className="relative">
-            <input
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              type={show ? "text" : "password"}
-              placeholder="Password"
-              className="ak-input pr-12"
-            />
+          {/* 🔥 TEST BUTTONS */}
+          <div className="mt-8 space-y-3">
+            <button
+              onClick={() => loginAs("admin")}
+              className="ak-button w-full py-3"
+            >
+              Admin Dashboard
+            </button>
 
             <button
-              type="button"
-              onClick={() => setShow(!show)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6c6257]"
+              onClick={() => loginAs("cashier")}
+              className="ak-button ak-button-light w-full py-3"
             >
-              {show ? <EyeOff size={18} /> : <Eye size={18} />}
+              Cashier POS
+            </button>
+
+            <button
+              onClick={() => loginAs("employee")}
+              className="ak-button ak-button-light w-full py-3"
+            >
+              Employee Area
             </button>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="ak-button w-full py-3 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {loading ? "Signing in..." : "Sign In"}
-          </button>
-        </form>
-      </motion.div>
+          {/* DIVIDER */}
+          <div className="ak-muted my-6 text-center text-xs font-semibold uppercase tracking-[0.24em]">
+            or continue with email
+          </div>
+
+          {/* FORM */}
+          <form onSubmit={handleLogin} className="space-y-5">
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
+              placeholder="Email"
+              className="ak-input"
+            />
+
+            <div className="relative">
+              <input
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                type={show ? "text" : "password"}
+                placeholder="Password"
+                className="ak-input pr-12"
+              />
+
+              <button
+                type="button"
+                onClick={() => setShow(!show)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6c6257]"
+              >
+                {show ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="ak-button w-full py-3 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {loading ? "Signing in..." : "Sign In"}
+            </button>
+          </form>
+        </motion.div>
       </div>
     </div>
   );

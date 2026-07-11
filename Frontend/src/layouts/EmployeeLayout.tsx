@@ -74,7 +74,7 @@ export default function EmployeeLayout() {
       <aside className="flex w-72 flex-col bg-[#111111] text-[#FFF4D6]">
         {/* LOGO */}
         <div className="border-b border-white/10 p-6">
-          <h1 className="font-[Cinzel] text-2xl tracking-[3px]">ANFAL K</h1>
+          <h1 className="font-[Cinzel] text-2xl tracking-[3px]">ANFEL K</h1>
 
           <p className="text-xs tracking-[4px] text-white/60">INSTITUTE</p>
 

@@ -15,7 +15,7 @@ export default function Gallery() {
             <div key={i} className="ak-card overflow-hidden p-2">
               <img
                 src={img}
-                alt="ANFAL K studio preview"
+                alt="ANFEL K studio preview"
                 className="h-72 w-full rounded-[20px] object-cover transition hover:scale-105"
               />
             </div>

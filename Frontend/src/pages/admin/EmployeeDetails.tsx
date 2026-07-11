@@ -72,7 +72,7 @@ export default function EmployeeDetails() {
             <Info
               icon={<Mail size={18} />}
               label="Email"
-              value="sarah@anfalk.com"
+              value="sarah@anfelk.com"
             />
 
             <Info
