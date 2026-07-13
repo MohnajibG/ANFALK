@@ -3,6 +3,7 @@ import cors from "cors";
 
 import authRoutes from "./routes/auth.routes";
 import employeeRoutes from "./routes/employee.routes";
+import categoryRoutes from "./routes/category.routes";
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/employees", employeeRoutes);
+app.use("/api/categories", categoryRoutes);
 
 /* Test Route */
 
