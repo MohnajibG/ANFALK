@@ -1,22 +1,67 @@
-import { Request, Response } from "express";
-import User from "../models/User";
-import { hashPassword } from "../utils/hash";
+import { Response } from "express";
+
+import { AuthRequest } from "../types/auth";
+
+import {
+  createEmployee,
+  getEmployees,
+  getEmployeeById,
+  updateEmployee,
+  updateEmployeeStatus,
+  deleteEmployee,
+} from "../services/employee.service";
+
+/**
+ * POST /employees
+ */
+export const createEmployeeController = async (
+  req: AuthRequest,
+  res: Response,
+) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
+    }
+
+    const employee = await createEmployee(req.user.id, req.body);
+
+    return res.status(201).json({
+      success: true,
+      message: "Employee created successfully",
+      data: employee,
+    });
+  } catch (error: any) {
+    console.error(error);
+
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 /**
  * GET /employees
  */
-export const getEmployees = async (_req: Request, res: Response) => {
+export const getEmployeesController = async (
+  _req: AuthRequest,
+  res: Response,
+) => {
   try {
-    const employees = await User.find({
-      role: { $in: ["employee", "cashier"] },
-    }).select("-password");
+    const employees = await getEmployees();
 
-    return res.json(employees);
-  } catch (error) {
+    return res.status(200).json({
+      success: true,
+      data: employees,
+    });
+  } catch (error: any) {
     console.error(error);
 
     return res.status(500).json({
-      message: "Internal server error",
+      success: false,
+      message: error.message,
     });
   }
 };
@@ -24,91 +69,44 @@ export const getEmployees = async (_req: Request, res: Response) => {
 /**
  * GET /employees/:id
  */
-export const getEmployeeById = async (req: Request, res: Response) => {
+export const getEmployeeByIdController = async (
+  req: AuthRequest,
+  res: Response,
+) => {
   try {
-    const employee = await User.findById(req.params.id).select("-password");
+    const employee = await getEmployeeById(req.params.id as string);
 
-    if (!employee) {
-      return res.status(404).json({
-        message: "Employee not found",
-      });
-    }
-
-    return res.json(employee);
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({
-      message: "Internal server error",
+    return res.status(200).json({
+      success: true,
+      data: employee,
+    });
+  } catch (error: any) {
+    return res.status(404).json({
+      success: false,
+      message: error.message,
     });
   }
 };
 
 /**
- * POST /employees
- * Admin creates employee/cashier
+ * PATCH /employees/:id
  */
-export const createEmployee = async (req: Request, res: Response) => {
+export const updateEmployeeController = async (
+  req: AuthRequest,
+  res: Response,
+) => {
   try {
-    const { firstName, lastName, email, phone, role, password } = req.body;
+    const employee = await updateEmployee(req.params.id as string, req.body);
 
-    const existing = await User.findOne({ email });
-
-    if (existing) {
-      return res.status(400).json({
-        message: "Email already exists",
-      });
-    }
-
-    const hashedPassword = await hashPassword(password);
-
-    const employee = await User.create({
-      firstName,
-      lastName,
-      email,
-      phone,
-      password: hashedPassword,
-      role,
-      mustChangePassword: true,
+    return res.status(200).json({
+      success: true,
+      message: "Employee updated successfully",
+      data: employee,
     });
-
-    return res.status(201).json({
-      message: "Employee created successfully",
-      employee,
-    });
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({
-      message: "Internal server error",
-    });
-  }
-};
-
-/**
- * PUT /employees/:id
- */
-export const updateEmployee = async (req: Request, res: Response) => {
-  try {
-    const employee = await User.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    }).select("-password");
-
-    if (!employee) {
-      return res.status(404).json({
-        message: "Employee not found",
-      });
-    }
-
-    return res.json({
-      message: "Employee updated",
-      employee,
-    });
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({
-      message: "Internal server error",
+  } catch (error: any) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
     });
   }
 };
@@ -116,62 +114,49 @@ export const updateEmployee = async (req: Request, res: Response) => {
 /**
  * PATCH /employees/:id/status
  */
-export const toggleEmployeeStatus = async (req: Request, res: Response) => {
+export const updateEmployeeStatusController = async (
+  req: AuthRequest,
+  res: Response,
+) => {
   try {
-    const employee = await User.findById(req.params.id);
+    const { isActive } = req.body;
 
-    if (!employee) {
-      return res.status(404).json({
-        message: "Employee not found",
-      });
-    }
+    const employee = await updateEmployeeStatus(
+      req.params.id as string,
+      isActive,
+    );
 
-    employee.isActive = !employee.isActive;
-
-    await employee.save();
-
-    return res.json({
-      message: "Status updated",
-      employee,
+    return res.status(200).json({
+      success: true,
+      message: "Employee status updated",
+      data: employee,
     });
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({
-      message: "Internal server error",
+  } catch (error: any) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
     });
   }
 };
 
 /**
- * PATCH /employees/:id/reset-password
+ * DELETE /employees/:id
  */
-export const resetEmployeePassword = async (req: Request, res: Response) => {
+export const deleteEmployeeController = async (
+  req: AuthRequest,
+  res: Response,
+) => {
   try {
-    const { temporaryPassword } = req.body;
+    await deleteEmployee(req.params.id as string);
 
-    const employee = await User.findById(req.params.id);
-
-    if (!employee) {
-      return res.status(404).json({
-        message: "Employee not found",
-      });
-    }
-
-    employee.password = await hashPassword(temporaryPassword);
-
-    employee.mustChangePassword = true;
-
-    await employee.save();
-
-    return res.json({
-      message: "Password reset successfully",
+    return res.status(200).json({
+      success: true,
+      message: "Employee deleted successfully",
     });
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({
-      message: "Internal server error",
+  } catch (error: any) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
     });
   }
 };

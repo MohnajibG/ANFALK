@@ -1,9 +1,9 @@
 import { NextFunction, Response } from "express";
 import { AuthRequest } from "../types/auth";
-import { Role } from "../types/auth";
+import { UserRole } from "../models/User";
 
 export const authorize =
-  (...roles: Role[]) =>
+  (...roles: UserRole[]) =>
   (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
       return res.status(401).json({
@@ -13,7 +13,7 @@ export const authorize =
 
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({
-        message: "Access denied",
+        message: "Forbidden",
       });
     }
 

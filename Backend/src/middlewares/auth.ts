@@ -1,14 +1,9 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
+import User from "../models/User";
 import { verifyToken } from "../utils/jwt";
+import { AuthRequest } from "../types/auth";
 
-export interface AuthRequest extends Request {
-  user?: {
-    id: string;
-    role: "admin" | "cashier" | "employee";
-  };
-}
-
-export const authenticate = (
+export const authenticate = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction,
@@ -16,15 +11,9 @@ export const authenticate = (
   try {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader) {
+    if (!authHeader?.startsWith("Bearer ")) {
       return res.status(401).json({
-        message: "Authorization header missing",
-      });
-    }
-
-    if (!authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({
-        message: "Invalid token format",
+        message: "Unauthorized",
       });
     }
 
@@ -32,9 +21,23 @@ export const authenticate = (
 
     const payload = verifyToken(token);
 
+    const user = await User.findById(payload.id);
+
+    if (!user) {
+      return res.status(401).json({
+        message: "User not found",
+      });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({
+        message: "Account disabled",
+      });
+    }
+
     req.user = {
-      id: payload.id,
-      role: payload.role,
+      id: user.id,
+      role: user.role,
     };
 
     next();

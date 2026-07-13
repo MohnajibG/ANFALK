@@ -5,7 +5,7 @@ import User from "../models/User";
 import { comparePassword, hashPassword } from "../utils/hash";
 import { generateToken } from "../utils/jwt";
 
-import { AuthRequest } from "../middlewares/auth";
+import { AuthRequest } from "../types/auth";
 
 /**
  * Login
