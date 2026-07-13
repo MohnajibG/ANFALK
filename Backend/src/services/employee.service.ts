@@ -1,45 +1,22 @@
-import User from "../models/User";
-import { hashPassword } from "../utils/hash";
-import { Types } from "mongoose";
+import User, { UserRole, Speciality } from "../models/User";
 
-import type { Speciality, UserRole } from "../models/User";
+import { hashPassword } from "../utils/hash";
 
 interface CreateEmployeeData {
   firstName: string;
   lastName: string;
-
   email: string;
   phone?: string;
-
-  role: "employee" | "cashier";
-
-  speciality?: Speciality;
-}
-
-interface UpdateEmployeeData {
-  firstName?: string;
-  lastName?: string;
-
-  phone?: string;
-
-  role?: UserRole;
-
+  role: UserRole;
   speciality?: Speciality;
 }
 
 /**
- * Génère un mot de passe temporaire
- */
-const generateTemporaryPassword = () => {
-  return "Temp1234!";
-};
-
-/**
- * Créer un employé / caissier
+ * Créer un employee/cashier
  */
 export const createEmployee = async (
-  adminId: string,
   data: CreateEmployeeData,
+  adminId: string,
 ) => {
   const existingUser = await User.findOne({
     email: data.email.toLowerCase(),
@@ -49,7 +26,8 @@ export const createEmployee = async (
     throw new Error("Email already exists");
   }
 
-  const temporaryPassword = generateTemporaryPassword();
+  // Mot de passe temporaire
+  const temporaryPassword = "Temp1234!";
 
   const hashedPassword = await hashPassword(temporaryPassword);
 
@@ -68,29 +46,21 @@ export const createEmployee = async (
 
     speciality: data.speciality,
 
-    isActive: true,
-
     mustChangePassword: true,
 
-    createdBy: new Types.ObjectId(adminId),
+    isActive: true,
+
+    createdBy: adminId,
   });
 
   return {
     employee: {
       id: employee.id,
-
       firstName: employee.firstName,
-
       lastName: employee.lastName,
-
       email: employee.email,
-
-      phone: employee.phone,
-
       role: employee.role,
-
       speciality: employee.speciality,
-
       mustChangePassword: employee.mustChangePassword,
     },
 
@@ -99,35 +69,35 @@ export const createEmployee = async (
 };
 
 /**
- * Récupérer tous les employés
+ * Récupérer tous les employees/cashiers
  */
+
 export const getEmployees = async () => {
   return await User.find({
     role: {
       $in: ["employee", "cashier"],
     },
+
+    isDeleted: false,
   })
-
     .select("-password")
-
-    .populate("createdBy", "firstName lastName email");
+    .sort({
+      createdAt: -1,
+    });
 };
-
 /**
- * Récupérer un employé par ID
+ * Récupérer un employee/cashier par son ID
  */
+
 export const getEmployeeById = async (id: string) => {
   const employee = await User.findOne({
     _id: id,
-
     role: {
       $in: ["employee", "cashier"],
     },
   })
-
     .select("-password")
-
-    .populate("createdBy", "firstName lastName");
+    .populate("createdBy", "firstName lastName email");
 
   if (!employee) {
     throw new Error("Employee not found");
@@ -135,84 +105,100 @@ export const getEmployeeById = async (id: string) => {
 
   return employee;
 };
+interface UpdateEmployeeData {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  role?: UserRole;
+  speciality?: Speciality;
+}
 
 /**
- * Modifier un employé
+ * Mettre à jour un employee/cashier
  */
+
 export const updateEmployee = async (id: string, data: UpdateEmployeeData) => {
-  const employee = await User.findOneAndUpdate(
-    {
-      _id: id,
-
-      role: {
-        $in: ["employee", "cashier"],
-      },
-    },
-
-    {
-      $set: data,
-    },
-
-    {
-      new: true,
-    },
-  )
-
-    .select("-password");
+  const employee = await User.findById(id);
 
   if (!employee) {
     throw new Error("Employee not found");
   }
 
+  // Protection : on ne modifie pas un admin
+  if (employee.role === "admin") {
+    throw new Error("Cannot update admin account");
+  }
+
+  // Champs autorisés uniquement
+  if (data.firstName !== undefined) {
+    employee.firstName = data.firstName;
+  }
+
+  if (data.lastName !== undefined) {
+    employee.lastName = data.lastName;
+  }
+
+  if (data.phone !== undefined) {
+    employee.phone = data.phone;
+  }
+
+  if (data.role !== undefined) {
+    employee.role = data.role;
+  }
+
+  if (data.speciality !== undefined) {
+    employee.speciality = data.speciality;
+  }
+
+  await employee.save();
+
   return employee;
 };
 
 /**
- * Activer / désactiver un employé
+ * Activer/Désactiver un employee/cashier
  */
+
 export const updateEmployeeStatus = async (id: string, isActive: boolean) => {
-  const employee = await User.findByIdAndUpdate(
-    id,
-
-    {
-      isActive,
-    },
-
-    {
-      new: true,
-    },
-  )
-
-    .select("-password");
+  const employee = await User.findById(id);
 
   if (!employee) {
     throw new Error("Employee not found");
   }
+
+  if (employee.role === "admin") {
+    throw new Error("Cannot disable admin account");
+  }
+
+  employee.isActive = isActive;
+
+  await employee.save();
 
   return employee;
 };
 
-/**
- * Suppression logique
- */
-export const deleteEmployee = async (id: string) => {
-  const employee = await User.findByIdAndUpdate(
-    id,
+/** * Supprimer un employee/cashier */
 
-    {
-      isActive: false,
-    },
-
-    {
-      new: true,
-    },
-  )
-
-    .select("-password");
+export const deleteEmployee = async (id: string, adminId: string) => {
+  const employee = await User.findById(id);
 
   if (!employee) {
     throw new Error("Employee not found");
   }
+
+  if (employee.role === "admin") {
+    throw new Error("Cannot delete admin account");
+  }
+
+  employee.isDeleted = true;
+
+  employee.isActive = false;
+
+  employee.deletedAt = new Date();
+
+  employee.deletedBy = adminId as any;
+
+  await employee.save();
 
   return employee;
 };

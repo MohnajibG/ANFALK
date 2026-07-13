@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 
 import authRoutes from "./routes/auth.routes";
+import employeeRoutes from "./routes/employee.routes";
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 /* Routes */
 
 app.use("/api/auth", authRoutes);
+app.use("/api/employees", employeeRoutes);
 
 /* Test Route */
 

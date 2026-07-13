@@ -16,7 +16,7 @@ export const login = async (req: Request, res: Response) => {
 
     const user = await User.findOne({
       email: email.toLowerCase(),
-    });
+    }).select("+password");
 
     if (!user) {
       return res.status(401).json({
@@ -88,7 +88,7 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
-    const user = await User.findById(req.user?.id);
+    const user = await User.findById(req.user?.id).select("+password");
 
     if (!user) {
       return res.status(404).json({

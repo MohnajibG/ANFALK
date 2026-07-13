@@ -22,6 +22,10 @@ export interface IUser extends Document {
 
   createdAt: Date;
   updatedAt: Date;
+
+  isDeleted: boolean;
+  deletedAt?: Date;
+  deletedBy?: Types.ObjectId;
 }
 
 const userSchema = new Schema<IUser>(
@@ -82,6 +86,19 @@ const userSchema = new Schema<IUser>(
     },
 
     createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+
+    deletedAt: {
+      type: Date,
+    },
+
+    deletedBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
     },
