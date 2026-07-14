@@ -7,6 +7,8 @@ import categoryRoutes from "./routes/category.routes";
 import serviceRoutes from "./routes/service.routes";
 import clientRoutes from "./routes/client.routes";
 import appointmentRoutes from "./routes/appointment.routes";
+import ticketRoutes from "./routes/ticket.routes";
+import publicRoutes from "./routes/public.routes";
 
 const app = express();
 
@@ -26,6 +28,8 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api/clients", clientRoutes);
 app.use("/api/appointments", appointmentRoutes);
+app.use("/api/tickets", ticketRoutes);
+app.use("/api/public", publicRoutes);
 
 /* Test Route */
 
