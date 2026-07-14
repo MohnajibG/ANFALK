@@ -5,6 +5,8 @@ import authRoutes from "./routes/auth.routes";
 import employeeRoutes from "./routes/employee.routes";
 import categoryRoutes from "./routes/category.routes";
 import serviceRoutes from "./routes/service.routes";
+import clientRoutes from "./routes/client.routes";
+import appointmentRoutes from "./routes/appointment.routes";
 
 const app = express();
 
@@ -22,6 +24,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/employees", employeeRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/services", serviceRoutes);
+app.use("/api/clients", clientRoutes);
+app.use("/api/appointments", appointmentRoutes);
 
 /* Test Route */
 
