@@ -97,7 +97,7 @@ lg:p-0
         className="
 w-full
 max-w-6xl
-min-h-[650px]
+min-h-162.5
 bg-white
 rounded-3xl
 overflow-hidden
