@@ -1,150 +1,397 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 type Role = "admin" | "cashier" | "employee";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [show, setShow] = useState(false);
-  const [loading, setLoading] = useState(false);
-
   const navigate = useNavigate();
 
-  // 🔥 LOGIN PAR BOUTONS (TEST DASHBOARD)
-  const loginAs = (role: Role) => {
-    localStorage.setItem("token", "demo-token");
-    localStorage.setItem("role", role);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-    if (role === "admin") navigate("/admin");
-    if (role === "cashier") navigate("/cashier");
-    if (role === "employee") navigate("/employee");
-  };
+  const [showPassword, setShowPassword] = useState(false);
 
-  // 🔐 LOGIN FORM (future API)
+  const [loading, setLoading] = useState(false);
+
+  const [error, setError] = useState("");
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    setError("");
+
     setLoading(true);
 
-    setTimeout(() => {
-      let role: Role = "cashier";
+    try {
+      const response = await fetch(
+        "https://site--ankelk--dnxhn8mdblq5.code.run/api/auth/login",
 
-      if (email.includes("admin")) role = "admin";
-      else if (email.includes("employee")) role = "employee";
+        {
+          method: "POST",
 
-      localStorage.setItem("token", "fake-token");
-      localStorage.setItem("role", role);
+          headers: {
+            "Content-Type": "application/json",
+          },
 
+          body: JSON.stringify({
+            email,
+
+            password,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Email ou mot de passe incorrect");
+      }
+
+      localStorage.setItem("token", data.token);
+
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      if (data.user.mustChangePassword) {
+        navigate("/change-password");
+
+        return;
+      }
+
+      const role: Role = data.user.role;
+
+      if (role === "admin") {
+        navigate("/admin/dashboard");
+      }
+
+      if (role === "cashier") {
+        navigate("/cashier/dashboard");
+      }
+
+      if (role === "employee") {
+        navigate("/employee/dashboard");
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
       setLoading(false);
-
-      if (role === "admin") navigate("/admin");
-      else if (role === "cashier") navigate("/cashier");
-      else navigate("/employee");
-    }, 1000);
+    }
   };
 
   return (
-    <div className="ak-page grid min-h-screen w-full place-items-center px-4 py-24 lg:grid-cols-2 lg:px-0 lg:py-0">
-      {/* LEFT IMAGE */}
-      <div className="relative hidden h-screen w-full overflow-hidden lg:flex">
-        <img
-          src="https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=1600&q=80"
-          className="h-full w-full object-cover"
-          alt="Luxury beauty studio"
-        />
-        <div className="absolute inset-0 bg-black/25" />
+    <div
+      className="
+min-h-screen
+w-full
+bg-[#fff4d6]
+flex
+items-center
+justify-center
+p-4
+lg:p-0
+"
+    >
+      <div
+        className="
+w-full
+max-w-6xl
+min-h-[650px]
+bg-white
+rounded-3xl
+overflow-hidden
+shadow-2xl
+grid
+lg:grid-cols-2
+"
+      >
+        {/* LEFT IMAGE */}
 
-        <div className="absolute bottom-16 left-10 right-10 text-white">
-          <h1 className="font-[Cinzel] text-5xl font-bold uppercase tracking-[0.12em] text-white">
-            ANFEL K
-          </h1>
-          <p className="mt-2 text-xs font-bold uppercase tracking-[0.42em] text-white/80">
-            Institute
-          </p>
-        </div>
-      </div>
-
-      {/* RIGHT PANEL */}
-      <div className="flex w-full justify-center px-0 lg:px-10">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="ak-card w-full max-w-md p-6 sm:p-10"
+        <div
+          className="
+hidden
+lg:block
+relative
+"
         >
-          <h2 className="font-[Cinzel] text-3xl text-[#0b0b0b]">Sign In</h2>
+          <img
+            src="
+https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1200&q=80
+"
+            alt="ANFEL K Institute"
+            className="
+absolute
+inset-0
+h-full
+w-full
+object-cover
+"
+          />
 
-          <p className="ak-muted mt-2 text-sm">
-            Access the ANFEL K Institute management area.
-          </p>
+          <div
+            className="
+absolute
+inset-0
+bg-black/40
+"
+          />
 
-          {/* 🔥 TEST BUTTONS */}
-          <div className="mt-8 space-y-3">
-            <button
-              onClick={() => loginAs("admin")}
-              className="ak-button w-full py-3"
+          <div
+            className="
+absolute
+bottom-14
+left-12
+text-white
+"
+          >
+            <motion.h1
+              initial={{
+                opacity: 0,
+                x: -30,
+              }}
+              animate={{
+                opacity: 1,
+                x: 0,
+              }}
+              className="
+font-serif
+text-6xl
+tracking-[0.15em]
+font-bold
+"
             >
-              Admin Dashboard
-            </button>
+              ANFEL K
+            </motion.h1>
 
-            <button
-              onClick={() => loginAs("cashier")}
-              className="ak-button ak-button-light w-full py-3"
+            <p
+              className="
+mt-3
+uppercase
+tracking-[0.5em]
+text-sm
+text-white/80
+"
             >
-              Cashier POS
-            </button>
+              INSTITUTE
+            </p>
 
-            <button
-              onClick={() => loginAs("employee")}
-              className="ak-button ak-button-light w-full py-3"
+            <p
+              className="
+mt-8
+max-w-sm
+text-white/80
+text-lg
+"
             >
-              Employee Area
-            </button>
+              Beauty management system for modern institutes
+            </p>
           </div>
+        </div>
 
-          {/* DIVIDER */}
-          <div className="ak-muted my-6 text-center text-xs font-semibold uppercase tracking-[0.24em]">
-            or continue with email
-          </div>
+        {/* RIGHT LOGIN */}
 
-          {/* FORM */}
-          <form onSubmit={handleLogin} className="space-y-5">
-            <input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              type="email"
-              placeholder="Email"
-              className="ak-input"
-            />
-
-            <div className="relative">
-              <input
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                type={show ? "text" : "password"}
-                placeholder="Password"
-                className="ak-input pr-12"
-              />
-
-              <button
-                type="button"
-                onClick={() => setShow(!show)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6c6257]"
+        <div
+          className="
+flex
+items-center
+justify-center
+p-8
+sm:p-12
+"
+        >
+          <motion.div
+            initial={{
+              opacity: 0,
+              y: 40,
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+            }}
+            className="
+w-full
+max-w-md
+"
+          >
+            <div
+              className="
+mb-10
+"
+            >
+              <h2
+                className="
+font-serif
+text-4xl
+font-bold
+text-[#111]
+"
               >
-                {show ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
+                Welcome Back
+              </h2>
+
+              <p
+                className="
+mt-3
+text-sm
+text-gray-500
+"
+              >
+                Connect to your professional workspace
+              </p>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="ak-button w-full py-3 disabled:cursor-not-allowed disabled:opacity-70"
+            <form
+              onSubmit={handleLogin}
+              className="
+space-y-6
+"
             >
-              {loading ? "Signing in..." : "Sign In"}
-            </button>
-          </form>
-        </motion.div>
+              <div>
+                <label
+                  className="
+text-sm
+font-medium
+text-gray-700
+"
+                >
+                  Email
+                </label>
+
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@anfelk.com"
+                  className="
+mt-2
+w-full
+rounded-xl
+border
+border-gray-200
+px-4
+py-3
+outline-none
+focus:border-[#5a3a1e]
+focus:ring-2
+focus:ring-[#5a3a1e]/20
+"
+                />
+              </div>
+
+              <div>
+                <label
+                  className="
+text-sm
+font-medium
+text-gray-700
+"
+                >
+                  Password
+                </label>
+
+                <div
+                  className="
+relative
+mt-2
+"
+                >
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="
+w-full
+rounded-xl
+border
+border-gray-200
+px-4
+py-3
+pr-12
+outline-none
+focus:border-[#5a3a1e]
+focus:ring-2
+focus:ring-[#5a3a1e]/20
+"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="
+absolute
+right-4
+top-1/2
+-translate-y-1/2
+text-gray-400
+"
+                  >
+                    {showPassword ? <EyeOff size={19} /> : <Eye size={19} />}
+                  </button>
+                </div>
+              </div>
+
+              {error && (
+                <div
+                  className="
+rounded-xl
+bg-red-50
+px-4
+py-3
+text-sm
+text-red-600
+"
+                >
+                  {error}
+                </div>
+              )}
+
+              <button
+                disabled={loading}
+                className="
+w-full
+rounded-xl
+bg-[#111]
+py-3
+text-white
+font-semibold
+transition
+hover:bg-[#5a3a1e]
+disabled:opacity-60
+flex
+justify-center
+items-center
+gap-2
+"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="animate-spin" size={18} />
+                    Signing in...
+                  </>
+                ) : (
+                  "Sign In"
+                )}
+              </button>
+            </form>
+
+            <div
+              className="
+mt-10
+text-center
+text-xs
+uppercase
+tracking-[0.3em]
+text-gray-400
+"
+            >
+              ANFEL K APP
+              <br />
+              Professional Edition
+            </div>
+          </motion.div>
+        </div>
       </div>
     </div>
   );

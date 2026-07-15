@@ -1,223 +1,195 @@
-import { useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Search, Plus, User, Euro, Eye, Pencil } from "lucide-react";
 
-type Client = {
-  id: string;
-  name: string;
+import { getClients } from "../../api/client.api";
+import AddClientModal from "../../components/admin/AddClientModal";
+
+interface Client {
+  _id: string;
+  firstName: string;
+  lastName: string;
   phone: string;
-  email: string;
-  visits: number;
-  revenue: string;
-  lastVisit: string;
-  favoriteService: string;
-};
-
-const clientsData: Client[] = [
-  {
-    id: "1",
-    name: "Marie Dupont",
-    phone: "06 12 34 56 78",
-    email: "marie@gmail.com",
-    visits: 18,
-    revenue: "820 €",
-    lastVisit: "12 March 2026",
-    favoriteService: "Hair Coloring",
-  },
-
-  {
-    id: "2",
-    name: "Sophie Martin",
-    phone: "07 45 22 11 90",
-    email: "sophie@gmail.com",
-    visits: 12,
-    revenue: "540 €",
-    lastVisit: "20 March 2026",
-    favoriteService: "Brushing",
-  },
-
-  {
-    id: "3",
-    name: "Claire Bernard",
-    phone: "06 88 44 22 11",
-    email: "claire@gmail.com",
-    visits: 25,
-    revenue: "1 250 €",
-    lastVisit: "02 April 2026",
-    favoriteService: "Full Set Nails",
-  },
-];
+  email?: string;
+  visitCount: number;
+  totalSpent: number;
+  lastVisit?: string;
+}
 
 export default function Clients() {
+  const [clients, setClients] = useState<Client[]>([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [openModal, setOpenModal] = useState(false);
 
-  const clients = clientsData.filter((client) =>
-    client.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const loadClients = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const data = await getClients({
+        search,
+        page: 1,
+        limit: 20,
+      });
+
+      setClients(data.clients || []);
+    } catch (err: any) {
+      setError(err.message || "Unable to load clients");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    let ignore = false;
+
+    const fetchClients = async () => {
+      try {
+        setLoading(true);
+
+        const data = await getClients({
+          search,
+          page: 1,
+          limit: 20,
+        });
+
+        if (!ignore) {
+          setClients(data.clients || []);
+        }
+      } catch (err: any) {
+        if (!ignore) {
+          setError(err.message || "Unable to load clients");
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchClients();
+
+    return () => {
+      ignore = true;
+    };
+  }, [search]);
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      {/* HEADER */}
-
-      <div className="ak-card flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between">
+      <div className="rounded-3xl bg-white border border-[#eadfce] p-6 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="ak-kicker">Administration</p>
+          <p className="text-xs uppercase tracking-[0.4em] text-[#8b7560]">
+            Administration
+          </p>
 
-          <h1 className="mt-2 font-[Cinzel] text-3xl font-bold">
+          <h1 className="mt-2 font-serif text-3xl font-bold text-[#111]">
             Clients Management
           </h1>
 
-          <p className="ak-muted mt-2">
-            Manage customer profiles and salon history.
+          <p className="mt-2 text-sm text-gray-500">
+            Manage customer profiles and history.
           </p>
         </div>
 
         <button
-          className="
-          flex items-center gap-2
-          rounded-xl
-          bg-[#3E2C23]
-          px-5 py-3
-          text-[#FFF4D6]
-          "
+          onClick={() => setOpenModal(true)}
+          className="flex items-center justify-center gap-2 rounded-xl bg-[#3E2C23] px-5 py-3 text-[#FFF4D6] transition hover:bg-[#5a3a1e]"
         >
           <Plus size={18} />
           Add Client
         </button>
       </div>
 
-      {/* SEARCH */}
-
-      <div className="ak-card flex items-center gap-3 p-4">
+      <div className="rounded-3xl bg-white border border-[#eadfce] p-4 flex items-center gap-3">
         <Search size={20} />
 
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search client..."
-          className="
-          w-full
-          bg-transparent
-          outline-none
-          "
+          className="w-full bg-transparent outline-none"
         />
       </div>
 
-      {/* CLIENTS TABLE */}
+      {error && (
+        <div className="rounded-xl bg-red-50 p-4 text-red-600">{error}</div>
+      )}
 
-      <div className="ak-card overflow-hidden">
-        <div
-          className="
-        hidden
-        grid-cols-7
-        border-b
-        p-4
-        text-sm
-        font-semibold
-        md:grid
-        "
-        >
-          <span>Name</span>
-          <span>Phone</span>
-          <span>Visits</span>
-          <span>Revenue</span>
-          <span>Last Visit</span>
-          <span>Favorite</span>
-          <span>Actions</span>
-        </div>
-
-        <div className="divide-y">
-          {clients.map((client) => (
+      <div className="overflow-hidden rounded-3xl bg-white border border-[#eadfce]">
+        {loading ? (
+          <div className="p-10 text-center text-gray-500">
+            Loading clients...
+          </div>
+        ) : clients.length === 0 ? (
+          <div className="p-10 text-center text-gray-500">
+            No clients found.
+          </div>
+        ) : (
+          clients.map((client) => (
             <motion.div
-              key={client.id}
-              whileHover={{
-                backgroundColor: "#faf7f0",
-              }}
-              className="
-          grid
-          gap-3
-          p-5
-          md:grid-cols-7
-          items-center
-          "
+              key={client._id}
+              whileHover={{ backgroundColor: "#faf7f0" }}
+              className="grid gap-4 border-b border-[#eee] p-5 md:grid-cols-6 md:items-center"
             >
-              {/* NAME */}
-
               <div className="flex items-center gap-3">
-                <div
-                  className="
-              flex h-10 w-10
-              items-center justify-center
-              rounded-full
-              bg-[#FFF4D6]
-              "
-                >
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FFF4D6]">
                   <User size={18} />
                 </div>
 
                 <div>
-                  <p className="font-semibold">{client.name}</p>
+                  <p className="font-semibold">
+                    {client.firstName} {client.lastName}
+                  </p>
 
-                  <p className="text-xs text-gray-500">{client.email}</p>
+                  <p className="text-xs text-gray-500">{client.email || "-"}</p>
                 </div>
               </div>
 
               <span>{client.phone}</span>
 
-              <span>{client.visits}</span>
-
-              <span
-                className="
-            flex items-center gap-1
-            font-semibold
-            "
-              >
-                <Euro size={14} />
-                {client.revenue}
+              <span className="text-sm font-medium">
+                {client.visitCount} visits
               </span>
 
-              <span className="text-sm text-gray-500">{client.lastVisit}</span>
+              <span className="flex items-center gap-1 font-semibold">
+                <Euro size={14} />
+                {client.totalSpent} DA
+              </span>
 
-              <span className="text-sm">{client.favoriteService}</span>
-
-              {/* ACTIONS */}
+              <span className="text-sm text-gray-500">
+                {client.lastVisit || "-"}
+              </span>
 
               <div className="flex gap-2">
-                <button
-                  className="
-              rounded-lg
-              bg-[#FFF4D6]
-              p-2
-              "
-                >
+                <button className="rounded-lg bg-[#FFF4D6] p-2">
                   <Eye size={16} />
                 </button>
 
-                <button
-                  className="
-              rounded-lg
-              bg-[#3E2C23]
-              p-2
-              text-[#FFF4D6]
-              "
-                >
+                <button className="rounded-lg bg-[#3E2C23] p-2 text-white">
                   <Pencil size={16} />
                 </button>
               </div>
             </motion.div>
-          ))}
-        </div>
+          ))
+        )}
       </div>
 
-      {/* STATS */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatCard title="Total Clients" value={clients.length.toString()} />
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatCard title="Total Clients" value="356" />
+        <StatCard title="Active Clients" value={clients.length.toString()} />
 
-        <StatCard title="Active Clients" value="240" />
-
-        <StatCard title="Average Client Revenue" value="185 €" />
+        <StatCard title="Average Revenue" value="0 DA" />
       </div>
+
+      <AddClientModal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        onSuccess={loadClients}
+      />
     </div>
   );
 }
@@ -225,12 +197,10 @@ export default function Clients() {
 function StatCard({ title, value }: { title: string; value: string }) {
   return (
     <motion.div
-      whileHover={{
-        y: -4,
-      }}
-      className="ak-card p-6"
+      whileHover={{ y: -4 }}
+      className="rounded-3xl bg-white border border-[#eadfce] p-6"
     >
-      <p className="ak-muted text-sm">{title}</p>
+      <p className="text-sm text-gray-500">{title}</p>
 
       <h2 className="mt-2 text-3xl font-bold">{value}</h2>
     </motion.div>
