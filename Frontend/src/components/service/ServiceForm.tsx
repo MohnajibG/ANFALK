@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import type {
   CreateServicePayload,
   Service,
@@ -12,8 +13,11 @@ interface Category {
 
 interface Props {
   categories: Category[];
+
   initialData?: Service;
+
   loading?: boolean;
+
   onSubmit: (data: CreateServicePayload) => void;
 }
 
@@ -59,23 +63,27 @@ export default function ServiceForm({
   ) => {
     setForm((prev) => ({
       ...prev,
+
       [field]: value,
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const submit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!form.name.trim()) return;
+
     if (form.price <= 0) return;
+
     if (form.duration <= 0) return;
+
     if (!form.category) return;
 
     onSubmit(form);
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={submit} className="space-y-4">
       <input
         className="input"
         placeholder="Service name"
@@ -112,9 +120,10 @@ export default function ServiceForm({
         onChange={(e) => updateField("category", e.target.value)}
       >
         <option value="">Select category</option>
-        {categories.map((category) => (
-          <option key={category._id} value={category._id}>
-            {category.name}
+
+        {categories.map((cat) => (
+          <option key={cat._id} value={cat._id}>
+            {cat.name}
           </option>
         ))}
       </select>
@@ -135,7 +144,15 @@ export default function ServiceForm({
 
       <button
         disabled={loading}
-        className="w-full rounded-xl bg-[#111] py-3 text-white transition hover:bg-[#3E2C23] disabled:opacity-50"
+        className="
+        w-full
+        rounded-xl
+        bg-[#111]
+        py-3
+        text-white
+        hover:bg-[#3E2C23]
+        disabled:opacity-50
+        "
       >
         {loading ? "Saving..." : "Save Service"}
       </button>
