@@ -127,7 +127,7 @@ export default function POS() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="w-full space-y-6">
       {/* HEADER */}
 
       <div className="ak-card flex flex-col gap-4 p-6 lg:flex-row lg:items-center lg:justify-between">

@@ -34,7 +34,7 @@ const appointments = [
 
 export default function MyAppointments() {
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="w-full space-y-6">
       {/* HEADER */}
       <div className="ak-card px-5 py-7 text-center sm:px-8 lg:text-left">
         <p className="ak-kicker">Employee Space</p>

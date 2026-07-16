@@ -35,7 +35,7 @@ const tickets = [
 
 export default function Tickets() {
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="w-full space-y-6">
       {/* HEADER */}
 
       <div className="ak-card p-6">

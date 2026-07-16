@@ -7,7 +7,11 @@ import {
   CalendarDays,
   UserCog,
   LogOut,
+  Layers,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+import { useState } from "react";
 
 const links = [
   {
@@ -24,6 +28,11 @@ const links = [
     label: "Employees",
     icon: UserCog,
     path: "/admin/employees",
+  },
+  {
+    label: "Categories",
+    icon: Layers,
+    path: "/admin/categories",
   },
   {
     label: "Services",
@@ -44,8 +53,9 @@ const links = [
 
 export default function AdminLayout() {
   const navigate = useNavigate();
-
   const location = useLocation();
+
+  const [collapsed, setCollapsed] = useState(false);
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -54,145 +64,204 @@ export default function AdminLayout() {
     navigate("/login");
   };
 
+  const isActive = (path: string) => location.pathname.startsWith(path);
+
   return (
-    <div className="min-h-screen bg-[#fff4d6]">
-      {/* ================= DESKTOP SIDEBAR ================= */}
+    <div
+      className="
+min-h-screen
+bg-[#fff4d6]
+flex
+"
+    >
+      {/* SIDEBAR DESKTOP */}
 
       <aside
-        className="
-      hidden
-      lg:flex
-      fixed
-      left-0
-      top-0
-      h-screen
-      w-72
-      bg-white
-      border-r
-      border-[#eadfce]
-      flex-col
-      z-40
-      "
-      >
-        <div className="p-8 border-b border-[#eadfce]">
-          <h1
-            className="
-          font-serif
-          text-3xl
-          font-bold
-          tracking-[0.15em]
-          "
-          >
-            ANFEL K
-          </h1>
+        className={`
+hidden
+h-screen
+shrink-0
+border-r
+border-[#eadfce]
+bg-white
+transition-all
+duration-300
+lg:flex
+flex-col
 
-          <p
+${collapsed ? "w-24" : "w-72"}
+
+`}
+      >
+        {/* LOGO */}
+
+        <div
+          className="
+relative
+border-b
+border-[#eadfce]
+p-6
+"
+        >
+          <div className={collapsed ? "text-center" : ""}>
+            <h1
+              className={`
+font-serif
+font-bold
+tracking-[0.15em]
+
+${collapsed ? "text-xl" : "text-3xl"}
+
+`}
+            >
+              {collapsed ? "AK" : "ANFEL K"}
+            </h1>
+
+            {!collapsed && (
+              <p
+                className="
+mt-2
+text-xs
+tracking-[0.45em]
+text-[#8b7560]
+"
+              >
+                INSTITUTE
+              </p>
+            )}
+          </div>
+
+          <button
+            onClick={() => setCollapsed(!collapsed)}
             className="
-          mt-2
-          text-xs
-          tracking-[0.45em]
-          text-[#8b7560]
-          "
+absolute
+right-[-14px]
+top-8
+flex
+h-8
+w-8
+items-center
+justify-center
+rounded-full
+border
+border-[#eadfce]
+bg-white
+shadow
+"
           >
-            INSTITUTE
-          </p>
+            {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+          </button>
         </div>
 
-        <nav className="flex-1 p-5 space-y-2">
-          {links.map((link) => {
-            const Icon = link.icon;
+        {/* MENU */}
 
-            const active = location.pathname.startsWith(link.path);
+        <nav
+          className="
+flex-1
+space-y-2
+overflow-y-auto
+p-4
+"
+        >
+          {links.map(({ label, icon: Icon, path }) => (
+            <button
+              key={path}
+              onClick={() => navigate(path)}
+              className={`
+flex
+w-full
+items-center
+rounded-xl
+transition
 
-            return (
-              <button
-                key={link.path}
-                onClick={() => navigate(link.path)}
-                className={`
-              w-full
-              flex
-              items-center
-              gap-4
-              rounded-xl
-              px-4
-              py-3
-              transition
+${collapsed ? "justify-center px-3 py-3" : "gap-4 px-4 py-3"}
 
-              ${
-                active
-                  ? "bg-[#111] text-white"
-                  : "text-[#6f6257] hover:bg-[#f7efe2]"
-              }
 
-              `}
-              >
-                <Icon size={20} />
+${isActive(path) ? "bg-[#111] text-white" : "text-[#6f6257] hover:bg-[#f7efe2]"}
 
-                <span className="text-sm font-medium">{link.label}</span>
-              </button>
-            );
-          })}
+`}
+            >
+              <Icon size={20} />
+
+              {!collapsed && (
+                <span
+                  className="
+text-sm
+font-medium
+"
+                >
+                  {label}
+                </span>
+              )}
+            </button>
+          ))}
         </nav>
+
+        {/* LOGOUT */}
 
         <button
           onClick={logout}
-          className="
-        m-5
-        rounded-xl
-        bg-[#111]
-        text-white
-        py-3
-        flex
-        items-center
-        justify-center
-        gap-3
-        "
+          className={`
+m-4
+flex
+items-center
+rounded-xl
+bg-[#111]
+py-3
+text-white
+
+${collapsed ? "justify-center" : "justify-center gap-3"}
+
+`}
         >
           <LogOut size={18} />
-          Logout
+
+          {!collapsed && "Logout"}
         </button>
       </aside>
 
-      {/* ================= TABLET + MOBILE HEADER ================= */}
+      {/* MOBILE HEADER */}
 
       <header
         className="
-      lg:hidden
-      sticky
-      top-0
-      z-30
-      bg-white
-      border-b
-      border-[#eadfce]
-      "
+fixed
+top-0
+left-0
+right-0
+z-30
+border-b
+border-[#eadfce]
+bg-white
+lg:hidden
+"
       >
         <div
           className="
-        flex
-        items-center
-        justify-between
-        px-5
-        py-4
-        "
+flex
+items-center
+justify-between
+px-5
+py-4
+"
         >
           <div>
             <h1
               className="
-            font-serif
-            text-xl
-            font-bold
-            tracking-[0.15em]
-            "
+font-serif
+text-xl
+font-bold
+tracking-[0.15em]
+"
             >
               ANFEL K
             </h1>
 
             <p
               className="
-            text-[0.55rem]
-            tracking-[0.4em]
-            text-[#8b7560]
-            "
+text-[0.55rem]
+tracking-[0.4em]
+text-[#8b7560]
+"
             >
               INSTITUTE
             </p>
@@ -201,126 +270,32 @@ export default function AdminLayout() {
           <button
             onClick={logout}
             className="
-          rounded-xl
-          bg-[#111]
-          p-3
-          text-white
-          "
+rounded-xl
+bg-[#111]
+p-3
+text-white
+"
           >
             <LogOut size={18} />
           </button>
         </div>
-
-        {/* TABLET MENU */}
-
-        <nav
-          className="
-        hidden
-        sm:flex
-        overflow-x-auto
-        gap-3
-        px-5
-        pb-4
-        "
-        >
-          {links.map((link) => {
-            const Icon = link.icon;
-
-            const active = location.pathname.startsWith(link.path);
-
-            return (
-              <button
-                key={link.path}
-                onClick={() => navigate(link.path)}
-                className={`
-            flex
-            items-center
-            gap-2
-            whitespace-nowrap
-            rounded-xl
-            px-4
-            py-2
-            text-sm
-
-            ${active ? "bg-[#111] text-white" : "bg-[#f7efe2] text-[#6f6257]"}
-
-            `}
-              >
-                <Icon size={16} />
-
-                {link.label}
-              </button>
-            );
-          })}
-        </nav>
       </header>
 
-      {/* ================= CONTENT ================= */}
+      {/* MAIN */}
 
       <main
         className="
-
-      lg:ml-72
-
-      p-4
-
-      sm:p-6
-
-      lg:p-8
-
-      pb-24
-
-      "
+flex-1
+min-w-0
+min-h-screen
+p-4
+pb-24
+sm:p-6
+lg:p-8
+"
       >
         <Outlet />
       </main>
-
-      {/* ================= MOBILE BOTTOM ================= */}
-
-      <nav
-        className="
-      fixed
-      bottom-0
-      left-0
-      right-0
-      h-20
-      bg-white
-      border-t
-      border-[#eadfce]
-      flex
-      items-center
-      justify-around
-      sm:hidden
-      z-50
-      "
-      >
-        {links.slice(0, 5).map((link) => {
-          const Icon = link.icon;
-
-          const active = location.pathname.startsWith(link.path);
-
-          return (
-            <button
-              key={link.path}
-              onClick={() => navigate(link.path)}
-              className={`
-          flex
-          flex-col
-          items-center
-          text-xs
-          gap-1
-
-          ${active ? "text-[#111]" : "text-gray-400"}
-
-          `}
-            >
-              <Icon size={20} />
-
-              {link.label}
-            </button>
-          );
-        })}
-      </nav>
     </div>
   );
 }

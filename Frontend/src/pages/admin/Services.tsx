@@ -1,19 +1,20 @@
 import { useState } from "react";
+
 import type {
   CreateServicePayload,
   Service,
   ServiceSpeciality,
 } from "../../types/service";
 
-interface Category {
-  _id: string;
-  name: string;
-}
+import type { Category } from "../../types/category";
 
 interface Props {
   categories: Category[];
+
   initialData?: Service;
+
   loading?: boolean;
+
   onSubmit: (data: CreateServicePayload) => void;
 }
 
@@ -26,29 +27,42 @@ const specialities: ServiceSpeciality[] = [
 ];
 
 export default function ServiceForm({
-  categories,
+  categories = [],
   initialData,
-  loading,
+  loading = false,
   onSubmit,
 }: Props) {
   const [form, setForm] = useState<CreateServicePayload>(() => {
     if (initialData) {
       return {
         name: initialData.name,
+
         description: initialData.description ?? "",
+
         price: initialData.price,
+
         duration: initialData.duration,
-        category: initialData.category._id,
+
+        category:
+          typeof initialData.category === "object"
+            ? initialData.category._id
+            : initialData.category,
+
         speciality: initialData.speciality,
       };
     }
 
     return {
       name: "",
+
       description: "",
+
       price: 0,
+
       duration: 0,
+
       category: "",
+
       speciality: "Hair",
     };
   });
@@ -59,6 +73,7 @@ export default function ServiceForm({
   ) => {
     setForm((prev) => ({
       ...prev,
+
       [field]: value,
     }));
   };
@@ -67,8 +82,11 @@ export default function ServiceForm({
     e.preventDefault();
 
     if (!form.name.trim()) return;
+
     if (form.price <= 0) return;
+
     if (form.duration <= 0) return;
+
     if (!form.category) return;
 
     onSubmit(form);
@@ -112,7 +130,8 @@ export default function ServiceForm({
         onChange={(e) => updateField("category", e.target.value)}
       >
         <option value="">Select category</option>
-        {categories.map((category) => (
+
+        {(categories ?? []).map((category) => (
           <option key={category._id} value={category._id}>
             {category.name}
           </option>
@@ -135,7 +154,16 @@ export default function ServiceForm({
 
       <button
         disabled={loading}
-        className="w-full rounded-xl bg-[#111] py-3 text-white transition hover:bg-[#3E2C23] disabled:opacity-50"
+        className="
+          w-full
+          rounded-xl
+          bg-[#111]
+          py-3
+          text-white
+          transition
+          hover:bg-[#3E2C23]
+          disabled:opacity-50
+        "
       >
         {loading ? "Saving..." : "Save Service"}
       </button>

@@ -40,7 +40,7 @@ const recentServices = [
 
 export default function EmployeeDetails() {
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="w-full space-y-6">
       {/* PROFILE */}
 
       <div className="ak-card flex flex-col gap-8 p-8 lg:flex-row">

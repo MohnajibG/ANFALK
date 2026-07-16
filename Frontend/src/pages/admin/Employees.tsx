@@ -75,7 +75,7 @@ export default function Employees() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="w-full space-y-6">
       <div className="rounded-3xl border border-[#eadfce] bg-white p-6 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.4em] text-[#8b7560]">

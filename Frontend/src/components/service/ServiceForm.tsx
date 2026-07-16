@@ -6,10 +6,7 @@ import type {
   ServiceSpeciality,
 } from "../../types/service";
 
-interface Category {
-  _id: string;
-  name: string;
-}
+import type { Category } from "../../types/category";
 
 interface Props {
   categories: Category[];
@@ -30,29 +27,42 @@ const specialities: ServiceSpeciality[] = [
 ];
 
 export default function ServiceForm({
-  categories,
+  categories = [],
   initialData,
-  loading,
+  loading = false,
   onSubmit,
 }: Props) {
   const [form, setForm] = useState<CreateServicePayload>(() => {
     if (initialData) {
       return {
         name: initialData.name,
+
         description: initialData.description ?? "",
+
         price: initialData.price,
+
         duration: initialData.duration,
-        category: initialData.category._id,
+
+        category:
+          typeof initialData.category === "object"
+            ? initialData.category._id
+            : initialData.category,
+
         speciality: initialData.speciality,
       };
     }
 
     return {
       name: "",
+
       description: "",
+
       price: 0,
+
       duration: 0,
+
       category: "",
+
       speciality: "Hair",
     };
   });
@@ -68,7 +78,7 @@ export default function ServiceForm({
     }));
   };
 
-  const submit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!form.name.trim()) return;
@@ -83,7 +93,7 @@ export default function ServiceForm({
   };
 
   return (
-    <form onSubmit={submit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <input
         className="input"
         placeholder="Service name"
@@ -121,7 +131,7 @@ export default function ServiceForm({
       >
         <option value="">Select category</option>
 
-        {categories.map((cat) => (
+        {(categories ?? []).map((cat) => (
           <option key={cat._id} value={cat._id}>
             {cat.name}
           </option>
@@ -145,13 +155,13 @@ export default function ServiceForm({
       <button
         disabled={loading}
         className="
-        w-full
-        rounded-xl
-        bg-[#111]
-        py-3
-        text-white
-        hover:bg-[#3E2C23]
-        disabled:opacity-50
+          w-full
+          rounded-xl
+          bg-[#111]
+          py-3
+          text-white
+          hover:bg-[#3E2C23]
+          disabled:opacity-50
         "
       >
         {loading ? "Saving..." : "Save Service"}

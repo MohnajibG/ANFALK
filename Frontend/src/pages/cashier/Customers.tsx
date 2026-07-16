@@ -36,7 +36,7 @@ export default function Customers() {
   );
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="w-full space-y-6">
       {/* HEADER */}
 
       <div className="ak-card flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">

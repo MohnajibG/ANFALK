@@ -51,7 +51,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="w-full space-y-6">
       <section className="rounded-3xl border border-[#eadfce] bg-white p-6">
         <p className="text-xs uppercase tracking-[0.4em] text-[#8b7560]">
           ADMIN

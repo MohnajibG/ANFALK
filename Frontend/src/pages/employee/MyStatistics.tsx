@@ -67,7 +67,7 @@ export default function MyStatistics() {
     monthlyData[month as keyof typeof monthlyData] ?? monthlyData["2026-03"];
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="w-full space-y-6">
       {/* HEADER */}
 
       <div className="ak-card px-5 py-7 sm:px-8">

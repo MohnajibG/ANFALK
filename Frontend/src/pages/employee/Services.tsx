@@ -45,7 +45,7 @@ const services = [
 
 export default function Services() {
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="w-full space-y-6">
       {/* HEADER */}
 
       <div className="ak-card px-5 py-7 sm:px-8">

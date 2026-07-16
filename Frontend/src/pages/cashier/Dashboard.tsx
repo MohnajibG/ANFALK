@@ -50,7 +50,7 @@ const popularServices = [
 
 export default function Dashboard() {
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="w-full space-y-6">
       {/* HEADER */}
 
       <div className="ak-card px-6 py-7">
