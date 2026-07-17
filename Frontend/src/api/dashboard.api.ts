@@ -5,21 +5,26 @@ export interface DashboardData {
     revenue: number;
     tickets: number;
   };
+
   salesMonth: {
     revenue: number;
     tickets: number;
   };
+
   clients: {
     total: number;
   };
+
   employees: {
     total: number;
   };
+
   popularServices: {
     _id: string;
     sales: number;
     revenue: number;
   }[];
+
   topEmployees: {
     _id: string;
     revenue: number;
@@ -28,7 +33,7 @@ export interface DashboardData {
 }
 
 export const getAdminDashboard = async (): Promise<DashboardData> => {
-  const response = await api.get<DashboardData>("/dashboard");
+  const response = await api.get("/dashboard");
 
-  return response.data;
+  return response.data.dashboard;
 };

@@ -1,5 +1,4 @@
 import axios from "axios";
-
 import type { Category } from "../types/category";
 
 const API_URL = "https://site--ankelk--dnxhn8mdblq5.code.run/api";
@@ -18,9 +17,9 @@ categoryApi.interceptors.request.use((config) => {
 });
 
 export async function getCategories(): Promise<Category[]> {
-  const response = await categoryApi.get("/categories");
+  const { data } = await categoryApi.get("/categories");
 
-  return response.data.categories ?? [];
+  return data.categories ?? [];
 }
 
 export const createCategory = async (payload: {
@@ -29,7 +28,7 @@ export const createCategory = async (payload: {
 }): Promise<Category> => {
   const { data } = await categoryApi.post("/categories", payload);
 
-  return data;
+  return data.category;
 };
 
 export const updateCategory = async (
@@ -41,7 +40,7 @@ export const updateCategory = async (
 ): Promise<Category> => {
   const { data } = await categoryApi.patch(`/categories/${id}`, payload);
 
-  return data;
+  return data.category;
 };
 
 export const deleteCategory = async (id: string): Promise<void> => {

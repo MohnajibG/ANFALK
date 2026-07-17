@@ -10,8 +10,7 @@ import {
   Scissors,
 } from "lucide-react";
 
-import { getAdminDashboard } from "../../api/dashboard.api";
-import type { DashboardData } from "../../api/dashboard.api";
+import { getAdminDashboard, type DashboardData } from "../../api/dashboard.api";
 
 export default function Dashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
@@ -19,19 +18,24 @@ export default function Dashboard() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    async function loadDashboard() {
+    const loadDashboard = async () => {
       try {
+        setLoading(true);
+        setError("");
+
         const result = await getAdminDashboard();
 
         setData(result);
-      } catch (error) {
-        console.error("Dashboard error:", error);
+      } catch (err) {
+        console.error("Dashboard error:", err);
 
-        setError("Unable to load dashboard");
+        setError(
+          err instanceof Error ? err.message : "Unable to load dashboard",
+        );
       } finally {
         setLoading(false);
       }
-    }
+    };
 
     loadDashboard();
   }, []);
@@ -50,8 +54,16 @@ export default function Dashboard() {
     );
   }
 
+  if (!data) {
+    return (
+      <div className="rounded-2xl bg-yellow-50 p-5 text-yellow-700">
+        No dashboard data
+      </div>
+    );
+  }
+
   return (
-    <div className="w-full space-y-6">
+    <div className="space-y-6">
       <section className="rounded-3xl border border-[#eadfce] bg-white p-6">
         <p className="text-xs uppercase tracking-[0.4em] text-[#8b7560]">
           ADMIN
@@ -68,25 +80,21 @@ export default function Dashboard() {
         <KpiCard
           icon={Euro}
           title="Revenue Today"
-          value={`${data?.salesToday.revenue ?? 0} DA`}
+          value={`${data.salesToday.revenue} DA`}
         />
 
         <KpiCard
           icon={Receipt}
           title="Tickets Today"
-          value={data?.salesToday.tickets ?? 0}
+          value={data.salesToday.tickets}
         />
 
-        <KpiCard
-          icon={Users}
-          title="Clients"
-          value={data?.clients.total ?? 0}
-        />
+        <KpiCard icon={Users} title="Clients" value={data.clients.total} />
 
         <KpiCard
           icon={UserCog}
           title="Employees"
-          value={data?.employees.total ?? 0}
+          value={data.employees.total}
         />
       </section>
 
@@ -102,25 +110,9 @@ export default function Dashboard() {
           </div>
 
           <div className="mt-6 rounded-3xl bg-[#f7f4ee] p-5">
-            <div className="flex h-52 items-end gap-3">
-              {[35, 55, 45, 70, 60, 90, 75].map((height, index) => (
-                <div
-                  key={index}
-                  className="flex-1 rounded-full bg-[#3E2C23]"
-                  style={{
-                    height: `${height}%`,
-                  }}
-                />
-              ))}
-            </div>
-          </div>
+            <h3 className="text-3xl font-bold">{data.salesMonth.revenue} DA</h3>
 
-          <div className="mt-5 flex justify-between text-sm text-gray-500">
-            <span>This month</span>
-
-            <strong className="text-[#111]">
-              {data?.salesMonth.revenue ?? 0} DA
-            </strong>
+            <p className="text-gray-500">{data.salesMonth.tickets} tickets</p>
           </div>
         </motion.div>
 
@@ -134,13 +126,16 @@ export default function Dashboard() {
             <h2 className="font-semibold">Popular Services</h2>
           </div>
 
-          <div className="space-y-4">
-            {data?.popularServices.length ? (
+          <div className="space-y-3">
+            {data.popularServices.length ? (
               data.popularServices.map((service) => (
-                <div key={service._id} className="flex justify-between text-sm">
+                <div
+                  key={service._id}
+                  className="flex justify-between border-b py-2 text-sm"
+                >
                   <span>{service._id}</span>
 
-                  <span className="font-bold">{service.sales}</span>
+                  <strong>{service.sales}</strong>
                 </div>
               ))
             ) : (
@@ -156,7 +151,7 @@ export default function Dashboard() {
           <h2 className="mb-5 font-semibold">Employee Performance</h2>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {data?.topEmployees.length ? (
+            {data.topEmployees.length ? (
               data.topEmployees.map((employee) => (
                 <div
                   key={employee._id}
@@ -183,7 +178,7 @@ export default function Dashboard() {
   );
 }
 
-function KpiCard({
+const KpiCard = ({
   icon: Icon,
   title,
   value,
@@ -191,19 +186,17 @@ function KpiCard({
   icon: LucideIcon;
   title: string;
   value: string | number;
-}) {
-  return (
-    <motion.div
-      whileHover={{ y: -5 }}
-      className="rounded-3xl border border-[#eadfce] bg-white p-6"
-    >
-      <div className="flex items-center justify-between">
-        <p className="text-sm font-medium text-gray-500">{title}</p>
+}) => (
+  <motion.div
+    whileHover={{ y: -5 }}
+    className="rounded-3xl border border-[#eadfce] bg-white p-6"
+  >
+    <div className="flex items-center justify-between">
+      <p className="text-sm text-gray-500">{title}</p>
 
-        <Icon size={22} />
-      </div>
+      <Icon size={22} />
+    </div>
 
-      <h3 className="mt-4 text-3xl font-bold">{value}</h3>
-    </motion.div>
-  );
-}
+    <h3 className="mt-4 text-3xl font-bold">{value}</h3>
+  </motion.div>
+);

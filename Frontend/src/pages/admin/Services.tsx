@@ -7,6 +7,7 @@ import {
   getServices,
   toggleServiceStatus,
 } from "../../api/service.api";
+import { getCategories } from "../../api/category.api";
 
 import type { Service } from "../../types/service";
 
@@ -33,41 +34,27 @@ const Services = () => {
   const [modal, setModal] = useState<ModalType>(null);
 
   useEffect(() => {
-    const loadServices = async () => {
+    const loadData = async () => {
       try {
         setLoading(true);
         setError("");
 
-        const data = await getServices();
+        const [servicesData, categoriesData] = await Promise.all([
+          getServices(),
+          getCategories(),
+        ]);
 
-        setServices(data);
+        setServices(servicesData);
 
-        setCategories(
-          data.reduce<Category[]>((acc, item) => {
-            const cat = item.category;
-
-            if (cat && !acc.some((c) => c._id === cat._id)) {
-              acc.push({
-                _id: cat._id,
-                name: cat.name,
-                description: "",
-                isActive: true,
-              });
-            }
-
-            return acc;
-          }, []),
-        );
+        setCategories(categoriesData);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Unable to load services",
-        );
+        setError(err instanceof Error ? err.message : "Unable to load data");
       } finally {
         setLoading(false);
       }
     };
 
-    loadServices();
+    loadData();
   }, []);
 
   const handleDelete = async () => {

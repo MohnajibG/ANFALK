@@ -2,11 +2,25 @@ import { useEffect, useState } from "react";
 import { Edit2, Layers, Plus, Trash2 } from "lucide-react";
 
 import { deleteCategory, getCategories } from "../../api/category.api";
+
 import type { Category } from "../../types/category";
+
+import AddCategoryModal from "../../components/category/AddCategoryModal";
+import EditCategoryModal from "../../components/category/EditCategoryModal";
+import DeleteCategoryModal from "../../components/category/DeleteCategoryModal";
+
+type ModalType = "add" | "edit" | "delete" | null;
 
 const Categories = () => {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null,
+  );
+
   const [loading, setLoading] = useState(true);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const [modal, setModal] = useState<ModalType>(null);
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -26,16 +40,24 @@ const Categories = () => {
     loadCategories();
   }, []);
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this category?"))
-      return;
+  const handleDelete = async () => {
+    if (!selectedCategory) return;
 
     try {
-      await deleteCategory(id);
+      setDeleteLoading(true);
 
-      setCategories((prev) => prev.filter((category) => category._id !== id));
+      await deleteCategory(selectedCategory._id);
+
+      setCategories((prev) =>
+        prev.filter((category) => category._id !== selectedCategory._id),
+      );
+
+      setSelectedCategory(null);
+      setModal(null);
     } catch (error) {
       console.error("Delete category error:", error);
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -48,7 +70,10 @@ const Categories = () => {
           <p className="text-gray-500">Manage service categories</p>
         </div>
 
-        <button className="flex items-center gap-2 rounded-xl bg-[#111] px-5 py-3 text-white transition hover:bg-[#3E2C23]">
+        <button
+          onClick={() => setModal("add")}
+          className="flex items-center gap-2 rounded-xl bg-[#111] px-5 py-3 text-white transition hover:bg-[#3E2C23]"
+        >
           <Plus size={18} />
           Add Category
         </button>
@@ -60,7 +85,6 @@ const Categories = () => {
         ) : categories.length === 0 ? (
           <div className="flex flex-col items-center py-12 text-gray-500">
             <Layers size={40} />
-
             <p className="mt-3">No categories found.</p>
           </div>
         ) : (
@@ -89,14 +113,23 @@ const Categories = () => {
                 </p>
 
                 <div className="mt-5 flex gap-2">
-                  <button className="flex flex-1 items-center justify-center gap-2 rounded-xl border py-2 transition hover:bg-gray-50">
+                  <button
+                    onClick={() => {
+                      setSelectedCategory(category);
+                      setModal("edit");
+                    }}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border py-2 hover:bg-gray-50"
+                  >
                     <Edit2 size={16} />
                     Edit
                   </button>
 
                   <button
-                    onClick={() => handleDelete(category._id)}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-50 py-2 text-red-600 transition hover:bg-red-100"
+                    onClick={() => {
+                      setSelectedCategory(category);
+                      setModal("delete");
+                    }}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-50 py-2 text-red-600 hover:bg-red-100"
                   >
                     <Trash2 size={16} />
                     Delete
@@ -107,6 +140,38 @@ const Categories = () => {
           </div>
         )}
       </section>
+
+      {modal === "add" && (
+        <AddCategoryModal
+          onCreated={(category) => {
+            setCategories((prev) => [...prev, category]);
+          }}
+          onClose={() => setModal(null)}
+        />
+      )}
+
+      {modal === "edit" && selectedCategory && (
+        <EditCategoryModal
+          category={selectedCategory}
+          onUpdated={(category) => {
+            setCategories((prev) =>
+              prev.map((item) => (item._id === category._id ? category : item)),
+            );
+
+            setModal(null);
+          }}
+          onClose={() => setModal(null)}
+        />
+      )}
+
+      {modal === "delete" && selectedCategory && (
+        <DeleteCategoryModal
+          category={selectedCategory}
+          loading={deleteLoading}
+          onConfirm={handleDelete}
+          onClose={() => setModal(null)}
+        />
+      )}
     </div>
   );
 };
