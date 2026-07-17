@@ -6,17 +6,13 @@ const API_URL = "https://site--ankelk--dnxhn8mdblq5.code.run/api";
 
 const categoryApi = axios.create({
   baseURL: API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  headers: { "Content-Type": "application/json" },
 });
 
 categoryApi.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  if (token) config.headers.Authorization = `Bearer ${token}`;
 
   return config;
 });
@@ -24,30 +20,30 @@ categoryApi.interceptors.request.use((config) => {
 export async function getCategories(): Promise<Category[]> {
   const response = await categoryApi.get("/categories");
 
-  return response.data;
+  return response.data.categories ?? [];
 }
 
-export async function createCategory(data: {
+export const createCategory = async (payload: {
   name: string;
   description?: string;
-}): Promise<Category> {
-  const response = await categoryApi.post("/categories", data);
+}): Promise<Category> => {
+  const { data } = await categoryApi.post("/categories", payload);
 
-  return response.data;
-}
+  return data;
+};
 
-export async function updateCategory(
+export const updateCategory = async (
   id: string,
-  data: {
+  payload: {
     name?: string;
     description?: string;
   },
-): Promise<Category> {
-  const response = await categoryApi.patch(`/categories/${id}`, data);
+): Promise<Category> => {
+  const { data } = await categoryApi.patch(`/categories/${id}`, payload);
 
-  return response.data;
-}
+  return data;
+};
 
-export async function deleteCategory(id: string) {
+export const deleteCategory = async (id: string): Promise<void> => {
   await categoryApi.delete(`/categories/${id}`);
-}
+};

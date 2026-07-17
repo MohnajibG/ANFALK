@@ -28,6 +28,7 @@ import MyAppointments from "../pages/employee/MyAppointments";
 import MyStatistics from "../pages/employee/MyStatistics";
 import EmployeeServices from "../pages/employee/Services";
 import EmployeeProfile from "../pages/employee/Profile";
+import Categories from "../pages/admin/Categories";
 
 export default function AppRouter() {
   return (
@@ -60,6 +61,8 @@ export default function AppRouter() {
           <Route path="clients" element={<Clients />} />
 
           <Route path="employees" element={<Employees />} />
+
+          <Route path="categories" element={<Categories />} />
 
           <Route path="services" element={<Services />} />
         </Route>

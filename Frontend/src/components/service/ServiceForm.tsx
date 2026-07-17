@@ -10,11 +10,8 @@ import type { Category } from "../../types/category";
 
 interface Props {
   categories: Category[];
-
   initialData?: Service;
-
   loading?: boolean;
-
   onSubmit: (data: CreateServicePayload) => void;
 }
 
@@ -26,45 +23,24 @@ const specialities: ServiceSpeciality[] = [
   "Reception",
 ];
 
-export default function ServiceForm({
+const ServiceForm = ({
   categories = [],
   initialData,
   loading = false,
   onSubmit,
-}: Props) {
-  const [form, setForm] = useState<CreateServicePayload>(() => {
-    if (initialData) {
-      return {
-        name: initialData.name,
+}: Props) => {
+  const [error, setError] = useState("");
 
-        description: initialData.description ?? "",
-
-        price: initialData.price,
-
-        duration: initialData.duration,
-
-        category:
-          typeof initialData.category === "object"
-            ? initialData.category._id
-            : initialData.category,
-
-        speciality: initialData.speciality,
-      };
-    }
-
-    return {
-      name: "",
-
-      description: "",
-
-      price: 0,
-
-      duration: 0,
-
-      category: "",
-
-      speciality: "Hair",
-    };
+  const [form, setForm] = useState<CreateServicePayload>({
+    name: initialData?.name ?? "",
+    description: initialData?.description ?? "",
+    price: initialData?.price ?? 0,
+    duration: initialData?.duration ?? 0,
+    category:
+      typeof initialData?.category === "object"
+        ? initialData.category._id
+        : (initialData?.category ?? ""),
+    speciality: initialData?.speciality ?? "Hair",
   });
 
   const updateField = (
@@ -73,27 +49,51 @@ export default function ServiceForm({
   ) => {
     setForm((prev) => ({
       ...prev,
-
       [field]: value,
     }));
+
+    setError("");
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!form.name.trim()) return;
+    if (!form.name.trim()) {
+      setError("Service name is required");
+      return;
+    }
 
-    if (form.price <= 0) return;
+    if (form.price <= 0) {
+      setError("Price must be greater than 0");
+      return;
+    }
 
-    if (form.duration <= 0) return;
+    if (form.duration <= 0) {
+      setError("Duration must be greater than 0");
+      return;
+    }
 
-    if (!form.category) return;
+    if (!form.category) {
+      setError("Please select a category");
+      return;
+    }
+
+    if (!form.speciality) {
+      setError("Please select a speciality");
+      return;
+    }
 
     onSubmit(form);
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {error && (
+        <div className="rounded-xl bg-red-50 p-3 text-sm text-red-600">
+          {error}
+        </div>
+      )}
+
       <input
         className="input"
         placeholder="Service name"
@@ -131,7 +131,7 @@ export default function ServiceForm({
       >
         <option value="">Select category</option>
 
-        {(categories ?? []).map((cat) => (
+        {categories.map((cat) => (
           <option key={cat._id} value={cat._id}>
             {cat.name}
           </option>
@@ -153,19 +153,18 @@ export default function ServiceForm({
       </select>
 
       <button
+        type="submit"
         disabled={loading}
-        className="
-          w-full
-          rounded-xl
-          bg-[#111]
-          py-3
-          text-white
-          hover:bg-[#3E2C23]
-          disabled:opacity-50
-        "
+        className="w-full rounded-xl bg-[#111] py-3 text-white transition hover:bg-[#3E2C23] disabled:opacity-50"
       >
-        {loading ? "Saving..." : "Save Service"}
+        {loading
+          ? "Saving..."
+          : initialData
+            ? "Update Service"
+            : "Save Service"}
       </button>
     </form>
   );
-}
+};
+
+export default ServiceForm;

@@ -1,8 +1,8 @@
 import axios from "axios";
 
 import type {
-  Service,
   CreateServicePayload,
+  Service,
   UpdateServicePayload,
 } from "../types/service";
 
@@ -10,54 +10,52 @@ const API_URL = "https://site--ankelk--dnxhn8mdblq5.code.run/api";
 
 const serviceApi = axios.create({
   baseURL: API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  headers: { "Content-Type": "application/json" },
 });
 
 serviceApi.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  if (token) config.headers.Authorization = `Bearer ${token}`;
 
   return config;
 });
 
-export async function getServices(): Promise<Service[]> {
-  const response = await serviceApi.get("/services");
-  return response.data.services ?? response.data;
-}
+export const getServices = async (): Promise<Service[]> => {
+  const { data } = await serviceApi.get("/services");
 
-export async function getService(id: string): Promise<Service> {
-  const response = await serviceApi.get(`/services/${id}`);
-  return response.data.service ?? response.data;
-}
+  return data.services ?? data;
+};
 
-export async function createService(
-  data: CreateServicePayload,
-): Promise<Service> {
-  const response = await serviceApi.post("/services", data);
+export const getService = async (id: string): Promise<Service> => {
+  const { data } = await serviceApi.get(`/services/${id}`);
 
-  return response.data.service ?? response.data;
-}
+  return data.service ?? data;
+};
 
-export async function updateService(
+export const createService = async (
+  payload: CreateServicePayload,
+): Promise<Service> => {
+  const { data } = await serviceApi.post("/services", payload);
+
+  return data.service ?? data;
+};
+
+export const updateService = async (
   id: string,
-  data: UpdateServicePayload,
-): Promise<Service> {
-  const response = await serviceApi.patch(`/services/${id}`, data);
+  payload: UpdateServicePayload,
+): Promise<Service> => {
+  const { data } = await serviceApi.patch(`/services/${id}`, payload);
 
-  return response.data.service ?? response.data;
-}
+  return data.service ?? data;
+};
 
-export async function deleteService(id: string): Promise<void> {
+export const deleteService = async (id: string): Promise<void> => {
   await serviceApi.delete(`/services/${id}`);
-}
+};
 
-export async function toggleServiceStatus(id: string): Promise<Service> {
-  const response = await serviceApi.patch(`/services/${id}/status`);
+export const toggleServiceStatus = async (id: string): Promise<Service> => {
+  const { data } = await serviceApi.patch(`/services/${id}/status`);
 
-  return response.data.service ?? response.data;
-}
+  return data.service ?? data;
+};
