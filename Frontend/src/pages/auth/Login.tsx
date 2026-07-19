@@ -74,9 +74,16 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-center bg-(--cream) p-4 sm:p-6 lg:p-8">
-      <div className="flex w-full max-w-6xl flex-col overflow-hidden rounded-md bg-(--white) shadow-(--shadow-md) lg:flex-row">
-        {/* IMAGE DESKTOP */}
+    <div
+      className="relative flex min-h-screen w-full items-center justify-center bg-(--cream) bg-cover bg-center p-4 sm:p-6 lg:bg-none lg:p-8"
+      style={{
+        backgroundImage:
+          "url(https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1200&q=80)",
+      }}
+    >
+      <div className="absolute inset-0 bg-black/40 lg:hidden" />
+
+      <div className="relative flex w-full max-w-md flex-col overflow-hidden rounded-3xl bg-(--white) shadow-(--shadow-md) lg:max-w-6xl lg:flex-row">
         <div className="relative hidden min-h-162.5 flex-1 lg:flex">
           <img
             src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1200&q=80"
@@ -96,17 +103,16 @@ const Login = () => {
               ANFEL K
             </motion.h1>
 
-            <p className="mt-3 font-body text-center text-xs uppercase tracking-[0.5em] text-white/80">
+            <p className="mt-3 font-body text-xs uppercase tracking-[0.5em] text-white/80">
               INSTITUTE
             </p>
 
-            <p className="mt-8 max-w-sm  font-body  text-right text-lg text-white/80">
-              Système de gestion
+            <p className="mt-8 max-w-sm font-body text-lg text-white/80">
+              Système de gestion beauté pour instituts modernes
             </p>
           </div>
         </div>
 
-        {/* FORMULAIRE */}
         <div className="flex flex-1 items-center justify-center p-6 sm:p-10 lg:p-12">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -136,7 +142,7 @@ const Login = () => {
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="admin@anfelk.com"
-                  className="rounded-2xl border border-(--border) px-4 py-3 font-body outline-none transition focus:border-(--gold) focus:ring-4 focus:ring-(--gold)/10"
+                  className="w-full appearance-none rounded-2xl border border-(--border) bg-(--white) px-6 py-4 font-body text-base outline-none transition placeholder:text-(--muted) focus:border-(--gold) focus:ring-4 focus:ring-(--gold)/10"
                 />
               </div>
 
@@ -152,13 +158,13 @@ const Login = () => {
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     placeholder="••••••••"
-                    className="w-full rounded-2xl border border-(--border) px-4 py-3 pr-12 font-body outline-none transition focus:border-(--gold) focus:ring-4 focus:ring-(--gold)/10"
+                    className="w-full appearance-none rounded-2xl border border-(--border) bg-(--white) px-6 py-4 pr-14 font-body text-base outline-none transition placeholder:text-(--muted) focus:border-(--gold) focus:ring-4 focus:ring-(--gold)/10"
                   />
 
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-(--muted) transition hover:text-(--black)"
+                    className="absolute right-5 top-1/2 -translate-y-1/2 text-(--muted) transition hover:text-(--black)"
                   >
                     {showPassword ? <EyeOff size={19} /> : <Eye size={19} />}
                   </button>
@@ -173,7 +179,7 @@ const Login = () => {
 
               <button
                 disabled={loading}
-                className="flex items-center justify-center gap-2 rounded-xl bg-(--black) py-3 font-body font-semibold text-(--white) transition hover:bg-(--gold) disabled:opacity-60"
+                className="flex min-h-14 items-center justify-center gap-2 rounded-xl bg-(--black) px-8 font-body font-semibold text-(--white) transition hover:bg-(--gold) disabled:opacity-60"
               >
                 {loading ? (
                   <>
