@@ -3,92 +3,184 @@ import { CalendarDays, Clock, User, Scissors } from "lucide-react";
 
 const appointments = [
   {
-    time: "09:30 AM",
+    time: "09:30",
     client: "Emma D.",
-    service: "Hair Coloring",
+    service: "Coloration",
     duration: "1h30",
-    status: "Confirmed",
+    status: "Confirmé",
   },
   {
-    time: "11:30 AM",
+    time: "11:30",
     client: "Sarah M.",
     service: "Brushing",
     duration: "45 min",
-    status: "Confirmed",
+    status: "Confirmé",
   },
   {
-    time: "02:00 PM",
+    time: "14:00",
     client: "Lina K.",
-    service: "Hair Cut",
+    service: "Coupe",
     duration: "1h",
-    status: "Pending",
+    status: "En attente",
   },
   {
-    time: "04:30 PM",
+    time: "16:30",
     client: "Sofia R.",
-    service: "Hair Treatment",
+    service: "Soin capillaire",
     duration: "1h15",
-    status: "Confirmed",
+    status: "Confirmé",
   },
 ];
 
 export default function MyAppointments() {
   return (
-    <div className="w-full space-y-6">
+    <div className="flex w-full flex-col gap-6">
       {/* HEADER */}
-      <div className="ak-card px-5 py-7 text-center sm:px-8 lg:text-left">
-        <p className="ak-kicker">Employee Space</p>
 
-        <h1 className="mt-3 font-[Cinzel] text-3xl font-bold text-[#0b0b0b]">
-          My Appointments
+      <div
+        className="
+          rounded-3xl
+          border border-(--border)
+          bg-white
+          p-6
+          sm:p-8
+        "
+      >
+        <p
+          className="
+          text-xs
+          font-semibold
+          uppercase
+          tracking-[0.25em]
+          text-(--champagne)
+        "
+        >
+          Espace employé
+        </p>
+
+        <h1
+          className="
+            mt-3
+            font-title
+            text-3xl
+            text-(--black)
+          "
+        >
+          Mes rendez-vous
         </h1>
 
-        <p className="ak-muted mt-2">
-          Manage your upcoming appointments and daily schedule.
+        <p
+          className="
+          mt-2
+          text-sm
+          text-stone-500
+        "
+        >
+          Consultez votre planning et gérez vos prestations du jour.
         </p>
       </div>
 
-      {/* TODAY SUMMARY */}
+      {/* STATISTIQUES */}
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div
+        className="
+          flex
+          flex-col
+          gap-4
+          md:flex-row
+        "
+      >
         <InfoCard
-          title="Today's Appointments"
+          title="Rendez-vous aujourd'hui"
           value="8"
           icon={<CalendarDays size={22} />}
         />
 
         <InfoCard
-          title="Next Appointment"
-          value="09:30 AM"
+          title="Prochain rendez-vous"
+          value="09:30"
           icon={<Clock size={22} />}
         />
 
-        <InfoCard title="Customers Today" value="8" icon={<User size={22} />} />
+        <InfoCard title="Clients du jour" value="8" icon={<User size={22} />} />
       </div>
 
-      {/* APPOINTMENT LIST */}
+      {/* LISTE */}
 
-      <div className="ak-card p-5 sm:p-6">
-        <h2 className="mb-6 font-semibold text-[#0b0b0b]">Today's Schedule</h2>
+      <div
+        className="
+          rounded-3xl
+          border border-(--border)
+          bg-white
+          p-5
+          sm:p-6
+        "
+      >
+        <h2
+          className="
+            mb-5
+            font-semibold
+            text-(--black)
+          "
+        >
+          Planning du jour
+        </h2>
 
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           {appointments.map((appointment, index) => (
             <motion.div
               key={index}
-              whileHover={{ scale: 1.01 }}
-              className="flex flex-col gap-4 rounded-2xl border border-[#e8e2d8] bg-[#f7f4ee] p-5 md:flex-row md:items-center md:justify-between"
+              whileHover={{
+                y: -3,
+              }}
+              className="
+                flex
+                flex-col
+                gap-5
+                rounded-3xl
+                border border-(--border)
+                bg-(--cream)
+                p-5
+                transition
+                md:flex-row
+                md:items-center
+                md:justify-between
+              "
             >
-              {/* TIME */}
+              {/* HEURE */}
 
-              <div className="flex items-center gap-3">
-                <div className="rounded-xl bg-[#3E2C23] p-3 text-[#FFF4D6]">
+              <div className="flex items-center gap-4">
+                <div
+                  className="
+                    flex
+                    h-12
+                    w-12
+                    items-center
+                    justify-center
+                    rounded-2xl
+                    bg-(--black)
+                    text-(--cream)
+                  "
+                >
                   <Clock size={20} />
                 </div>
 
                 <div>
-                  <p className="font-bold text-[#3E2C23]">{appointment.time}</p>
+                  <p
+                    className="
+                    font-bold
+                    text-(--black)
+                  "
+                  >
+                    {appointment.time}
+                  </p>
 
-                  <p className="text-xs text-gray-500">
+                  <p
+                    className="
+                    text-xs
+                    text-stone-500
+                  "
+                  >
                     {appointment.duration}
                   </p>
                 </div>
@@ -97,35 +189,42 @@ export default function MyAppointments() {
               {/* CLIENT */}
 
               <div className="flex items-center gap-3">
-                <User size={20} className="text-[#3E2C23]" />
+                <User size={20} className="text-(--champagne)" />
 
                 <div>
                   <p className="font-semibold">{appointment.client}</p>
 
-                  <p className="text-sm text-gray-500">Customer</p>
+                  <p className="text-xs text-stone-500">Cliente</p>
                 </div>
               </div>
 
               {/* SERVICE */}
 
               <div className="flex items-center gap-3">
-                <Scissors size={20} className="text-[#3E2C23]" />
+                <Scissors size={20} className="text-(--champagne)" />
 
                 <div>
                   <p className="font-semibold">{appointment.service}</p>
 
-                  <p className="text-sm text-gray-500">Service</p>
+                  <p className="text-xs text-stone-500">Prestation</p>
                 </div>
               </div>
 
-              {/* STATUS */}
+              {/* STATUT */}
 
               <span
-                className={`rounded-full px-4 py-2 text-xs font-semibold ${
-                  appointment.status === "Confirmed"
-                    ? "bg-green-100 text-green-700"
-                    : "bg-yellow-100 text-yellow-700"
-                }`}
+                className={`
+                  rounded-full
+                  px-4
+                  py-2
+                  text-xs
+                  font-semibold
+                  ${
+                    appointment.status === "Confirmé"
+                      ? "bg-(--black) text-(--cream)"
+                      : "bg-amber-100 text-amber-800"
+                  }
+                `}
               >
                 {appointment.status}
               </span>
@@ -148,16 +247,56 @@ function InfoCard({
 }) {
   return (
     <motion.div
-      whileHover={{ y: -4 }}
-      className="ak-card flex items-center justify-between p-6"
+      whileHover={{
+        y: -4,
+      }}
+      className="
+        flex
+        flex-1
+        items-center
+        justify-between
+        rounded-3xl
+        border border-(--border)
+        bg-white
+        p-6
+      "
     >
       <div>
-        <p className="ak-muted text-sm">{title}</p>
+        <p
+          className="
+          text-sm
+          text-stone-500
+        "
+        >
+          {title}
+        </p>
 
-        <h3 className="mt-2 text-2xl font-bold">{value}</h3>
+        <h3
+          className="
+            mt-2
+            text-3xl
+            font-bold
+            text-(--black)
+          "
+        >
+          {value}
+        </h3>
       </div>
 
-      <div className="rounded-full bg-[#FFF4D6] p-4 text-[#3E2C23]">{icon}</div>
+      <div
+        className="
+          flex
+          h-12
+          w-12
+          items-center
+          justify-center
+          rounded-2xl
+          bg-(--cream)
+          text-(--black)
+        "
+      >
+        {icon}
+      </div>
     </motion.div>
   );
 }

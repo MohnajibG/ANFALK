@@ -7,6 +7,7 @@ import type {
   CreateAppointmentPayload,
   AppointmentService,
 } from "../../types/appointment";
+
 import type { Client } from "../../types/client";
 import type { Employee } from "../../types/employee";
 import type { Service } from "../../types/service";
@@ -39,7 +40,9 @@ const AppointmentForm = ({ services, onSuccess }: AppointmentFormProps) => {
   const [customPrice, setCustomPrice] = useState<number | null>(null);
 
   const [customDuration, setCustomDuration] = useState<number | null>(null);
+
   const [customEndTime, setCustomEndTime] = useState<string | null>(null);
+
   const [notes, setNotes] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
@@ -47,9 +50,9 @@ const AppointmentForm = ({ services, onSuccess }: AppointmentFormProps) => {
 
   const automaticValues = useMemo(() => {
     return selectedServices.reduce(
-      (acc, service) => ({
-        price: acc.price + service.price,
-        duration: acc.duration + service.duration,
+      (total, service) => ({
+        price: total.price + service.price,
+        duration: total.duration + service.duration,
       }),
       {
         price: 0,
@@ -69,20 +72,16 @@ const AppointmentForm = ({ services, onSuccess }: AppointmentFormProps) => {
   const calculateEndTime = useCallback((time: string, duration: number) => {
     const [hours, minutes] = time.split(":").map(Number);
 
-    const totalMinutes = hours * 60 + minutes + duration;
+    const total = hours * 60 + minutes + duration;
 
-    const endHours = Math.floor(totalMinutes / 60);
-    const endMinutes = totalMinutes % 60;
-
-    return `${String(endHours).padStart(2, "0")}:${String(endMinutes).padStart(
-      2,
-      "0",
-    )}`;
+    return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(
+      total % 60,
+    ).padStart(2, "0")}`;
   }, []);
 
   const endTime = useMemo(() => {
     if (manualEndTime) {
-      return customEndTime;
+      return customEndTime ?? "";
     }
 
     if (!startTime || !totalDuration) {
@@ -105,82 +104,49 @@ const AppointmentForm = ({ services, onSuccess }: AppointmentFormProps) => {
       setIsLoading(true);
       setError("");
 
-      if (!client) {
-        throw new Error("Veuillez sélectionner une cliente");
-      }
+      if (!client) throw new Error("Veuillez sélectionner une cliente");
 
-      if (!employee) {
-        throw new Error("Veuillez sélectionner un employé");
-      }
+      if (!employee) throw new Error("Veuillez sélectionner un employé");
 
-      if (!date) {
-        throw new Error("Veuillez choisir une date");
-      }
+      if (!date) throw new Error("Veuillez choisir une date");
 
-      if (!selectedServices.length) {
-        throw new Error("Veuillez sélectionner au moins un soin");
-      }
+      if (!selectedServices.length)
+        throw new Error("Veuillez sélectionner au moins une prestation");
 
       const payload: CreateAppointmentPayload = {
         client: client._id,
+
         employee: employee._id,
 
         services: selectedServices.map(({ service }) => service),
 
         date,
+
         startTime,
+
         notes,
+
         source: "admin",
       };
 
       await createAppointment(payload);
 
+      resetForm();
+
       onSuccess?.();
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        console.error("[AppointmentForm] API error:", {
-          status: err.response?.status,
-          message: err.response?.data?.message,
-        });
-
+    } catch (error) {
+      if (error instanceof AxiosError) {
         setError(
-          err.response?.data?.message ?? "Erreur serveur lors de la création",
+          error.response?.data?.message ??
+            "Erreur lors de la création du rendez-vous",
         );
-      } else if (err instanceof Error) {
-        console.error("[AppointmentForm] Error:", err.message);
-
-        setError(err.message);
+      } else if (error instanceof Error) {
+        setError(error.message);
       } else {
-        console.error("[AppointmentForm] Unknown error", err);
-
         setError("Une erreur inconnue est survenue");
       }
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handlePriceChange = (value: number) => {
-    setManualPrice(true);
-    setCustomPrice(value);
-  };
-
-  const handleDurationChange = (value: number) => {
-    setManualDuration(true);
-    setCustomDuration(value);
-  };
-
-  const handleEndTimeChange = (value: string) => {
-    setManualEndTime(true);
-    setCustomEndTime(value);
-  };
-
-  const handleStartTimeChange = (value: string) => {
-    setStartTime(value);
-
-    if (manualEndTime) {
-      setManualEndTime(false);
-      setCustomEndTime(null);
     }
   };
 
@@ -199,39 +165,71 @@ const AppointmentForm = ({ services, onSuccess }: AppointmentFormProps) => {
 
     setCustomPrice(null);
     setCustomDuration(null);
-    setCustomEndTime("");
+    setCustomEndTime(null);
 
     setNotes("");
     setError("");
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       {error && (
-        <div className="rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-600">
+        <div
+          className="
+          rounded-2xl
+          border border-red-200
+          bg-red-50
+          p-4
+          text-sm
+          text-red-700
+        "
+        >
           {error}
         </div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <ClientAutocomplete value={client} onChange={setClient} />
+      <div
+        className="
+        flex flex-col gap-4
+        md:flex-row
+      "
+      >
+        <div className="flex-1">
+          <ClientAutocomplete value={client} onChange={setClient} />
+        </div>
 
-        <EmployeeAutocomplete value={employee} onChange={setEmployee} />
+        <div className="flex-1">
+          <EmployeeAutocomplete value={employee} onChange={setEmployee} />
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <div>
-          <label className="mb-2 block text-sm font-medium">Date</label>
+      <div
+        className="
+        flex flex-col gap-4
+        md:flex-row
+      "
+      >
+        <div className="flex-1">
+          <label className="mb-2 block text-sm font-medium">
+            Date du rendez-vous
+          </label>
 
           <input
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full rounded-xl border px-3 py-3"
+            className="
+              h-12 w-full
+              rounded-2xl
+              border border-(--border)
+              bg-(--cream)
+              px-4
+              outline-none
+            "
           />
         </div>
 
-        <div>
+        <div className="flex-1">
           <label className="mb-2 block text-sm font-medium">
             Heure de début
           </label>
@@ -239,8 +237,15 @@ const AppointmentForm = ({ services, onSuccess }: AppointmentFormProps) => {
           <input
             type="time"
             value={startTime}
-            onChange={(e) => handleStartTimeChange(e.target.value)}
-            className="w-full rounded-xl border px-3 py-3"
+            onChange={(e) => setStartTime(e.target.value)}
+            className="
+              h-12 w-full
+              rounded-2xl
+              border border-(--border)
+              bg-(--cream)
+              px-4
+              outline-none
+            "
           />
         </div>
       </div>
@@ -256,40 +261,77 @@ const AppointmentForm = ({ services, onSuccess }: AppointmentFormProps) => {
         startTime={startTime}
         totalDuration={totalDuration}
         estimatedPrice={estimatedPrice}
-        endTime={endTime ?? ""}
-        onDurationChange={handleDurationChange}
-        onPriceChange={handlePriceChange}
-        onEndTimeChange={handleEndTimeChange}
+        endTime={endTime}
+        onDurationChange={(value) => {
+          setManualDuration(true);
+          setCustomDuration(value);
+        }}
+        onPriceChange={(value) => {
+          setManualPrice(true);
+          setCustomPrice(value);
+        }}
+        onEndTimeChange={(value) => {
+          setManualEndTime(true);
+          setCustomEndTime(value);
+        }}
       />
 
       <div>
-        <label className="mb-2 block text-sm font-medium">Notes</label>
+        <label className="mb-2 block text-sm font-medium">
+          Notes complémentaires
+        </label>
 
         <textarea
+          rows={3}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          rows={3}
-          placeholder="Notes rendez-vous..."
-          className="w-full rounded-xl border px-3 py-3"
+          placeholder="Ajouter une remarque..."
+          className="
+            w-full
+            rounded-2xl
+            border border-(--border)
+            bg-(--cream)
+            p-4
+            outline-none
+          "
         />
       </div>
 
-      <div className="flex gap-3">
+      <div
+        className="
+        flex flex-col gap-3
+        sm:flex-row
+      "
+      >
         <button
           type="button"
           onClick={resetForm}
           disabled={isLoading}
-          className="rounded-xl border px-5 py-3"
+          className="
+            rounded-2xl
+            border border-(--border)
+            px-6 py-3
+            transition
+            hover:bg-(--cream)
+          "
         >
-          Annuler
+          Réinitialiser
         </button>
 
         <button
           type="submit"
           disabled={isLoading}
-          className="rounded-xl bg-black px-5 py-3 text-white disabled:opacity-50"
+          className="
+            rounded-2xl
+            bg-(--black)
+            px-6 py-3
+            text-(--cream)
+            transition
+            hover:opacity-90
+            disabled:opacity-50
+          "
         >
-          {isLoading ? "Création..." : "Créer le rendez-vous"}
+          {isLoading ? "Création en cours..." : "Créer le rendez-vous"}
         </button>
       </div>
     </form>
