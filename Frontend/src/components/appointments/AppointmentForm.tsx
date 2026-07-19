@@ -256,7 +256,7 @@ const AppointmentForm = ({ services, onSuccess }: AppointmentFormProps) => {
         startTime={startTime}
         totalDuration={totalDuration}
         estimatedPrice={estimatedPrice}
-        endTime={endTime}
+        endTime={endTime ?? ""}
         onDurationChange={handleDurationChange}
         onPriceChange={handlePriceChange}
         onEndTimeChange={handleEndTimeChange}
