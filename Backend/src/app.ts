@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 
 import authRoutes from "./routes/auth.routes";
+import dashboardRoutes from "./routes/dashboard.routes";
 import employeeRoutes from "./routes/employee.routes";
 import categoryRoutes from "./routes/category.routes";
 import serviceRoutes from "./routes/service.routes";
@@ -23,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 /* Routes */
 
 app.use("/api/auth", authRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/employees", employeeRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/services", serviceRoutes);
