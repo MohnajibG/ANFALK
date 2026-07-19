@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+
 import {
   CalendarDays,
   ChevronLeft,
@@ -14,17 +15,46 @@ import {
 } from "lucide-react";
 
 const links = [
-  { label: "Dashboard", icon: LayoutDashboard, path: "/admin/dashboard" },
-  { label: "Clients", icon: Users, path: "/admin/clients" },
-  { label: "Employees", icon: UserCog, path: "/admin/employees" },
-  { label: "Categories", icon: Layers, path: "/admin/categories" },
-  { label: "Services", icon: Scissors, path: "/admin/services" },
-  { label: "Appointments", icon: CalendarDays, path: "/admin/appointments" },
-  { label: "Tickets", icon: Receipt, path: "/admin/tickets" },
+  {
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    path: "/admin/dashboard",
+  },
+  {
+    label: "Clients",
+    icon: Users,
+    path: "/admin/clients",
+  },
+  {
+    label: "Employés",
+    icon: UserCog,
+    path: "/admin/employees",
+  },
+  {
+    label: "Catégories",
+    icon: Layers,
+    path: "/admin/categories",
+  },
+  {
+    label: "Services",
+    icon: Scissors,
+    path: "/admin/services",
+  },
+  {
+    label: "Rendez-vous",
+    icon: CalendarDays,
+    path: "/admin/appointments",
+  },
+  {
+    label: "Tickets",
+    icon: Receipt,
+    path: "/admin/tickets",
+  },
 ];
 
-const AdminLayout = () => {
+export default function AdminLayout() {
   const navigate = useNavigate();
+
   const location = useLocation();
 
   const [collapsed, setCollapsed] = useState(false);
@@ -32,45 +62,181 @@ const AdminLayout = () => {
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+
     navigate("/login");
   };
 
-  const isActive = (path: string) => location.pathname.startsWith(path);
+  const active = (path: string) => location.pathname.startsWith(path);
 
   return (
-    <div className="flex min-h-screen bg-[#fff4d6]">
-      {/* MOBILE TOP MENU */}
-      <header className="fixed top-0 left-0 z-50 flex h-16 w-full items-center justify-around border-b border-[#eadfce] bg-white px-2 md:hidden">
-        {links.map(({ path, icon: Icon, label }) => (
-          <button
-            key={path}
-            title={label}
-            onClick={() => navigate(path)}
-            className={`flex h-10 w-10 items-center justify-center rounded-xl ${isActive(path) ? "bg-black text-[#77736b]" : "text-red-600 hover:bg-[#f7efe2]"}`}
+    <div
+      className="
+        flex
+        min-h-screen
+        bg-(--cream)
+      "
+    >
+      {/* MOBILE HEADER */}
+
+      <header
+        className="
+          fixed
+          left-0
+          top-0
+          z-40
+          flex
+          h-16
+          w-full
+          items-center
+          justify-between
+          border-b
+          border-(--border)
+          bg-white
+          px-5
+          md:hidden
+        "
+      >
+        <div>
+          <h1
+            className="
+              font-title
+              text-xl
+              tracking-widest
+              text-(--black)
+            "
           >
-            <Icon size={20} />
-          </button>
-        ))}
+            ANFAL K
+          </h1>
+
+          <p
+            className="
+              text-[10px]
+              tracking-[0.4em]
+              text-(--champagne)
+            "
+          >
+            INSTITUTE
+          </p>
+        </div>
 
         <button
           onClick={logout}
-          className="flex h-10 w-10 items-center justify-center rounded-xl bg-black text-white"
+          className="
+            flex
+            h-10
+            w-10
+            items-center
+            justify-center
+            rounded-xl
+            bg-(--black)
+            text-(--cream)
+          "
         >
           <LogOut size={18} />
         </button>
       </header>
 
-      {/* TABLET SIDEBAR */}
-      <aside className="fixed left-0 top-0 hidden h-screen w-20 flex-col items-center border-r border-[#eadfce] bg-white py-6 md:flex lg:hidden">
-        <h1 className="mb-8 font-serif text-xl font-bold">AK</h1>
+      {/* MOBILE NAV */}
 
-        <nav className="flex flex-1 flex-col gap-3">
+      <nav
+        className="
+          fixed
+          bottom-0
+          left-0
+          z-50
+          flex
+          h-20
+          w-full
+          items-center
+          justify-around
+          border-t
+          border-(--border)
+          bg-white
+          md:hidden
+        "
+      >
+        {links.slice(0, 5).map(({ path, icon: Icon }) => (
+          <button
+            key={path}
+            onClick={() => navigate(path)}
+            className={`
+              flex
+              h-11
+              w-11
+              items-center
+              justify-center
+              rounded-xl
+              transition
+
+              ${
+                active(path)
+                  ? "bg-(--black) text-(--cream)"
+                  : "text-(--champagne)"
+              }
+            `}
+          >
+            <Icon size={20} />
+          </button>
+        ))}
+      </nav>
+
+      {/* TABLET SIDEBAR */}
+
+      <aside
+        className="
+          fixed
+          left-0
+          top-0
+          hidden
+          h-screen
+          w-20
+          flex-col
+          items-center
+          border-r
+          border-(--border)
+          bg-white
+          py-6
+          md:flex
+          lg:hidden
+        "
+      >
+        <h1
+          className="
+            mb-8
+            font-title
+            text-xl
+          "
+        >
+          AK
+        </h1>
+
+        <nav
+          className="
+            flex
+            flex-1
+            flex-col
+            gap-3
+          "
+        >
           {links.map(({ path, icon: Icon, label }) => (
             <button
               key={path}
               title={label}
               onClick={() => navigate(path)}
-              className={`flex h-11 w-11 items-center justify-center rounded-xl ${isActive(path) ? "bg-black text-fuchsia-500" : "text-[#6f6257] hover:bg-[#f7efe2]"}`}
+              className={`
+                flex
+                h-11
+                w-11
+                items-center
+                justify-center
+                rounded-xl
+
+                ${
+                  active(path)
+                    ? "bg-(--black) text-(--cream)"
+                    : "text-(--champagne) hover:bg-(--cream)"
+                }
+              `}
             >
               <Icon size={20} />
             </button>
@@ -79,101 +245,174 @@ const AdminLayout = () => {
 
         <button
           onClick={logout}
-          className="flex h-11 w-11 items-center justify-center rounded-xl bg-black text-white"
+          className="
+            flex
+            h-11
+            w-11
+            items-center
+            justify-center
+            rounded-xl
+            bg-(--black)
+            text-(--cream)
+          "
         >
           <LogOut size={18} />
         </button>
       </aside>
-      <aside
-        className={`hidden h-screen shrink-0 flex-col border-r border-[#eadfce] bg-white transition-all duration-300 lg:flex ${
-          collapsed ? "w-24" : "w-72"
-        }`}
-      >
-        <div className="relative border-b border-[#eadfce] p-6">
-          <div className={collapsed ? "text-center" : ""}>
-            <h1
-              className={`font-serif font-bold tracking-[0.15em] ${
-                collapsed ? "text-xl" : "text-3xl"
-              }`}
-            >
-              {collapsed ? "AK" : "ANFEL K"}
-            </h1>
 
-            {!collapsed && (
-              <p className="mt-2 text-xs tracking-[0.45em] text-[#8b7560]">
-                INSTITUTE
-              </p>
-            )}
-          </div>
+      {/* DESKTOP SIDEBAR */}
+
+      <aside
+        className={`
+          fixed
+          left-0
+          top-0
+          hidden
+          h-screen
+          flex-col
+          border-r
+          border-(--border)
+          bg-white
+          transition-all
+          duration-300
+          lg:flex
+
+          ${collapsed ? "w-24" : "w-72"}
+        `}
+      >
+        <div
+          className="
+            relative
+            border-b
+            border-(--border)
+            p-6
+          "
+        >
+          <h1
+            className="
+              font-title
+              text-2xl
+              tracking-widest
+            "
+          >
+            {collapsed ? "AK" : "ANFAL K"}
+          </h1>
+
+          {!collapsed && (
+            <p
+              className="
+                mt-2
+                text-[11px]
+                tracking-[0.45em]
+                text-(--champagne)
+              "
+            >
+              INSTITUTE
+            </p>
+          )}
 
           <button
-            onClick={() => setCollapsed((prev) => !prev)}
-            className="absolute -right-3.5 top-8 flex h-8 w-8 items-center justify-center rounded-full border border-[#eadfce] bg-white shadow"
+            onClick={() => setCollapsed(!collapsed)}
+            className="
+              absolute
+              -right-4
+              top-8
+              flex
+              h-8
+              w-8
+              items-center
+              justify-center
+              rounded-full
+              border
+              border-(--border)
+              bg-white
+            "
           >
-            {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+            {collapsed ? <ChevronRight size={17} /> : <ChevronLeft size={17} />}
           </button>
         </div>
 
-        <nav className="flex-1 space-y-2 overflow-y-auto p-4">
-          {links.map(({ label, icon: Icon, path }) => (
+        <nav
+          className="
+            flex
+            flex-1
+            flex-col
+            gap-2
+            overflow-y-auto
+            p-4
+          "
+        >
+          {links.map(({ path, label, icon: Icon }) => (
             <button
               key={path}
               onClick={() => navigate(path)}
-              className={`flex w-full items-center rounded-xl transition ${
-                collapsed ? "justify-center px-3 py-3" : "gap-4 px-4 py-3"
-              } ${
-                isActive(path)
-                  ? "bg-[#111] text-white"
-                  : "text-[#6f6257] hover:bg-[#f7efe2]"
-              }`}
+              className={`
+                flex
+                items-center
+                rounded-xl
+                transition
+
+                ${collapsed ? "justify-center py-3" : "gap-4 px-4 py-3"}
+
+                ${
+                  active(path)
+                    ? "bg-(--black) text-(--cream)"
+                    : "text-(--champagne) hover:bg-(--cream)"
+                }
+              `}
             >
               <Icon size={20} />
 
-              {!collapsed && (
-                <span className="text-sm font-medium">{label}</span>
-              )}
+              {!collapsed && <span className="text-sm">{label}</span>}
             </button>
           ))}
         </nav>
 
         <button
           onClick={logout}
-          className={`m-4 flex rounded-xl bg-[#111] py-3 text-white ${
-            collapsed ? "justify-center" : "justify-center gap-3"
-          }`}
+          className="
+            m-4
+            flex
+            items-center
+            justify-center
+            gap-3
+            rounded-xl
+            bg-(--black)
+            py-3
+            text-(--cream)
+          "
         >
           <LogOut size={18} />
 
-          {!collapsed && "Logout"}
+          {!collapsed && "Déconnexion"}
         </button>
       </aside>
 
-      <header className="fixed left-0 right-0 top-0 z-30 border-b border-[#eadfce] bg-white lg:hidden">
-        <div className="flex items-center justify-between px-5 py-4">
-          <div>
-            <h1 className="font-serif text-xl font-bold tracking-[0.15em]">
-              ANFEL K
-            </h1>
+      {/* PAGE CONTENT */}
 
-            <p className="text-[0.55rem] tracking-[0.4em] text-[#8b7560]">
-              INSTITUTE
-            </p>
-          </div>
-
-          <button
-            onClick={logout}
-            className="rounded-xl bg-[#111] p-3 text-white"
-          >
-            <LogOut size={18} />
-          </button>
+      <main
+        className="
+          min-h-screen
+          w-full
+          flex-1
+          pt-20
+          pb-24
+          md:ml-20
+          md:pt-6
+          lg:ml-72
+          lg:pb-6
+        "
+      >
+        <div
+          className="
+            p-4
+            sm:p-6
+            lg:p-8
+          "
+        >
+          <Outlet />
         </div>
-      </header>
-
-      <main className="min-h-screen min-w-0 flex-1 p-4 pb-24 mt-7 sm:p-6 lg:p-8">
-        <Outlet />
       </main>
     </div>
   );
-};
-
-export default AdminLayout;
+}

@@ -1,14 +1,12 @@
 import { useMemo, useState } from "react";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, Scissors } from "lucide-react";
 
 import type { Service } from "../../types/service";
 import type { AppointmentService } from "../../types/appointment";
 
 interface AppointmentServicesSelectorProps {
   services: Service[];
-
   selectedServices: AppointmentService[];
-
   onChange: (services: AppointmentService[]) => void;
 }
 
@@ -41,8 +39,9 @@ const AppointmentServicesSelector = ({
     );
   };
 
-  const isSelected = (id: string) =>
-    selectedServices.some((service) => service.service === id);
+  const isSelected = (id: string) => {
+    return selectedServices.some((service) => service.service === id);
+  };
 
   const toggleService = (service: Service) => {
     if (isSelected(service._id)) {
@@ -56,11 +55,8 @@ const AppointmentServicesSelector = ({
 
       {
         service: service._id,
-
         name: service.name,
-
         price: service.price,
-
         duration: service.duration,
       },
     ]);
@@ -68,64 +64,175 @@ const AppointmentServicesSelector = ({
 
   if (!services.length) {
     return (
-      <div className="rounded-xl border p-4 text-sm opacity-70">
-        Aucun soin disponible
+      <div
+        className="
+          rounded-2xl
+          border border-(--border)
+          bg-(--cream)
+          p-5
+          text-sm
+          text-stone-500
+        "
+      >
+        Aucune prestation disponible
       </div>
     );
   }
 
   return (
-    <div className="space-y-3">
-      <label className="text-sm font-medium">Prestations</label>
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center gap-2">
+        <Scissors size={18} className="text-(--champagne)" />
 
-      {Object.entries(groupedServices).map(([category, items]) => {
-        const opened = openCategories.includes(category);
+        <label
+          className="
+          text-sm
+          font-semibold
+          text-(--black)
+        "
+        >
+          Choisir les prestations
+        </label>
+      </div>
 
-        return (
-          <div key={category} className="overflow-hidden rounded-xl border">
-            <button
-              type="button"
-              onClick={() => toggleCategory(category)}
-              className="flex w-full items-center justify-between px-4 py-3"
+      <div className="flex flex-col gap-3">
+        {Object.entries(groupedServices).map(([category, items]) => {
+          const opened = openCategories.includes(category);
+
+          return (
+            <div
+              key={category}
+              className="
+                overflow-hidden
+                rounded-3xl
+                border border-(--border)
+                bg-white
+              "
             >
-              <span className="font-medium">{category}</span>
+              {/* CATEGORY HEADER */}
 
-              <ChevronDown size={18} className={opened ? "rotate-180" : ""} />
-            </button>
+              <button
+                type="button"
+                onClick={() => toggleCategory(category)}
+                className="
+                  flex
+                  w-full
+                  items-center
+                  justify-between
+                  px-5
+                  py-4
+                  transition
+                  hover:bg-(--cream)
+                "
+              >
+                <span
+                  className="
+                  font-semibold
+                  text-(--black)
+                "
+                >
+                  {category}
+                </span>
 
-            {opened && (
-              <div className="space-y-2 p-3">
-                {items.map((service) => {
-                  const selected = isSelected(service._id);
+                <ChevronDown
+                  size={20}
+                  className={`
+                    transition-transform
+                    ${opened ? "rotate-180" : ""}
+                  `}
+                />
+              </button>
 
-                  return (
-                    <button
-                      key={service._id}
-                      type="button"
-                      onClick={() => toggleService(service)}
-                      className={`flex w-full items-center justify-between rounded-xl border p-3 text-left ${
-                        selected ? "border-black bg-black text-white" : ""
-                      }`}
-                    >
-                      <div>
-                        <p className="font-medium">{service.name}</p>
+              {opened && (
+                <div
+                  className="
+                    flex
+                    flex-col
+                    gap-3
+                    border-t border-(--border)
+                    p-4
+                    bg-(--cream)
+                  "
+                >
+                  {items.map((service) => {
+                    const selected = isSelected(service._id);
 
-                        <p className="text-sm opacity-70">
-                          {service.price} DA
-                          {" • "}
-                          {service.duration} min
-                        </p>
-                      </div>
+                    return (
+                      <button
+                        key={service._id}
+                        type="button"
+                        onClick={() => toggleService(service)}
+                        className={`
+                          flex
+                          items-center
+                          justify-between
+                          rounded-2xl
+                          border
+                          p-4
+                          text-left
+                          transition
+                          ${
+                            selected
+                              ? `
+                              border-(--black)
+                              bg-(--black)
+                              text-(--cream)
+                            `
+                              : `
+                              border-(--border)
+                              bg-white
+                              hover:border-(--champagne)
+                            `
+                          }
+                        `}
+                      >
+                        <div>
+                          <p
+                            className="
+                            font-semibold
+                          "
+                          >
+                            {service.name}
+                          </p>
 
-                      {selected && <Check size={18} />}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        );
-      })}
+                          <p
+                            className={`
+                              mt-1
+                              text-sm
+                              ${selected ? "text-(--cream)" : "text-stone-500"}
+                            `}
+                          >
+                            {service.price} DA
+                            {" • "}
+                            {service.duration} minutes
+                          </p>
+                        </div>
+
+                        {selected && (
+                          <div
+                            className="
+                              flex
+                              h-8
+                              w-8
+                              items-center
+                              justify-center
+                              rounded-full
+                              bg-(--cream)
+                              text-(--black)
+                            "
+                          >
+                            <Check size={17} />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

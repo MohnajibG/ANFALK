@@ -1,9 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from "react";
+// src/pages/admin/Clients.tsx
+
+import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Search, Plus, User, Euro, Eye, Pencil } from "lucide-react";
+import { Search, Plus, User, Wallet, Eye, Pencil } from "lucide-react";
 
 import { getClients } from "../../api/client.api";
+
 import AddClientModal from "../../components/admin/AddClientModal";
 
 interface Client {
@@ -20,11 +22,11 @@ interface Client {
 export default function Clients() {
   const [clients, setClients] = useState<Client[]>([]);
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [openModal, setOpenModal] = useState(false);
 
-  const loadClients = async () => {
+  const loadClients = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
@@ -35,154 +37,167 @@ export default function Clients() {
         limit: 20,
       });
 
-      setClients(data.clients || []);
-    } catch (err: any) {
-      setError(err.message || "Unable to load clients");
+      setClients(data.clients ?? []);
+    } catch (err) {
+      console.error("Erreur chargement clients", err);
+
+      setError("Impossible de charger les clientes.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [search]);
 
   useEffect(() => {
-    let ignore = false;
+    const timer = setTimeout(() => {
+      loadClients();
+    }, 400);
 
-    const fetchClients = async () => {
-      try {
-        setLoading(true);
-
-        const data = await getClients({
-          search,
-          page: 1,
-          limit: 20,
-        });
-
-        if (!ignore) {
-          setClients(data.clients || []);
-        }
-      } catch (err: any) {
-        if (!ignore) {
-          setError(err.message || "Unable to load clients");
-        }
-      } finally {
-        if (!ignore) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchClients();
-
-    return () => {
-      ignore = true;
-    };
-  }, [search]);
+    return () => clearTimeout(timer);
+  }, [loadClients]);
 
   return (
     <div className="w-full space-y-6">
-      <div className="rounded-3xl bg-white border border-[#eadfce] p-6 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+      {/* HEADER */}
+
+      <section className="flex flex-col gap-5 rounded-3xl border border-(--border) bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.4em] text-[#8b7560]">
+          <p className="text-xs uppercase tracking-[0.35em] text-(--brown)">
             Administration
           </p>
 
-          <h1 className="mt-2 font-serif text-3xl font-bold text-[#111]">
-            Clients Management
+          <h1 className="mt-2 font-title text-3xl font-bold text-(--black)">
+            Gestion des clientes
           </h1>
 
-          <p className="mt-2 text-sm text-gray-500">
-            Manage customer profiles and history.
+          <p className="mt-2 text-sm text-(--muted)">
+            Consultez les profils clients et leur historique.
           </p>
         </div>
 
         <button
           onClick={() => setOpenModal(true)}
-          className="flex items-center justify-center gap-2 rounded-xl bg-[#3E2C23] px-5 py-3 text-[#FFF4D6] transition hover:bg-[#5a3a1e]"
+          className="flex items-center justify-center gap-2 rounded-2xl bg-(--black) px-5 py-3 text-(--cream) transition hover:opacity-90"
         >
           <Plus size={18} />
-          Add Client
+          Ajouter une cliente
         </button>
-      </div>
+      </section>
 
-      <div className="rounded-3xl bg-white border border-[#eadfce] p-4 flex items-center gap-3">
-        <Search size={20} />
+      {/* SEARCH */}
+
+      <section className="flex items-center gap-3 rounded-2xl border border-(--border) bg-white p-4">
+        <Search size={20} className="text-(--brown)" />
 
         <input
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search client..."
-          className="w-full bg-transparent outline-none"
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Rechercher une cliente..."
+          className="h-10 w-full bg-transparent text-sm outline-none"
         />
-      </div>
+      </section>
+
+      {/* ERROR */}
 
       {error && (
-        <div className="rounded-xl bg-red-50 p-4 text-red-600">{error}</div>
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+          {error}
+        </div>
       )}
 
-      <div className="overflow-hidden rounded-3xl bg-white border border-[#eadfce]">
+      {/* LIST */}
+
+      <section className="overflow-hidden rounded-3xl border border-(--border) bg-white">
         {loading ? (
-          <div className="p-10 text-center text-gray-500">
-            Loading clients...
+          <div className="p-10 text-center text-(--brown)">
+            Chargement des clientes...
           </div>
         ) : clients.length === 0 ? (
-          <div className="p-10 text-center text-gray-500">
-            No clients found.
+          <div className="p-10 text-center text-(--brown)">
+            Aucune cliente trouvée.
           </div>
         ) : (
-          clients.map((client) => (
-            <motion.div
-              key={client._id}
-              whileHover={{ backgroundColor: "#faf7f0" }}
-              className="grid gap-4 border-b border-[#eee] p-5 md:grid-cols-6 md:items-center"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FFF4D6]">
-                  <User size={18} />
+          <div className="flex flex-col">
+            {clients.map((client) => (
+              <motion.div
+                key={client._id}
+                whileHover={{ scale: 1.01 }}
+                className="flex flex-col gap-5 border-b border-(--border) p-5 transition last:border-none lg:flex-row lg:items-center lg:justify-between"
+              >
+                {/* CLIENT */}
+
+                <div className="flex items-center gap-3 min-w-57.5">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-(--cream) text-(--brown)">
+                    <User size={20} />
+                  </div>
+
+                  <div>
+                    <p className="font-semibold text-(--black)">
+                      {client.firstName} {client.lastName}
+                    </p>
+
+                    <p className="text-sm text-(--muted)">
+                      {client.email || "Email non renseigné"}
+                    </p>
+                  </div>
                 </div>
 
-                <div>
-                  <p className="font-semibold">
-                    {client.firstName} {client.lastName}
-                  </p>
+                {/* PHONE */}
 
-                  <p className="text-xs text-gray-500">{client.email || "-"}</p>
+                <div className="text-sm">
+                  <p className="text-(--muted)">Téléphone</p>
+
+                  <p className="font-medium">{client.phone}</p>
                 </div>
-              </div>
 
-              <span>{client.phone}</span>
+                {/* VISITS */}
 
-              <span className="text-sm font-medium">
-                {client.visitCount} visits
-              </span>
+                <div className="text-sm">
+                  <p className="text-(--muted)">Visites</p>
 
-              <span className="flex items-center gap-1 font-semibold">
-                <Euro size={14} />
-                {client.totalSpent} DA
-              </span>
+                  <p className="font-semibold">{client.visitCount}</p>
+                </div>
 
-              <span className="text-sm text-gray-500">
-                {client.lastVisit || "-"}
-              </span>
+                {/* MONEY */}
 
-              <div className="flex gap-2">
-                <button className="rounded-lg bg-[#FFF4D6] p-2">
-                  <Eye size={16} />
-                </button>
+                <div className="flex items-center gap-2 text-sm">
+                  <Wallet size={17} className="text-(--brown)" />
 
-                <button className="rounded-lg bg-[#3E2C23] p-2 text-white">
-                  <Pencil size={16} />
-                </button>
-              </div>
-            </motion.div>
-          ))
+                  <span className="font-semibold">{client.totalSpent} DA</span>
+                </div>
+
+                {/* LAST VISIT */}
+
+                <div className="text-sm">
+                  <p className="text-(--muted)">Dernière visite</p>
+
+                  <p>{client.lastVisit || "-"}</p>
+                </div>
+
+                {/* ACTIONS */}
+
+                <div className="flex gap-2">
+                  <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-(--cream) text-(--brown) transition hover:scale-105">
+                    <Eye size={17} />
+                  </button>
+
+                  <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-(--black) text-white transition hover:scale-105">
+                    <Pencil size={17} />
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         )}
-      </div>
+      </section>
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard title="Total Clients" value={clients.length.toString()} />
+      {/* STATS */}
 
-        <StatCard title="Active Clients" value={clients.length.toString()} />
+      <div className="flex flex-col gap-4 sm:flex-row">
+        <StatCard title="Total clientes" value={`${clients.length}`} />
 
-        <StatCard title="Average Revenue" value="0 DA" />
+        <StatCard title="Clientes actives" value={`${clients.length}`} />
+
+        <StatCard title="Chiffre moyen" value="0 DA" />
       </div>
 
       <AddClientModal
@@ -198,11 +213,11 @@ function StatCard({ title, value }: { title: string; value: string }) {
   return (
     <motion.div
       whileHover={{ y: -4 }}
-      className="rounded-3xl bg-white border border-[#eadfce] p-6"
+      className="flex-1 rounded-3xl border border-(--border) bg-white p-6"
     >
-      <p className="text-sm text-gray-500">{title}</p>
+      <p className="text-sm text-(--muted)">{title}</p>
 
-      <h2 className="mt-2 text-3xl font-bold">{value}</h2>
+      <h2 className="mt-2 text-3xl font-bold text-(--black)">{value}</h2>
     </motion.div>
   );
 }

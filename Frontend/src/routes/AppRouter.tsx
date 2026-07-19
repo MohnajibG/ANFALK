@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import Home from "../pages/Home";
 import Login from "../pages/auth/Login";
@@ -10,41 +10,52 @@ import EmployeeLayout from "../layouts/EmployeeLayout";
 import ProtectedRoute from "./ProtectedRoute";
 import RoleRoute from "./RoleRoute";
 
+// =====================
 // ADMIN
+// =====================
+
 import Dashboard from "../pages/admin/Dashboard";
 import Clients from "../pages/admin/Clients";
 import Employees from "../pages/admin/Employees";
+import Categories from "../pages/admin/Categories";
 import Services from "../pages/admin/Services";
+import Appointments from "../pages/admin/Appointments";
+// import Tickets from "../pages/admin/Tickets";
 
+// =====================
 // CASHIER
+// =====================
+
 import CashierDashboard from "../pages/cashier/Dashboard";
 import POS from "../pages/cashier/POS";
 import Customers from "../pages/cashier/Customers";
-import Tickets from "../pages/cashier/Tickets";
+import CashierTickets from "../pages/cashier/Tickets";
 
+// =====================
 // EMPLOYEE
+// =====================
+
 import EmployeeDashboard from "../pages/employee/Dashboard";
 import MyAppointments from "../pages/employee/MyAppointments";
 import MyStatistics from "../pages/employee/MyStatistics";
 import EmployeeServices from "../pages/employee/Services";
 import EmployeeProfile from "../pages/employee/Profile";
-import Categories from "../pages/admin/Categories";
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* ===================== */}
-        {/* 🌐 PUBLIC */}
-        {/* ===================== */}
+        {/* =====================
+            PUBLIC
+        ====================== */}
 
         <Route path="/" element={<Home />} />
 
         <Route path="/login" element={<Login />} />
 
-        {/* ===================== */}
-        {/* 👑 ADMIN AREA */}
-        {/* ===================== */}
+        {/* =====================
+            ADMIN
+        ====================== */}
 
         <Route
           path="/admin/*"
@@ -56,7 +67,8 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<Dashboard />} />
+          <Route index element={<Navigate to="dashboard" replace />} />
+
           <Route path="dashboard" element={<Dashboard />} />
 
           <Route path="clients" element={<Clients />} />
@@ -66,16 +78,15 @@ export default function AppRouter() {
           <Route path="categories" element={<Categories />} />
 
           <Route path="services" element={<Services />} />
-          <Route
-            path="appointments"
-            element={<Navigate to="/admin/appointments/2026-03" replace />}
-          />
-          <Route path="appointments/:month" element={<MyAppointments />} />
+
+          <Route path="appointments" element={<Appointments />} />
+
+          {/* <Route path="tickets" element={<Tickets />} /> */}
         </Route>
 
-        {/* ===================== */}
-        {/* 💰 CASHIER AREA */}
-        {/* ===================== */}
+        {/* =====================
+            CASHIER
+        ====================== */}
 
         <Route
           path="/cashier/*"
@@ -87,15 +98,20 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<CashierDashboard />} />
+          <Route index element={<Navigate to="dashboard" replace />} />
+
+          <Route path="dashboard" element={<CashierDashboard />} />
+
           <Route path="customers" element={<Customers />} />
-          <Route path="tickets" element={<Tickets />} />
+
           <Route path="pos" element={<POS />} />
+
+          <Route path="tickets" element={<CashierTickets />} />
         </Route>
 
-        {/* ===================== */}
-        {/* 💄 EMPLOYEE AREA */}
-        {/* ===================== */}
+        {/* =====================
+            EMPLOYEE
+        ====================== */}
 
         <Route
           path="/employee/*"
@@ -107,37 +123,27 @@ export default function AppRouter() {
             </ProtectedRoute>
           }
         >
-          {/* DEFAULT DASHBOARD */}
+          <Route index element={<Navigate to="dashboard" replace />} />
 
-          <Route index element={<EmployeeDashboard />} />
-
-          {/* SERVICES */}
-
-          <Route path="services" element={<EmployeeServices />} />
-
-          {/* APPOINTMENTS */}
+          <Route path="dashboard" element={<EmployeeDashboard />} />
 
           <Route path="appointments" element={<MyAppointments />} />
 
-          {/* STATISTICS DEFAULT */}
+          <Route path="services" element={<EmployeeServices />} />
 
           <Route
             path="statistics"
             element={<Navigate to="/employee/statistics/2026-03" replace />}
           />
 
-          {/* STATISTICS BY MONTH */}
-
           <Route path="statistics/:month" element={<MyStatistics />} />
-
-          {/* PROFILE */}
 
           <Route path="profile" element={<EmployeeProfile />} />
         </Route>
 
-        {/* ===================== */}
-        {/* 404 */}
-        {/* ===================== */}
+        {/* =====================
+            404
+        ====================== */}
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
