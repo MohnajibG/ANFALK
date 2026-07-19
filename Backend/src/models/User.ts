@@ -12,8 +12,12 @@ export interface IUser extends Document {
   password: string;
   phone: string;
 
+  avatar?: string;
+
   role: UserRole;
   speciality?: Speciality;
+
+  lastLogin?: Date;
 
   isActive: boolean;
   mustChangePassword: boolean;

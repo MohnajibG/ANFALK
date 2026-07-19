@@ -20,7 +20,7 @@ import Employees from "../pages/admin/Employees";
 import Categories from "../pages/admin/Categories";
 import Services from "../pages/admin/Services";
 import Appointments from "../pages/admin/Appointments";
-// import Tickets from "../pages/admin/Tickets";
+import Tickets from "../pages/admin/ticket";
 
 // =====================
 // CASHIER
@@ -30,7 +30,7 @@ import CashierDashboard from "../pages/cashier/Dashboard";
 import POS from "../pages/cashier/POS";
 import Customers from "../pages/cashier/Customers";
 import CashierTickets from "../pages/cashier/Tickets";
-
+import Profile from "../pages/employee/Profile";
 // =====================
 // EMPLOYEE
 // =====================
@@ -81,7 +81,7 @@ export default function AppRouter() {
 
           <Route path="appointments" element={<Appointments />} />
 
-          {/* <Route path="tickets" element={<Tickets />} /> */}
+          <Route path="tickets" element={<Tickets />} />
         </Route>
 
         {/* =====================
@@ -107,6 +107,8 @@ export default function AppRouter() {
           <Route path="pos" element={<POS />} />
 
           <Route path="tickets" element={<CashierTickets />} />
+
+          <Route path="profile" element={<Profile />} />
         </Route>
 
         {/* =====================

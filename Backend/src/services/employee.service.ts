@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+
 import User, { UserRole, Speciality } from "../models/User";
 
 import { hashPassword } from "../utils/hash";
@@ -11,34 +13,86 @@ interface CreateEmployeeData {
   speciality?: Speciality;
 }
 
+interface UpdateEmployeeData {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  role?: UserRole;
+  speciality?: Speciality;
+}
+
+const allowedRoles = ["employee", "cashier"] as const;
+
+const allowedSpecialities = [
+  "Hair",
+  "Nails",
+  "Makeup",
+  "Massage",
+  "Reception",
+] as const;
+
+const validateEmail = (email: string) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
+const generateTemporaryPassword = () => {
+  return Math.random().toString(36).slice(-8) + "!";
+};
+
+const validateEmployeeRole = (role: string) => {
+  if (!allowedRoles.includes(role as any)) {
+    throw new Error("Invalid employee role");
+  }
+};
+
+const validateSpeciality = (speciality?: string) => {
+  if (speciality && !allowedSpecialities.includes(speciality as any)) {
+    throw new Error("Invalid speciality");
+  }
+};
+
 /**
- * Créer un employee/cashier
+ * Création employee/cashier
  */
 export const createEmployee = async (
   data: CreateEmployeeData,
   adminId: string,
 ) => {
+  const firstName = data.firstName.trim();
+
+  const lastName = data.lastName.trim();
+
+  const email = data.email.trim().toLowerCase();
+
+  if (!validateEmail(email)) {
+    throw new Error("Invalid email format");
+  }
+
+  validateEmployeeRole(data.role);
+
+  validateSpeciality(data.speciality);
+
   const existingUser = await User.findOne({
-    email: data.email.toLowerCase(),
+    email,
+    isDeleted: false,
   });
 
   if (existingUser) {
     throw new Error("Email already exists");
   }
 
-  // Mot de passe temporaire
-  const temporaryPassword = "Temp1234!";
+  const temporaryPassword = generateTemporaryPassword();
 
   const hashedPassword = await hashPassword(temporaryPassword);
 
   const employee = await User.create({
-    firstName: data.firstName,
+    firstName,
 
-    lastName: data.lastName,
+    lastName,
 
-    email: data.email.toLowerCase(),
+    email,
 
-    phone: data.phone ?? "",
+    phone: data.phone?.trim() ?? "",
 
     password: hashedPassword,
 
@@ -56,11 +110,17 @@ export const createEmployee = async (
   return {
     employee: {
       id: employee.id,
+
       firstName: employee.firstName,
+
       lastName: employee.lastName,
+
       email: employee.email,
+
       role: employee.role,
+
       speciality: employee.speciality,
+
       mustChangePassword: employee.mustChangePassword,
     },
 
@@ -69,34 +129,44 @@ export const createEmployee = async (
 };
 
 /**
- * Récupérer tous les employees/cashiers
+ * Liste employés
  */
-
 export const getEmployees = async () => {
-  return await User.find({
+  return User.find({
     role: {
       $in: ["employee", "cashier"],
     },
 
     isDeleted: false,
   })
+
     .select("-password")
+
     .sort({
       createdAt: -1,
     });
 };
-/**
- * Récupérer un employee/cashier par son ID
- */
 
+/**
+ * Détail employé
+ */
 export const getEmployeeById = async (id: string) => {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new Error("Invalid employee id");
+  }
+
   const employee = await User.findOne({
     _id: id,
+
+    isDeleted: false,
+
     role: {
       $in: ["employee", "cashier"],
     },
   })
+
     .select("-password")
+
     .populate("createdBy", "firstName lastName email");
 
   if (!employee) {
@@ -105,48 +175,54 @@ export const getEmployeeById = async (id: string) => {
 
   return employee;
 };
-interface UpdateEmployeeData {
-  firstName?: string;
-  lastName?: string;
-  phone?: string;
-  role?: UserRole;
-  speciality?: Speciality;
-}
 
 /**
- * Mettre à jour un employee/cashier
+ * Modification employé
  */
-
 export const updateEmployee = async (id: string, data: UpdateEmployeeData) => {
-  const employee = await User.findById(id);
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new Error("Invalid employee id");
+  }
+
+  const employee = await User.findOne({
+    _id: id,
+
+    isDeleted: false,
+  });
 
   if (!employee) {
     throw new Error("Employee not found");
   }
 
-  // Protection : on ne modifie pas un admin
   if (employee.role === "admin") {
-    throw new Error("Cannot update admin account");
+    throw new Error("Cannot update admin");
   }
 
-  // Champs autorisés uniquement
-  if (data.firstName !== undefined) {
-    employee.firstName = data.firstName;
+  if (data.role) {
+    validateEmployeeRole(data.role);
   }
 
-  if (data.lastName !== undefined) {
-    employee.lastName = data.lastName;
+  if (data.speciality) {
+    validateSpeciality(data.speciality);
+  }
+
+  if (data.firstName) {
+    employee.firstName = data.firstName.trim();
+  }
+
+  if (data.lastName) {
+    employee.lastName = data.lastName.trim();
   }
 
   if (data.phone !== undefined) {
-    employee.phone = data.phone;
+    employee.phone = data.phone.trim();
   }
 
-  if (data.role !== undefined) {
+  if (data.role) {
     employee.role = data.role;
   }
 
-  if (data.speciality !== undefined) {
+  if (data.speciality) {
     employee.speciality = data.speciality;
   }
 
@@ -156,18 +232,21 @@ export const updateEmployee = async (id: string, data: UpdateEmployeeData) => {
 };
 
 /**
- * Activer/Désactiver un employee/cashier
+ * Activation / désactivation
  */
-
 export const updateEmployeeStatus = async (id: string, isActive: boolean) => {
-  const employee = await User.findById(id);
+  const employee = await User.findOne({
+    _id: id,
+
+    isDeleted: false,
+  });
 
   if (!employee) {
     throw new Error("Employee not found");
   }
 
   if (employee.role === "admin") {
-    throw new Error("Cannot disable admin account");
+    throw new Error("Cannot disable admin");
   }
 
   employee.isActive = isActive;
@@ -177,17 +256,22 @@ export const updateEmployeeStatus = async (id: string, isActive: boolean) => {
   return employee;
 };
 
-/** * Supprimer un employee/cashier */
-
+/**
+ * Suppression logique
+ */
 export const deleteEmployee = async (id: string, adminId: string) => {
-  const employee = await User.findById(id);
+  const employee = await User.findOne({
+    _id: id,
+
+    isDeleted: false,
+  });
 
   if (!employee) {
     throw new Error("Employee not found");
   }
 
   if (employee.role === "admin") {
-    throw new Error("Cannot delete admin account");
+    throw new Error("Cannot delete admin");
   }
 
   employee.isDeleted = true;
