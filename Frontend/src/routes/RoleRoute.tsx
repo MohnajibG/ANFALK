@@ -7,17 +7,33 @@ export default function RoleRoute({
   children: React.ReactNode;
   role: "admin" | "cashier" | "employee";
 }) {
-  const userRole = localStorage.getItem("role");
+  const storedUser = localStorage.getItem("user");
+
+  const user = storedUser ? JSON.parse(storedUser) : null;
+
+  const userRole = user?.role;
+
+  console.log("ROLE CHECK:", userRole);
+
+  if (!userRole) {
+    return <Navigate to="/login" replace />;
+  }
 
   if (userRole !== role) {
-    // redirection intelligente selon rôle réel
-    if (userRole === "admin") return <Navigate to="/admin" />;
-    if (userRole === "cashier") return <Navigate to="/cashier" />;
-    if (userRole === "employee") return <Navigate to="/employee" />;
+    switch (userRole) {
+      case "admin":
+        return <Navigate to="/admin/dashboard" replace />;
 
-    return <Navigate to="/login" />;
+      case "cashier":
+        return <Navigate to="/cashier/dashboard" replace />;
+
+      case "employee":
+        return <Navigate to="/employee/dashboard" replace />;
+
+      default:
+        return <Navigate to="/login" replace />;
+    }
   }
 
   return <>{children}</>;
 }
-// test pour voir si ca marche

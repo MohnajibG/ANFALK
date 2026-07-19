@@ -1,21 +1,50 @@
 import api from "./axios";
 
-export const getEmployees = async (params?: { search?: string }) => {
-  const response = await api.get("/employees", {
-    params,
-  });
+import type { Employee } from "../types/employee";
 
-  return response.data;
+interface EmployeeFilters {
+  search?: string;
+  role?: "employee" | "cashier";
+  isActive?: boolean;
+  limit?: number;
+}
+
+export const getEmployees = async (
+  params?: EmployeeFilters,
+): Promise<Employee[]> => {
+  try {
+    const response = await api.get("/employees", {
+      params,
+    });
+
+    return response.data.employees ?? response.data;
+  } catch (error) {
+    console.error("[Employee API] getEmployees:", error);
+
+    throw error;
+  }
 };
 
 export const updateEmployeeStatus = async (id: string) => {
-  const response = await api.patch(`/employees/${id}/status`);
+  try {
+    const response = await api.patch(`/employees/${id}/status`);
 
-  return response.data;
+    return response.data;
+  } catch (error) {
+    console.error("[Employee API] updateEmployeeStatus:", error);
+
+    throw error;
+  }
 };
 
 export const deleteEmployee = async (id: string) => {
-  const response = await api.delete(`/employees/${id}`);
+  try {
+    const response = await api.delete(`/employees/${id}`);
 
-  return response.data;
+    return response.data;
+  } catch (error) {
+    console.error("[Employee API] deleteEmployee:", error);
+
+    throw error;
+  }
 };

@@ -24,7 +24,8 @@ const Login = () => {
 
     setError("");
     setLoading(true);
-
+    console.log("EMAIL:", email);
+    console.log("PASSWORD:", password);
     try {
       const response = await fetch(
         "https://site--ankelk--dnxhn8mdblq5.code.run/api/auth/login",
@@ -43,13 +44,14 @@ const Login = () => {
       const data = await response.json();
 
       console.log("LOGIN RESPONSE:", data);
-
+      console.log("USER:", data.user);
       if (!response.ok) {
         throw new Error(data.message || "Email ou mot de passe incorrect");
       }
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("role", data.user.role);
 
       const role: Role = data.user.role;
 
@@ -153,7 +155,7 @@ const Login = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-gray-600"
                   >
                     {showPassword ? <EyeOff size={19} /> : <Eye size={19} />}
                   </button>
