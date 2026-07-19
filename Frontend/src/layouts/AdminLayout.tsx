@@ -39,6 +39,51 @@ const AdminLayout = () => {
 
   return (
     <div className="flex min-h-screen bg-[#fff4d6]">
+      {/* MOBILE TOP MENU */}
+      <header className="fixed top-0 left-0 z-50 flex h-16 w-full items-center justify-around border-b border-[#eadfce] bg-white px-2 md:hidden">
+        {links.map(({ path, icon: Icon, label }) => (
+          <button
+            key={path}
+            title={label}
+            onClick={() => navigate(path)}
+            className={`flex h-10 w-10 items-center justify-center rounded-xl ${isActive(path) ? "bg-black text-[#77736b]" : "text-red-600 hover:bg-[#f7efe2]"}`}
+          >
+            <Icon size={20} />
+          </button>
+        ))}
+
+        <button
+          onClick={logout}
+          className="flex h-10 w-10 items-center justify-center rounded-xl bg-black text-white"
+        >
+          <LogOut size={18} />
+        </button>
+      </header>
+
+      {/* TABLET SIDEBAR */}
+      <aside className="fixed left-0 top-0 hidden h-screen w-20 flex-col items-center border-r border-[#eadfce] bg-white py-6 md:flex lg:hidden">
+        <h1 className="mb-8 font-serif text-xl font-bold">AK</h1>
+
+        <nav className="flex flex-1 flex-col gap-3">
+          {links.map(({ path, icon: Icon, label }) => (
+            <button
+              key={path}
+              title={label}
+              onClick={() => navigate(path)}
+              className={`flex h-11 w-11 items-center justify-center rounded-xl ${isActive(path) ? "bg-black text-fuchsia-500" : "text-[#6f6257] hover:bg-[#f7efe2]"}`}
+            >
+              <Icon size={20} />
+            </button>
+          ))}
+        </nav>
+
+        <button
+          onClick={logout}
+          className="flex h-11 w-11 items-center justify-center rounded-xl bg-black text-white"
+        >
+          <LogOut size={18} />
+        </button>
+      </aside>
       <aside
         className={`hidden h-screen shrink-0 flex-col border-r border-[#eadfce] bg-white transition-all duration-300 lg:flex ${
           collapsed ? "w-24" : "w-72"
@@ -124,7 +169,7 @@ const AdminLayout = () => {
         </div>
       </header>
 
-      <main className="min-h-screen min-w-0 flex-1 p-4 pb-24 sm:p-6 lg:p-8">
+      <main className="min-h-screen min-w-0 flex-1 p-4 pb-24 mt-7 sm:p-6 lg:p-8">
         <Outlet />
       </main>
     </div>

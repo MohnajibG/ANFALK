@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
@@ -17,8 +15,8 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (event: React.FormEvent) => {
+    event.preventDefault();
 
     if (loading) return;
 
@@ -64,63 +62,71 @@ const Login = () => {
       };
 
       navigate(routes[role]);
-    } catch (err: any) {
-      console.error("LOGIN ERROR:", err);
-
-      setError(err.message || "Impossible de se connecter au serveur");
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Impossible de se connecter au serveur",
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-[#fff4d6] p-4 lg:p-0">
-      <div className="grid min-h-162.5 w-full max-w-6xl overflow-hidden rounded-3xl bg-white shadow-2xl lg:grid-cols-2">
-        <div className="relative hidden lg:block">
+    <div className="flex min-h-screen w-full flex-col items-center justify-center bg-(--cream) p-4 sm:p-6 lg:p-8">
+      <div className="flex w-full max-w-6xl flex-col overflow-hidden rounded-md bg-(--white) shadow-(--shadow-md) lg:flex-row">
+        {/* IMAGE DESKTOP */}
+        <div className="relative hidden min-h-162.5 flex-1 lg:flex">
           <img
             src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1200&q=80"
-            alt="ANFEL K Institute"
+            alt="Institut ANFEL K"
             className="absolute inset-0 h-full w-full object-cover"
           />
 
           <div className="absolute inset-0 bg-black/40" />
 
-          <div className="absolute bottom-14 left-12 text-white">
+          <div className="relative z-10 flex flex-col justify-end p-12 text-white">
             <motion.h1
-              initial={{ opacity: 0, x: -30 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="font-serif text-6xl font-bold tracking-[0.15em]"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="font-title text-6xl font-bold tracking-[0.15em]"
             >
               ANFEL K
             </motion.h1>
 
-            <p className="mt-3 text-sm uppercase tracking-[0.5em] text-white/80">
+            <p className="mt-3 font-body text-center text-xs uppercase tracking-[0.5em] text-white/80">
               INSTITUTE
             </p>
 
-            <p className="mt-8 max-w-sm text-lg text-white/80">
-              Beauty management system for modern institutes
+            <p className="mt-8 max-w-sm  font-body  text-right text-lg text-white/80">
+              Système de gestion
             </p>
           </div>
         </div>
 
-        <div className="flex items-center justify-center p-8 sm:p-12">
+        {/* FORMULAIRE */}
+        <div className="flex flex-1 items-center justify-center p-6 sm:p-10 lg:p-12">
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-md"
+            transition={{ duration: 0.5 }}
+            className="flex w-full max-w-md flex-col"
           >
             <div className="mb-10">
-              <h2 className="font-serif text-4xl font-bold">Welcome Back</h2>
+              <h2 className="font-title text-4xl font-bold text-(--dark)">
+                Bienvenue
+              </h2>
 
-              <p className="mt-3 text-sm text-gray-500">
-                Connect to your professional workspace
+              <p className="mt-3 font-body text-sm text-(--muted)">
+                Connectez-vous à votre espace professionnel
               </p>
             </div>
 
-            <form onSubmit={handleLogin} className="space-y-6">
-              <div>
-                <label className="text-sm font-medium text-gray-700">
+            <form onSubmit={handleLogin} className="flex flex-col gap-6">
+              <div className="flex flex-col gap-2">
+                <label className="font-body text-sm font-semibold text-(--text)">
                   Email
                 </label>
 
@@ -128,31 +134,31 @@ const Login = () => {
                   type="email"
                   autoComplete="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(event) => setEmail(event.target.value)}
                   placeholder="admin@anfelk.com"
-                  className="mt-2 w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-[#5a3a1e] focus:ring-2 focus:ring-[#5a3a1e]/20"
+                  className="rounded-2xl border border-(--border) px-4 py-3 font-body outline-none transition focus:border-(--gold) focus:ring-4 focus:ring-(--gold)/10"
                 />
               </div>
 
-              <div>
-                <label className="text-sm font-medium text-gray-700">
-                  Password
+              <div className="flex flex-col gap-2">
+                <label className="font-body text-sm font-semibold text-(--text)">
+                  Mot de passe
                 </label>
 
-                <div className="relative mt-2">
+                <div className="relative flex">
                   <input
                     type={showPassword ? "text" : "password"}
                     autoComplete="current-password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(event) => setPassword(event.target.value)}
                     placeholder="••••••••"
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 pr-12 outline-none focus:border-[#5a3a1e] focus:ring-2 focus:ring-[#5a3a1e]/20"
+                    className="w-full rounded-2xl border border-(--border) px-4 py-3 pr-12 font-body outline-none transition focus:border-(--gold) focus:ring-4 focus:ring-(--gold)/10"
                   />
 
                   <button
                     type="button"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 transition hover:text-gray-600"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-(--muted) transition hover:text-(--black)"
                   >
                     {showPassword ? <EyeOff size={19} /> : <Eye size={19} />}
                   </button>
@@ -160,30 +166,30 @@ const Login = () => {
               </div>
 
               {error && (
-                <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
+                <div className="rounded-xl bg-red-50 px-4 py-3 font-body text-sm text-red-600">
                   {error}
                 </div>
               )}
 
               <button
                 disabled={loading}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#111] py-3 font-semibold text-white transition hover:bg-[#5a3a1e] disabled:opacity-60"
+                className="flex items-center justify-center gap-2 rounded-xl bg-(--black) py-3 font-body font-semibold text-(--white) transition hover:bg-(--gold) disabled:opacity-60"
               >
                 {loading ? (
                   <>
                     <Loader2 size={18} className="animate-spin" />
-                    Signing in...
+                    Connexion...
                   </>
                 ) : (
-                  "Sign In"
+                  "Se connecter"
                 )}
               </button>
             </form>
 
-            <div className="mt-10 text-center text-xs uppercase tracking-[0.3em] text-gray-400">
+            <div className="mt-10 text-center font-body text-xs uppercase tracking-[0.3em] text-(--muted)">
               ANFEL K APP
               <br />
-              Professional Edition
+              Édition professionnelle
             </div>
           </motion.div>
         </div>
