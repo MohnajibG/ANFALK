@@ -98,7 +98,7 @@ const Hero = () => {
       </div>
 
       {/* Indicateurs */}
-      <div className="absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 gap-3">
+      <div className="absolute bottom-12 left-1/2 z-20 flex -translate-x-1/2 gap-3 ">
         {images.map((_, index) => (
           <button
             key={index}
