@@ -39,8 +39,7 @@ const AppointmentForm = ({ services, onSuccess }: AppointmentFormProps) => {
   const [customPrice, setCustomPrice] = useState<number | null>(null);
 
   const [customDuration, setCustomDuration] = useState<number | null>(null);
-  const [customEndTime, setCustomEndTime] = useState("");
-
+  const [customEndTime, setCustomEndTime] = useState<string | null>(null);
   const [notes, setNotes] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);

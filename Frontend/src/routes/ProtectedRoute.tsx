@@ -8,11 +8,6 @@ export default function ProtectedRoute({
   const token = localStorage.getItem("token");
   const user = localStorage.getItem("user");
 
-  console.log("PROTECTED CHECK:", {
-    token: !!token,
-    user: !!user,
-  });
-
   if (!token || !user) {
     localStorage.removeItem("token");
     localStorage.removeItem("user");

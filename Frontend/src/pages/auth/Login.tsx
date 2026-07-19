@@ -24,8 +24,7 @@ const Login = () => {
 
     setError("");
     setLoading(true);
-    console.log("EMAIL:", email);
-    console.log("PASSWORD:", password);
+
     try {
       const response = await fetch(
         "https://site--ankelk--dnxhn8mdblq5.code.run/api/auth/login",
@@ -43,8 +42,6 @@ const Login = () => {
 
       const data = await response.json();
 
-      console.log("LOGIN RESPONSE:", data);
-      console.log("USER:", data.user);
       if (!response.ok) {
         throw new Error(data.message || "Email ou mot de passe incorrect");
       }

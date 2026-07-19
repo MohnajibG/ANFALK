@@ -13,8 +13,6 @@ export default function RoleRoute({
 
   const userRole = user?.role;
 
-  console.log("ROLE CHECK:", userRole);
-
   if (!userRole) {
     return <Navigate to="/login" replace />;
   }
