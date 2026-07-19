@@ -10,13 +10,13 @@ import {
 import { getCategories } from "../../api/category.api";
 
 import type { Service } from "../../types/service";
+import type { Category } from "../../types/category";
 
 import ServiceTable from "../../components/tables/ServiceTable";
 import AddServiceModal from "../../components/service/AddServiceModal";
 import EditServiceModal from "../../components/service/EditServiceModal";
 import ViewServiceModal from "../../components/service/ViewServiceModal";
 import DeleteServiceModal from "../../components/service/DeleteServiceModal";
-import type { Category } from "../../types/category";
 
 type ModalType = "add" | "edit" | "view" | "delete" | null;
 
@@ -25,37 +25,69 @@ const Services = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
 
+  const [modal, setModal] = useState<ModalType>(null);
+
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("all");
+
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
-  const [modal, setModal] = useState<ModalType>(null);
-
   useEffect(() => {
+    let active = true;
+
     const loadData = async () => {
       try {
-        setLoading(true);
-        setError("");
-
         const [servicesData, categoriesData] = await Promise.all([
           getServices(),
           getCategories(),
         ]);
 
-        setServices(servicesData);
+        if (!active) return;
 
-        setCategories(categoriesData);
+        setServices(Array.isArray(servicesData) ? servicesData : []);
+        setCategories(Array.isArray(categoriesData) ? categoriesData : []);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Unable to load data");
+        if (!active) return;
+
+        console.error("[Services] loadData:", err);
+
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Impossible de charger les services",
+        );
       } finally {
-        setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     };
 
     loadData();
+
+    return () => {
+      active = false;
+    };
   }, []);
+
+  const filteredServices = useMemo(() => {
+    return services.filter((service) => {
+      const searchMatch = service.name
+        .toLowerCase()
+        .includes(search.toLowerCase());
+
+      const categoryMatch =
+        category === "all" || service.category?.name === category;
+
+      return searchMatch && categoryMatch;
+    });
+  }, [services, search, category]);
+
+  const totalPrice = useMemo(() => {
+    return services.reduce((total, service) => total + service.price, 0);
+  }, [services]);
 
   const handleDelete = async () => {
     if (!selectedService) return;
@@ -65,12 +97,14 @@ const Services = () => {
 
       await deleteService(selectedService._id);
 
-      setServices((prev) => prev.filter((s) => s._id !== selectedService._id));
+      setServices((current) =>
+        current.filter((item) => item._id !== selectedService._id),
+      );
 
       setSelectedService(null);
       setModal(null);
     } catch (err) {
-      console.error("Delete service error:", err);
+      console.error("[Services] delete:", err);
     } finally {
       setDeleteLoading(false);
     }
@@ -80,105 +114,93 @@ const Services = () => {
     try {
       const updated = await toggleServiceStatus(service._id);
 
-      setServices((prev) =>
-        prev.map((s) => (s._id === service._id ? updated : s)),
+      setServices((current) =>
+        current.map((item) => (item._id === service._id ? updated : item)),
       );
     } catch (err) {
-      console.error("Toggle service error:", err);
+      console.error("[Services] toggle:", err);
     }
   };
 
-  const filteredServices = useMemo(
-    () =>
-      services.filter((service) => {
-        const matchSearch = service.name
-          .toLowerCase()
-          .includes(search.toLowerCase());
-
-        const matchCategory =
-          category === "all" || service.category?.name === category;
-
-        return matchSearch && matchCategory;
-      }),
-    [services, search, category],
-  );
-
-  const totalPrice = useMemo(
-    () => services.reduce((sum, item) => sum + item.price, 0),
-    [services],
-  );
-
-  if (loading)
+  if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        Loading services...
+      <div className="flex min-h-100 items-center justify-center text-gray-500">
+        Chargement des services...
       </div>
     );
-
-  if (error)
-    return (
-      <div className="rounded-3xl bg-red-50 p-6 text-red-600">{error}</div>
-    );
+  }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="w-full space-y-6">
       <section className="flex flex-col gap-5 rounded-3xl border border-[#eadfce] bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.4em] text-[#8b7560]">
             Administration
           </p>
 
-          <h1 className="mt-3 font-serif text-3xl font-bold">
-            Services Management
+          <h1 className="mt-3 font-serif text-3xl font-bold text-[#111]">
+            Gestion des services
           </h1>
 
-          <p className="mt-2 text-gray-500">Manage institute services.</p>
+          <p className="mt-2 text-sm text-gray-500">
+            Gérez les prestations de l'institut.
+          </p>
         </div>
 
         <button
           onClick={() => setModal("add")}
-          className="flex items-center gap-2 rounded-xl bg-[#111] px-5 py-3 text-white"
+          className="flex items-center justify-center gap-2 rounded-xl bg-[#3E2C23] px-5 py-3 text-[#fff4d6] transition hover:bg-[#5a3a1e]"
         >
           <Plus size={18} />
-          Add Service
+          Ajouter un service
         </button>
       </section>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard icon={Scissors} title="Services" value={services.length} />
-        <StatCard icon={Layers} title="Categories" value={categories.length} />
-        <StatCard icon={Euro} title="Total Price" value={`${totalPrice} DA`} />
+        <StatCard icon={Layers} title="Catégories" value={categories.length} />
+        <StatCard
+          icon={Euro}
+          title="Valeur totale"
+          value={`${totalPrice} DA`}
+        />
         <StatCard
           icon={Clock}
-          title="Active"
-          value={services.filter((s) => s.isActive).length}
+          title="Actifs"
+          value={services.filter((item) => item.isActive).length}
         />
       </div>
 
-      <div className="flex gap-4 rounded-3xl border border-[#eadfce] bg-white p-5">
-        <Search />
+      <div className="flex flex-col gap-3 rounded-3xl border border-[#eadfce] bg-white p-5 md:flex-row">
+        <div className="flex flex-1 items-center gap-3">
+          <Search size={20} />
 
-        <input
-          className="flex-1 outline-none"
-          placeholder="Search service..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Rechercher un service..."
+            className="w-full bg-transparent outline-none"
+          />
+        </div>
 
         <select
-          className="rounded-xl border px-4"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
+          className="rounded-xl border border-[#eadfce] px-4 py-2"
         >
-          <option value="all">All Categories</option>
+          <option value="all">Toutes les catégories</option>
 
-          {categories.map((cat) => (
-            <option key={cat._id} value={cat.name}>
-              {cat.name}
+          {categories.map((item) => (
+            <option key={item._id} value={item.name}>
+              {item.name}
             </option>
           ))}
         </select>
       </div>
+
+      {error && (
+        <div className="rounded-2xl bg-red-50 p-4 text-red-600">{error}</div>
+      )}
 
       <ServiceTable
         services={filteredServices}
@@ -200,7 +222,10 @@ const Services = () => {
       {modal === "add" && (
         <AddServiceModal
           categories={categories}
-          onCreated={(service) => setServices((prev) => [...prev, service])}
+          onCreated={(service) => {
+            setServices((current) => [...current, service]);
+            setModal(null);
+          }}
           onClose={() => setModal(null)}
         />
       )}
@@ -210,8 +235,10 @@ const Services = () => {
           service={selectedService}
           categories={categories}
           onUpdated={(service) => {
-            setServices((prev) =>
-              prev.map((s) => (s._id === service._id ? service : s)),
+            setServices((current) =>
+              current.map((item) =>
+                item._id === service._id ? service : item,
+              ),
             );
 
             setModal(null);
@@ -239,7 +266,7 @@ const Services = () => {
   );
 };
 
-const StatCard = ({
+function StatCard({
   icon: Icon,
   title,
   value,
@@ -247,18 +274,20 @@ const StatCard = ({
   icon: ComponentType<{ size?: number }>;
   title: string;
   value: string | number;
-}) => (
-  <motion.div
-    whileHover={{ y: -5 }}
-    className="rounded-3xl border border-[#eadfce] bg-white p-6"
-  >
-    <div className="flex justify-between">
-      <p className="text-gray-500">{title}</p>
-      <Icon size={22} />
-    </div>
+}) {
+  return (
+    <motion.div
+      whileHover={{ y: -4 }}
+      className="rounded-3xl border border-[#eadfce] bg-white p-6"
+    >
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-gray-500">{title}</p>
+        <Icon size={22} />
+      </div>
 
-    <h3 className="mt-4 text-3xl font-bold">{value}</h3>
-  </motion.div>
-);
+      <h3 className="mt-4 text-3xl font-bold">{value}</h3>
+    </motion.div>
+  );
+}
 
 export default Services;
