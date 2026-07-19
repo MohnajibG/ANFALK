@@ -1,90 +1,118 @@
-import { motion } from "framer-motion";
-import { ArrowRight, Calendar } from "lucide-react";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowRight, CalendarDays, Sparkles } from "lucide-react";
 
-export default function Hero() {
+const images = [
+  "https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=2000&q=90",
+  "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=2000&q=90",
+  "https://images.unsplash.com/photo-1487412912498-0447578fcca8?auto=format&fit=crop&w=2000&q=90",
+  "https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?auto=format&fit=crop&w=2000&q=90",
+];
+
+const Hero = () => {
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % images.length);
+    }, 6000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   return (
-    <section
-      id="home"
-      className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-white pt-28"
-    >
-      {/* Background */}
-      <img
-        src="https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=1800&q=80"
-        alt="Luxury beauty salon"
-        className="absolute inset-x-0 top-28 h-[42vh] w-full object-cover opacity-90 md:inset-y-0 md:left-auto md:right-0 md:h-full md:w-1/2"
-      />
+    <section className="relative flex min-h-svh w-full overflow-hidden bg-black">
+      <AnimatePresence mode="wait">
+        <motion.img
+          key={images[current]}
+          src={images[current]}
+          alt="ANFEL K Institute"
+          initial={{ opacity: 0, scale: 1.15 }}
+          animate={{ opacity: 1, scale: 1.05 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1.5 }}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      </AnimatePresence>
 
-      {/* Overlay */}
-      <div className="absolute inset-x-0 top-28 h-[42vh] bg-black/10 md:inset-y-0 md:left-auto md:right-0 md:h-full md:w-1/2" />
+      {/* Overlay luxe */}
+      <div className="absolute inset-0 bg-black/45" />
+      <div className="absolute inset-0 bg-linear-to-r from-black/80 via-black/40 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-black/20" />
 
-      {/* Content */}
-      <div className="ak-container relative z-10 grid min-h-[calc(100vh-7rem)] items-center gap-10 py-10 md:grid-cols-2 md:py-16">
+      <div className="relative z-10 flex w-full items-center px-6 pt-24 sm:px-10 lg:px-20">
         <motion.div
-          initial={{ opacity: 0, y: 34 }}
+          initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mx-auto mt-[42vh] max-w-xl text-center md:mt-0 md:mx-0 md:text-left"
+          transition={{ duration: 0.9 }}
+          className="max-w-4xl text-white"
         >
-          <motion.p
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="ak-kicker mb-5"
-          >
-            Luxury Beauty Institute
-          </motion.p>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 50 }}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="ak-logo text-5xl sm:text-6xl lg:text-7xl"
           >
-            ANFEL K
-          </motion.h1>
+            <p className="mb-6 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.35em] text-[#d8c39d] sm:text-sm">
+              <Sparkles size={17} />
+              Institut de beauté premium
+            </p>
 
-          <motion.h2
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="ak-logo-subtitle mt-4 text-sm sm:text-base"
-          >
-            Institute
-          </motion.h2>
+            <h1 className="font-[Cinzel] text-6xl font-bold tracking-[0.15em] sm:text-7xl lg:text-9xl">
+              ANFEL K
+            </h1>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="ak-muted mx-auto mt-8 max-w-xl text-base leading-8 md:mx-0"
-          >
-            A refined beauty destination for hair, makeup, nails, and
-            personalized care. Designed with calm, precision, and an elevated
-            salon experience.
-          </motion.p>
+            <p className="mt-4 text-xs uppercase tracking-[0.65em] text-[#d8c39d] sm:text-sm">
+              Institute
+            </p>
+          </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
-            className="mt-10 flex flex-col justify-center gap-3 sm:flex-row md:justify-start"
+            transition={{ delay: 0.4 }}
+            className="mt-10 max-w-2xl rounded-3xl border border-white/20 bg-black/20 p-6 backdrop-blur-md sm:p-10"
           >
-            <button className="ak-button px-8 py-4">
-              Explore Services
-              <ArrowRight size={20} />
-            </button>
+            <h2 className="font-[Cinzel] text-3xl leading-tight sm:text-5xl">
+              Révélez votre beauté naturelle
+            </h2>
 
-            <button className="ak-button ak-button-light px-8 py-4">
-              <Calendar size={18} />
-              Book Now
-            </button>
+            <p className="mt-6 max-w-xl text-sm leading-7 text-white/75 sm:text-base">
+              Une expérience beauté haut de gamme dédiée à la coiffure, au
+              maquillage, aux soins et au bien-être dans un environnement
+              élégant et personnalisé.
+            </p>
+
+            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+              <button className="flex items-center justify-center gap-3 rounded-xl bg-[#d8c39d] px-8 py-4 font-semibold text-black transition hover:bg-[#ead8b5]">
+                Découvrir nos prestations
+                <ArrowRight size={18} />
+              </button>
+
+              <button className="flex items-center justify-center gap-3 rounded-xl border border-white/30 px-8 py-4 font-semibold text-white transition hover:bg-white/10">
+                <CalendarDays size={18} />
+                Réserver
+              </button>
+            </div>
           </motion.div>
         </motion.div>
-
-        <div className="hidden md:block" />
       </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-[#e8e2d8]" />
+      {/* Indicateurs */}
+      <div className="absolute bottom-8 left-1/2 z-20 flex -translate-x-1/2 gap-3">
+        {images.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrent(index)}
+            className={`h-2 rounded-full transition-all ${
+              current === index ? "w-12 bg-[#d8c39d]" : "w-2 bg-white/50"
+            }`}
+          />
+        ))}
+      </div>
+
+      <div className="absolute bottom-0 left-0 h-px w-full bg-white/20" />
     </section>
   );
-}
+};
+
+export default Hero;

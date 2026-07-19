@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -17,33 +17,48 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const loadDashboard = useCallback(async () => {
+    try {
+      setError("");
+
+      const result = await getAdminDashboard();
+
+      setData(result);
+    } catch (err) {
+      console.error("[Dashboard] load:", err);
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Impossible de charger le dashboard",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    const loadDashboard = async () => {
-      try {
-        setLoading(true);
-        setError("");
+    let mounted = true;
 
-        const result = await getAdminDashboard();
+    const run = async () => {
+      if (!mounted) return;
 
-        setData(result);
-      } catch (err) {
-        console.error("Dashboard error:", err);
+      setLoading(true);
 
-        setError(
-          err instanceof Error ? err.message : "Unable to load dashboard",
-        );
-      } finally {
-        setLoading(false);
-      }
+      await loadDashboard();
     };
 
-    loadDashboard();
-  }, []);
+    run();
+
+    return () => {
+      mounted = false;
+    };
+  }, [loadDashboard]);
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center text-gray-500">
-        Loading dashboard...
+      <div className="flex min-h-100 items-center justify-center text-gray-500">
+        Chargement du dashboard...
       </div>
     );
   }
@@ -57,13 +72,13 @@ export default function Dashboard() {
   if (!data) {
     return (
       <div className="rounded-2xl bg-yellow-50 p-5 text-yellow-700">
-        No dashboard data
+        Aucune donnée disponible
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="w-full space-y-6">
       <section className="rounded-3xl border border-[#eadfce] bg-white p-6">
         <p className="text-xs uppercase tracking-[0.4em] text-[#8b7560]">
           ADMIN
@@ -72,30 +87,26 @@ export default function Dashboard() {
         <h1 className="mt-3 font-serif text-3xl font-bold">Dashboard</h1>
 
         <p className="mt-2 text-sm text-gray-500">
-          ANFEL K Institute management overview
+          Vue globale de gestion ANFEL K Institute
         </p>
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <KpiCard
           icon={Euro}
-          title="Revenue Today"
+          title="Chiffre du jour"
           value={`${data.salesToday.revenue} DA`}
         />
 
         <KpiCard
           icon={Receipt}
-          title="Tickets Today"
+          title="Tickets aujourd'hui"
           value={data.salesToday.tickets}
         />
 
         <KpiCard icon={Users} title="Clients" value={data.clients.total} />
 
-        <KpiCard
-          icon={UserCog}
-          title="Employees"
-          value={data.employees.total}
-        />
+        <KpiCard icon={UserCog} title="Employés" value={data.employees.total} />
       </section>
 
       <section className="grid gap-6 lg:grid-cols-3">
@@ -104,7 +115,7 @@ export default function Dashboard() {
           className="rounded-3xl border border-[#eadfce] bg-white p-6 lg:col-span-2"
         >
           <div className="flex items-center justify-between">
-            <h2 className="font-semibold">Monthly Revenue</h2>
+            <h2 className="font-semibold">Revenus mensuels</h2>
 
             <TrendingUp size={20} />
           </div>
@@ -123,7 +134,7 @@ export default function Dashboard() {
           <div className="mb-5 flex items-center gap-2">
             <Scissors size={20} />
 
-            <h2 className="font-semibold">Popular Services</h2>
+            <h2 className="font-semibold">Services populaires</h2>
           </div>
 
           <div className="space-y-3">
@@ -139,7 +150,7 @@ export default function Dashboard() {
                 </div>
               ))
             ) : (
-              <p className="text-sm text-gray-500">No sales yet</p>
+              <p className="text-sm text-gray-500">Aucun service vendu</p>
             )}
           </div>
         </motion.div>
@@ -148,7 +159,7 @@ export default function Dashboard() {
           whileHover={{ scale: 1.01 }}
           className="rounded-3xl border border-[#eadfce] bg-white p-6 lg:col-span-3"
         >
-          <h2 className="mb-5 font-semibold">Employee Performance</h2>
+          <h2 className="mb-5 font-semibold">Performance employés</h2>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {data.topEmployees.length ? (
@@ -160,7 +171,7 @@ export default function Dashboard() {
                   <p className="font-semibold">{employee._id}</p>
 
                   <p className="mt-2 text-sm text-gray-500">
-                    Revenue : {employee.revenue} DA
+                    CA : {employee.revenue} DA
                   </p>
 
                   <p className="text-sm text-gray-500">
@@ -169,7 +180,7 @@ export default function Dashboard() {
                 </div>
               ))
             ) : (
-              <p className="text-sm text-gray-500">No employee data</p>
+              <p className="text-sm text-gray-500">Aucun employé disponible</p>
             )}
           </div>
         </motion.div>
