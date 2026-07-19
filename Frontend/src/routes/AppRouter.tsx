@@ -57,6 +57,7 @@ export default function AppRouter() {
           }
         >
           <Route index element={<Dashboard />} />
+          <Route path="dashboard" element={<Dashboard />} />
 
           <Route path="clients" element={<Clients />} />
 
@@ -65,6 +66,11 @@ export default function AppRouter() {
           <Route path="categories" element={<Categories />} />
 
           <Route path="services" element={<Services />} />
+          <Route
+            path="appointments"
+            element={<Navigate to="/admin/appointments/2026-03" replace />}
+          />
+          <Route path="appointments/:month" element={<MyAppointments />} />
         </Route>
 
         {/* ===================== */}
