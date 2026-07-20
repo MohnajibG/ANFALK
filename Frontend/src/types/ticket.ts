@@ -1,47 +1,74 @@
 export type PaymentMethod = "cash" | "card" | "transfer";
 
-export type TicketStatus = "paid" | "cancelled";
+export type TicketStatus = "waiting_payment" | "paid" | "cancelled";
 
 export interface TicketUser {
   _id: string;
-  firstName: string;
-  lastName: string;
-}
 
-export interface TicketItem {
-  service: string;
-  name: string;
-  originalPrice: number;
-  finalPrice: number;
-  duration: number;
-}
-
-export interface TicketClient {
-  _id: string;
   firstName: string;
+
   lastName: string;
-  phone?: string;
 }
 
 export interface TicketEmployee {
   _id: string;
+
   firstName: string;
+
   lastName: string;
+
+  speciality?: string;
+}
+
+export interface TicketClient {
+  _id: string;
+
+  firstName: string;
+
+  lastName: string;
+
+  phone?: string;
+}
+
+/**
+ * Prestation dans un ticket
+ *
+ * Exemple:
+ * Massage -> Sarah
+ * Coupe -> Sophia
+ */
+export interface TicketItem {
+  service?: string;
+
+  name: string;
+
+  employee?: string | TicketEmployee;
+
+  originalPrice: number;
+
+  finalPrice: number;
+
+  duration?: number;
 }
 
 export interface TicketAppointment {
   _id: string;
+
   date?: string;
+
+  startTime?: string;
+
+  endTime?: string;
+
   status?: string;
 }
 
 export interface Ticket {
   _id: string;
+
   ticketNumber: string;
 
   client: string | TicketClient;
-
-  employee: string | TicketEmployee;
 
   appointment?: string | TicketAppointment;
 
@@ -53,7 +80,7 @@ export interface Ticket {
 
   total: number;
 
-  paymentMethod: PaymentMethod;
+  paymentMethod?: PaymentMethod;
 
   status: TicketStatus;
 
@@ -70,26 +97,55 @@ export interface Ticket {
   updatedAt: string;
 }
 
-export interface CreateTicketService {
-  service: string;
+/**
+ * Création ticket manuel
+ *
+ * Vente sans réservation
+ */
+export interface CreateTicketItem {
+  service?: string;
+
+  name: string;
+
+  employee?: string;
+
+  originalPrice: number;
+
   finalPrice: number;
+
+  duration?: number;
 }
 
 export interface CreateTicketPayload {
   client: string;
-  employee: string;
+
   appointment?: string;
-  services: CreateTicketService[];
+
+  items: CreateTicketItem[];
+
   discount?: number;
-  paymentMethod: PaymentMethod;
+
+  paymentMethod?: PaymentMethod;
+
   notes?: string;
 }
 
-export interface CompleteAppointmentPayload {
-  client: string;
-  employee: string;
-  services: CreateTicketService[];
+/**
+ * Modifier un ticket ouvert
+ *
+ * POS
+ */
+export interface UpdateTicketPayload {
+  items?: CreateTicketItem[];
+
   discount?: number;
-  paymentMethod: PaymentMethod;
+
   notes?: string;
+}
+
+/**
+ * Paiement
+ */
+export interface PayTicketPayload {
+  paymentMethod: PaymentMethod;
 }

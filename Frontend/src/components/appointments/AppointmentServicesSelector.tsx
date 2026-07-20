@@ -2,16 +2,21 @@ import { useMemo, useState } from "react";
 import { Check, ChevronDown, Scissors } from "lucide-react";
 
 import type { Service } from "../../types/service";
+import type { Employee } from "../../types/employee";
 import type { AppointmentService } from "../../types/appointment";
 
 interface AppointmentServicesSelectorProps {
   services: Service[];
+  employees: Employee[];
+
   selectedServices: AppointmentService[];
+
   onChange: (services: AppointmentService[]) => void;
 }
 
 const AppointmentServicesSelector = ({
   services,
+  employees,
   selectedServices,
   onChange,
 }: AppointmentServicesSelectorProps) => {
@@ -39,12 +44,12 @@ const AppointmentServicesSelector = ({
     );
   };
 
-  const isSelected = (id: string) => {
-    return selectedServices.some((service) => service.service === id);
+  const selected = (id: string) => {
+    return selectedServices.some((item) => item.service === id);
   };
 
   const toggleService = (service: Service) => {
-    if (isSelected(service._id)) {
+    if (selected(service._id)) {
       onChange(selectedServices.filter((item) => item.service !== service._id));
 
       return;
@@ -55,23 +60,42 @@ const AppointmentServicesSelector = ({
 
       {
         service: service._id,
+
+        employee: "",
+
         name: service.name,
+
         price: service.price,
+
         duration: service.duration,
       },
     ]);
+  };
+
+  const updateEmployee = (serviceId: string, employeeId: string) => {
+    onChange(
+      selectedServices.map((item) =>
+        item.service === serviceId
+          ? {
+              ...item,
+
+              employee: employeeId,
+            }
+          : item,
+      ),
+    );
   };
 
   if (!services.length) {
     return (
       <div
         className="
-          rounded-2xl
-          border border-(--border)
-          bg-(--cream)
-          p-5
-          text-sm
-          text-stone-500
+        rounded-2xl
+        border border-(--border)
+        bg-(--cream)
+        p-5
+        text-sm
+        text-stone-500
         "
       >
         Aucune prestation disponible
@@ -80,135 +104,136 @@ const AppointmentServicesSelector = ({
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-2">
+    <div
+      className="
+      flex
+      flex-col
+      gap-4
+      "
+    >
+      <div
+        className="
+        flex
+        items-center
+        gap-2
+        "
+      >
         <Scissors size={18} className="text-(--champagne)" />
 
         <label
           className="
           text-sm
           font-semibold
-          text-(--black)
-        "
+          "
         >
           Choisir les prestations
         </label>
       </div>
 
-      <div className="flex flex-col gap-3">
-        {Object.entries(groupedServices).map(([category, items]) => {
-          const opened = openCategories.includes(category);
+      {Object.entries(groupedServices).map(([category, items]) => {
+        const opened = openCategories.includes(category);
 
-          return (
-            <div
-              key={category}
-              className="
-                overflow-hidden
-                rounded-3xl
-                border border-(--border)
-                bg-white
+        return (
+          <div
+            key={category}
+            className="
+              overflow-hidden
+              rounded-3xl
+              border border-(--border)
+              bg-white
               "
+          >
+            <button
+              type="button"
+              onClick={() => toggleCategory(category)}
+              className="
+                flex
+                w-full
+                items-center
+                justify-between
+                px-5
+                py-4
+                hover:bg-(--cream)
+                "
             >
-              {/* CATEGORY HEADER */}
+              <span className="font-semibold">{category}</span>
 
-              <button
-                type="button"
-                onClick={() => toggleCategory(category)}
+              <ChevronDown
+                size={20}
+                className={`
+                  transition-transform
+                  ${opened ? "rotate-180" : ""}
+                  `}
+              />
+            </button>
+
+            {opened && (
+              <div
                 className="
                   flex
-                  w-full
-                  items-center
-                  justify-between
-                  px-5
-                  py-4
-                  transition
-                  hover:bg-(--cream)
-                "
-              >
-                <span
-                  className="
-                  font-semibold
-                  text-(--black)
-                "
-                >
-                  {category}
-                </span>
-
-                <ChevronDown
-                  size={20}
-                  className={`
-                    transition-transform
-                    ${opened ? "rotate-180" : ""}
-                  `}
-                />
-              </button>
-
-              {opened && (
-                <div
-                  className="
-                    flex
-                    flex-col
-                    gap-3
-                    border-t border-(--border)
-                    p-4
-                    bg-(--cream)
+                  flex-col
+                  gap-3
+                  border-t
+                  border-(--border)
+                  bg-(--cream)
+                  p-4
                   "
-                >
-                  {items.map((service) => {
-                    const selected = isSelected(service._id);
+              >
+                {items.map((service) => {
+                  const item = selectedServices.find(
+                    (s) => s.service === service._id,
+                  );
 
-                    return (
+                  const isActive = !!item;
+
+                  return (
+                    <div
+                      key={service._id}
+                      className={`
+                      rounded-2xl
+                      border
+                      p-4
+                      ${
+                        isActive
+                          ? "border-(--black) bg-(--black) text-(--cream)"
+                          : "border-(--border) bg-white"
+                      }
+                      `}
+                    >
                       <button
-                        key={service._id}
                         type="button"
                         onClick={() => toggleService(service)}
-                        className={`
-                          flex
-                          items-center
-                          justify-between
-                          rounded-2xl
-                          border
-                          p-4
-                          text-left
-                          transition
-                          ${
-                            selected
-                              ? `
-                              border-(--black)
-                              bg-(--black)
-                              text-(--cream)
-                            `
-                              : `
-                              border-(--border)
-                              bg-white
-                              hover:border-(--champagne)
-                            `
-                          }
-                        `}
+                        className="
+                        flex
+                        w-full
+                        items-center
+                        justify-between
+                        text-left
+                        "
                       >
                         <div>
                           <p
                             className="
                             font-semibold
-                          "
+                            "
                           >
                             {service.name}
                           </p>
 
                           <p
                             className={`
-                              mt-1
-                              text-sm
-                              ${selected ? "text-(--cream)" : "text-stone-500"}
+                            mt-1
+                            text-sm
+                            ${isActive ? "text-(--cream)" : "text-stone-500"}
                             `}
                           >
                             {service.price} DA
                             {" • "}
-                            {service.duration} minutes
+                            {service.duration} min
                           </p>
                         </div>
 
-                        {selected && (
+                        {isActive && (
                           <div
                             className="
                               flex
@@ -219,20 +244,65 @@ const AppointmentServicesSelector = ({
                               rounded-full
                               bg-(--cream)
                               text-(--black)
-                            "
+                              "
                           >
                             <Check size={17} />
                           </div>
                         )}
                       </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+
+                      {isActive && (
+                        <div
+                          className="
+                          mt-4
+                          "
+                        >
+                          <label
+                            className="
+                            text-xs
+                            "
+                          >
+                            Employé responsable
+                          </label>
+
+                          <select
+                            value={
+                              typeof item.employee === "string"
+                                ? item.employee
+                                : item.employee._id
+                            }
+                            onChange={(e) =>
+                              updateEmployee(service._id, e.target.value)
+                            }
+                            className="
+                            mt-2
+                            w-full
+                            rounded-xl
+                            bg-white
+                            p-3
+                            text-black
+                            "
+                          >
+                            <option value="">Choisir un employé</option>
+
+                            {employees.map((employee) => (
+                              <option key={employee._id} value={employee._id}>
+                                {employee.firstName} {employee.lastName}
+                                {employee.speciality &&
+                                  ` - ${employee.speciality}`}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 };

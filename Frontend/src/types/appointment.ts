@@ -1,13 +1,10 @@
-/*
-====================================
-ENUM TYPES
-====================================
-*/
-
 export type AppointmentStatus =
   | "pending"
   | "confirmed"
+  | "in_progress"
   | "completed"
+  | "waiting_payment"
+  | "paid"
   | "cancelled"
   | "no_show";
 
@@ -19,11 +16,6 @@ export type EmployeeSpeciality =
   | "Makeup"
   | "Massage"
   | "Reception";
-/*
-====================================
-RELATIONS
-====================================
-*/
 
 export interface AppointmentClient {
   _id: string;
@@ -36,84 +28,108 @@ export interface AppointmentEmployee {
   _id: string;
   firstName: string;
   lastName: string;
-  speciality: EmployeeSpeciality;
+  speciality?: EmployeeSpeciality;
 }
 
 export interface AppointmentService {
   service: string;
+  employee: string | AppointmentEmployee;
   name: string;
   price: number;
   duration: number;
 }
 
-/*
-====================================
-APPOINTMENT
-====================================
-*/
-
 export interface Appointment {
   _id: string;
 
-  client: AppointmentClient;
-  employee: AppointmentEmployee;
+  client: string | AppointmentClient;
 
   services: AppointmentService[];
 
   date: string;
+
   startTime: string;
+
   endTime: string;
 
   totalDuration: number;
+
   estimatedPrice: number;
 
   status: AppointmentStatus;
+
   source: AppointmentSource;
 
   notes?: string;
 
+  createdBy?: string | AppointmentEmployee;
+
   createdAt: string;
+
   updatedAt: string;
 }
 
 /*
-====================================
+=========================
 CREATE
-====================================
+=========================
 */
+
+export interface CreateAppointmentService {
+  service: string;
+
+  employee: string;
+
+  name: string;
+
+  price: number;
+
+  duration: number;
+}
 
 export interface CreateAppointmentPayload {
   client: string;
-  employee: string;
-  services: string[];
+
+  services: CreateAppointmentService[];
 
   date: string;
+
   startTime: string;
 
+  endTime: string;
+
+  totalDuration: number;
+
+  estimatedPrice: number;
+
   source?: AppointmentSource;
+
   notes?: string;
 }
 
 /*
-====================================
+=========================
 UPDATE
-====================================
+=========================
 */
 
 export interface UpdateAppointmentPayload {
   client?: string;
-  employee?: string;
 
   services?: AppointmentService[];
 
   date?: string;
+
   startTime?: string;
+
   endTime?: string;
 
   totalDuration?: number;
+
   estimatedPrice?: number;
 
   status?: AppointmentStatus;
+
   source?: AppointmentSource;
 
   notes?: string;

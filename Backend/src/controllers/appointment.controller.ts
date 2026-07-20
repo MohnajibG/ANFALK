@@ -8,6 +8,8 @@ import {
   cancelAppointment,
 } from "../services/appointment.service";
 
+import Appointment from "../models/Appointment";
+
 /**
  * Créer un rendez-vous
  */
@@ -18,26 +20,23 @@ export const createAppointmentController = async (
   try {
     const appointment = await createAppointment({
       ...req.body,
-
       createdBy: (req as any).user._id,
     });
 
     res.status(201).json({
       success: true,
-
       appointment,
     });
   } catch (error: any) {
     res.status(400).json({
       success: false,
-
       message: error.message,
     });
   }
 };
 
 /**
- * Liste rendez-vous
+ * Liste des rendez-vous
  */
 export const getAppointmentsController = async (
   req: Request,
@@ -48,13 +47,11 @@ export const getAppointmentsController = async (
 
     res.json({
       success: true,
-
       appointments,
     });
   } catch (error: any) {
     res.status(500).json({
       success: false,
-
       message: error.message,
     });
   }
@@ -73,27 +70,24 @@ export const getAppointmentByIdController = async (
     if (!appointment) {
       return res.status(404).json({
         success: false,
-
         message: "Rendez-vous introuvable",
       });
     }
 
     res.json({
       success: true,
-
       appointment,
     });
   } catch (error: any) {
     res.status(500).json({
       success: false,
-
       message: error.message,
     });
   }
 };
 
 /**
- * Modifier rendez-vous
+ * Modifier un rendez-vous
  */
 export const updateAppointmentController = async (
   req: Request,
@@ -113,27 +107,24 @@ export const updateAppointmentController = async (
     if (!appointment) {
       return res.status(404).json({
         success: false,
-
         message: "Rendez-vous introuvable",
       });
     }
 
     res.json({
       success: true,
-
       appointment,
     });
   } catch (error: any) {
     res.status(400).json({
       success: false,
-
       message: error.message,
     });
   }
 };
 
 /**
- * Annuler rendez-vous
+ * Annuler un rendez-vous
  */
 export const cancelAppointmentController = async (
   req: Request,
@@ -149,20 +140,89 @@ export const cancelAppointmentController = async (
     if (!appointment) {
       return res.status(404).json({
         success: false,
-
         message: "Rendez-vous introuvable",
       });
     }
 
     res.json({
       success: true,
-
       appointment,
     });
   } catch (error: any) {
     res.status(400).json({
       success: false,
+      message: error.message,
+    });
+  }
+};
 
+/**
+ * Terminer un rendez-vous
+ *
+ * Utilisé par l'employé
+ *
+ * completed -> prêt pour caisse
+ */
+export const completeAppointmentController = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const appointment = await Appointment.findById(req.params.id);
+
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        message: "Rendez-vous introuvable",
+      });
+    }
+
+    appointment.status = "completed";
+
+    await appointment.save();
+
+    res.json({
+      success: true,
+      appointment,
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+/**
+ * Liste des rendez-vous terminés
+ *
+ * Utilisé par le POS
+ */
+export const getWaitingPaymentAppointmentsController = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const appointments = await Appointment.find({
+      status: "completed",
+    })
+
+      .populate("client", "firstName lastName phone")
+
+      .populate("services.employee", "firstName lastName speciality")
+
+      .sort({
+        date: 1,
+        startTime: 1,
+      });
+
+    res.json({
+      success: true,
+      appointments,
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
       message: error.message,
     });
   }

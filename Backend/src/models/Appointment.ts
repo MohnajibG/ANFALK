@@ -3,7 +3,10 @@ import { Schema, model, Document, Types } from "mongoose";
 export type AppointmentStatus =
   | "pending"
   | "confirmed"
+  | "in_progress"
   | "completed"
+  | "waiting_payment"
+  | "paid"
   | "cancelled"
   | "no_show";
 
@@ -12,10 +15,10 @@ export type AppointmentSource = "admin" | "cashier" | "online";
 export interface IAppointment extends Document {
   client: Types.ObjectId;
 
-  employee: Types.ObjectId;
-
   services: {
     service: Types.ObjectId;
+
+    employee: Types.ObjectId;
 
     name: string;
 
@@ -61,12 +64,6 @@ const appointmentSchema = new Schema<IAppointment>(
       required: true,
     },
 
-    employee: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-
     services: [
       {
         service: {
@@ -75,19 +72,28 @@ const appointmentSchema = new Schema<IAppointment>(
           required: true,
         },
 
+        employee: {
+          type: Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+
         name: {
           type: String,
           required: true,
+          trim: true,
         },
 
         price: {
           type: Number,
           required: true,
+          min: 0,
         },
 
         duration: {
           type: Number,
           required: true,
+          min: 0,
         },
       },
     ],
@@ -110,6 +116,7 @@ const appointmentSchema = new Schema<IAppointment>(
     totalDuration: {
       type: Number,
       required: true,
+      default: 0,
     },
 
     estimatedPrice: {
@@ -120,7 +127,16 @@ const appointmentSchema = new Schema<IAppointment>(
 
     status: {
       type: String,
-      enum: ["pending", "confirmed", "completed", "cancelled", "no_show"],
+      enum: [
+        "pending",
+        "confirmed",
+        "in_progress",
+        "completed",
+        "waiting_payment",
+        "paid",
+        "cancelled",
+        "no_show",
+      ],
       default: "pending",
     },
 
@@ -133,6 +149,7 @@ const appointmentSchema = new Schema<IAppointment>(
     notes: {
       type: String,
       default: "",
+      trim: true,
     },
 
     createdBy: {
@@ -160,13 +177,18 @@ const appointmentSchema = new Schema<IAppointment>(
   },
 );
 
-// Recherche planning rapide
+// Recherche planning par date
 appointmentSchema.index({
   date: 1,
-  employee: 1,
 });
 
-// Recherche rendez-vous client
+// Recherche planning employé
+appointmentSchema.index({
+  "services.employee": 1,
+  date: 1,
+});
+
+// Recherche historique client
 appointmentSchema.index({
   client: 1,
   date: -1,
