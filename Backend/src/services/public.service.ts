@@ -26,14 +26,10 @@ interface CreateOnlineAppointmentData {
 export const getPublicServices = async () => {
   return Service.find({
     isActive: true,
-
     isDeleted: false,
-
     isBookable: true,
   })
-
     .select("name description price duration")
-
     .sort({
       name: 1,
     });
@@ -45,12 +41,9 @@ export const getPublicServices = async () => {
 export const getPublicEmployees = async () => {
   return User.find({
     role: "employee",
-
     isActive: true,
   })
-
     .select("firstName lastName speciality")
-
     .sort({
       firstName: 1,
     });
@@ -83,24 +76,16 @@ const minutesToTime = (minutes: number) => {
  */
 export const getAvailability = async (employeeId: string, date: Date) => {
   const appointments = await Appointment.find({
-    employee: employeeId,
+    "services.employee": employeeId,
 
     date,
 
     status: {
-      $in: ["pending", "confirmed"],
+      $in: ["pending", "confirmed", "in_progress"],
     },
   });
 
   const workingSlots: string[] = [];
-
-  /*
-Horaire institut :
-
-09:00 -> 18:00
-
-Créneau 30 minutes
-*/
 
   for (let minutes = 540; minutes <= 1080; minutes += 30) {
     const time = minutesToTime(minutes);
@@ -129,12 +114,6 @@ Créneau 30 minutes
 export const createOnlineAppointment = async (
   data: CreateOnlineAppointmentData,
 ) => {
-  /*
-================================
-Créer ou retrouver client
-================================
-*/
-
   let client = await Client.findOne({
     phone: data.client.phone,
 
@@ -159,12 +138,6 @@ Créer ou retrouver client
     });
   }
 
-  /*
-================================
-Vérifier employé
-================================
-*/
-
   const employee = await User.findOne({
     _id: data.employee,
 
@@ -176,12 +149,6 @@ Vérifier employé
   if (!employee) {
     throw new Error("Employé indisponible");
   }
-
-  /*
-================================
-Services
-================================
-*/
 
   const services = await Service.find({
     _id: {
@@ -197,47 +164,27 @@ Services
     throw new Error("Service invalide");
   }
 
-  /*
-================================
-Calcul durée
-================================
-*/
-
   const totalDuration = services.reduce(
     (total, service) => total + service.duration,
-
     0,
   );
 
   const estimatedPrice = services.reduce(
     (total, service) => total + service.price,
-
     0,
   );
-
-  /*
-================================
-Calcul heure fin
-================================
-*/
 
   const endMinutes = timeToMinutes(data.startTime) + totalDuration;
 
   const endTime = minutesToTime(endMinutes);
 
-  /*
-================================
-Création appointment
-================================
-*/
-
   const appointment = await Appointment.create({
     client: client._id,
 
-    employee: data.employee,
-
     services: services.map((service) => ({
       service: service._id,
+
+      employee: data.employee,
 
       name: service.name,
 
