@@ -1,37 +1,52 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 
-export default function RoleRoute({
-  children,
-  role,
-}: {
-  children: React.ReactNode;
-  role: "admin" | "cashier" | "employee";
-}) {
+type Role = "admin" | "cashier" | "employee";
+
+interface RoleRouteProps {
+  allowedRoles: Role[];
+}
+
+interface StoredUser {
+  id: string;
+  role: Role;
+}
+
+const dashboardByRole: Record<Role, string> = {
+  admin: "/admin/dashboard",
+  cashier: "/cashier/dashboard",
+  employee: "/employee/dashboard",
+};
+
+const RoleRoute = ({ allowedRoles }: RoleRouteProps) => {
   const storedUser = localStorage.getItem("user");
 
-  const user = storedUser ? JSON.parse(storedUser) : null;
-
-  const userRole = user?.role;
-
-  if (!userRole) {
+  if (!storedUser) {
     return <Navigate to="/login" replace />;
   }
 
-  if (userRole !== role) {
-    switch (userRole) {
-      case "admin":
-        return <Navigate to="/admin/dashboard" replace />;
+  let user: StoredUser;
 
-      case "cashier":
-        return <Navigate to="/cashier/dashboard" replace />;
+  try {
+    user = JSON.parse(storedUser);
+  } catch {
+    localStorage.clear();
 
-      case "employee":
-        return <Navigate to="/employee/dashboard" replace />;
-
-      default:
-        return <Navigate to="/login" replace />;
-    }
+    return <Navigate to="/login" replace />;
   }
 
-  return <>{children}</>;
-}
+  const role = user.role;
+
+  if (!role || !dashboardByRole[role]) {
+    localStorage.clear();
+
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!allowedRoles.includes(role)) {
+    return <Navigate to={dashboardByRole[role]} replace />;
+  }
+
+  return <Outlet />;
+};
+
+export default RoleRoute;

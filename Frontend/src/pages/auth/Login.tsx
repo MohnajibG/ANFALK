@@ -48,26 +48,35 @@ const Login = () => {
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("role", data.user.role);
 
-      const role = data.user.role as Role;
+      const userRole = data.user.role as Role;
+
+      if (!userRole) {
+        throw new Error("Role utilisateur manquant");
+      }
 
       if (data.user.mustChangePassword) {
         navigate("/change-password");
         return;
       }
 
-      const dashboardRoutes: Record<Role, string> = {
-        admin: "/admin/dashboard",
-        cashier: "/cashier/dashboard",
-        employee: "/employee/dashboard",
-      };
+      console.log("Role :", userRole);
 
-      const dashboard = dashboardRoutes[role];
+      switch (userRole) {
+        case "admin":
+          console.log("Navigate admin");
+          navigate("/admin/dashboard", { replace: true });
+          break;
 
-      if (!dashboard) {
-        throw new Error("Rôle utilisateur invalide");
+        case "cashier":
+          console.log("Navigate cashier");
+          navigate("/cashier/dashboard", { replace: true });
+          break;
+
+        case "employee":
+          console.log("Navigate employee");
+          navigate("/employee/dashboard", { replace: true });
+          break;
       }
-
-      navigate(dashboard);
     } catch (error) {
       setError(
         error instanceof Error

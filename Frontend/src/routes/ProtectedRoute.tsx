@@ -1,10 +1,10 @@
 import { Navigate } from "react-router-dom";
 
-export default function ProtectedRoute({
-  children,
-}: {
+interface ProtectedRouteProps {
   children: React.ReactNode;
-}) {
+}
+
+const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const token = localStorage.getItem("token");
   const user = localStorage.getItem("user");
 
@@ -16,4 +16,6 @@ export default function ProtectedRoute({
   }
 
   return <>{children}</>;
-}
+};
+
+export default ProtectedRoute;
