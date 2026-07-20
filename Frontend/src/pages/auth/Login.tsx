@@ -22,7 +22,6 @@ const Login = () => {
 
     setError("");
     setLoading(true);
-
     try {
       const response = await fetch(
         "https://site--ankelk--dnxhn8mdblq5.code.run/api/auth/login",
@@ -44,39 +43,35 @@ const Login = () => {
         throw new Error(data.message || "Email ou mot de passe incorrect");
       }
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      localStorage.setItem("role", data.user.role);
+      const user = data.user;
+      const token = data.token;
 
-      const userRole = data.user.role as Role;
-
-      if (!userRole) {
-        throw new Error("Role utilisateur manquant");
+      if (!user || !user.role) {
+        throw new Error("Informations utilisateur invalides");
       }
 
-      if (data.user.mustChangePassword) {
-        navigate("/change-password");
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      const dashboardByRole: Record<Role, string> = {
+        admin: "/admin/dashboard",
+        cashier: "/cashier/dashboard",
+        employee: "/employee/dashboard",
+      };
+
+      // Seuls les employés et les caissiers changent leur mot de passe
+      // lors de la première connexion.
+      if (user.role !== "admin" && user.mustChangePassword) {
+        navigate("/change-password", {
+          replace: true,
+        });
+
         return;
       }
 
-      console.log("Role :", userRole);
-
-      switch (userRole) {
-        case "admin":
-          console.log("Navigate admin");
-          navigate("/admin/dashboard", { replace: true });
-          break;
-
-        case "cashier":
-          console.log("Navigate cashier");
-          navigate("/cashier/dashboard", { replace: true });
-          break;
-
-        case "employee":
-          console.log("Navigate employee");
-          navigate("/employee/dashboard", { replace: true });
-          break;
-      }
+      navigate(dashboardByRole[user.role], {
+        replace: true,
+      });
     } catch (error) {
       setError(
         error instanceof Error
