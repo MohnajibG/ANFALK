@@ -48,20 +48,26 @@ const Login = () => {
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("role", data.user.role);
 
-      const role: Role = data.user.role;
+      const role = data.user.role as Role;
 
       if (data.user.mustChangePassword) {
         navigate("/change-password");
         return;
       }
 
-      const routes: Record<Role, string> = {
+      const dashboardRoutes: Record<Role, string> = {
         admin: "/admin/dashboard",
         cashier: "/cashier/dashboard",
         employee: "/employee/dashboard",
       };
 
-      navigate(routes[role]);
+      const dashboard = dashboardRoutes[role];
+
+      if (!dashboard) {
+        throw new Error("Rôle utilisateur invalide");
+      }
+
+      navigate(dashboard);
     } catch (error) {
       setError(
         error instanceof Error

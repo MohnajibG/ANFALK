@@ -7,17 +7,10 @@ import User from "../models/User";
  */
 const getDayRange = () => {
   const start = new Date();
-
   start.setHours(0, 0, 0, 0);
-
   const end = new Date();
-
   end.setHours(23, 59, 59, 999);
-
-  return {
-    start,
-    end,
-  };
+  return { start, end };
 };
 
 /**
@@ -37,11 +30,7 @@ const getMonthRange = () => {
     59,
     999,
   );
-
-  return {
-    start,
-    end,
-  };
+  return { start, end };
 };
 
 /**
@@ -221,6 +210,35 @@ export const getAdminDashboard = async () => {
 
     {
       $limit: 5,
+    },
+
+    {
+      $lookup: {
+        from: "users",
+        localField: "_id",
+        foreignField: "_id",
+        as: "employee",
+      },
+    },
+
+    {
+      $unwind: "$employee",
+    },
+
+    {
+      $project: {
+        _id: 0,
+
+        employeeId: "$employee._id",
+
+        name: {
+          $concat: ["$employee.firstName", " ", "$employee.lastName"],
+        },
+
+        revenue: 1,
+
+        tickets: 1,
+      },
     },
   ]);
 

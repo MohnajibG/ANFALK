@@ -1,86 +1,73 @@
-// src/pages/admin/Employees.tsx
-
 import { useCallback, useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { Search, Plus, User, Pencil, Eye, Power, Scissors } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const API_URL = "https://site--ankelk--dnxhn8mdblq5.code.run";
+import {
+  getEmployees,
+  updateEmployeeStatus,
+  deleteEmployee,
+} from "../../api/employee.api";
 
-type EmployeeRole = "employee" | "cashier";
+import type { Employee } from "../../types/employee";
 
-interface Employee {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  phone?: string;
-  speciality?: string;
-  role: EmployeeRole;
-  isActive: boolean;
-}
-
-interface EmployeeForm {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  role: EmployeeRole;
-  speciality: string;
-}
+import EmployeeCard from "../../components/employees/EmployeeCard";
+import EmployeeModal from "../../components/employees/EmployeeModal";
+import EmployeeStats from "../../components/employees/EmployeeStats";
 
 export default function Employees() {
   const navigate = useNavigate();
 
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [showModal, setShowModal] = useState(false);
 
-  const token = localStorage.getItem("token");
+  const [search, setSearch] = useState("");
+
+  const [loading, setLoading] = useState(false);
+
+  const [showModal, setShowModal] = useState(false);
 
   const loadEmployees = useCallback(async () => {
     try {
       setLoading(true);
 
-      const response = await fetch(
-        `${API_URL}/api/employees?search=${search}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
+      const data = await getEmployees(search);
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setEmployees(data.employees ?? data);
-      }
+      setEmployees(data);
     } catch (error) {
-      console.error("Erreur chargement employés", error);
+      console.error(error);
     } finally {
       setLoading(false);
     }
-  }, [search, token]);
+  }, [search]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       loadEmployees();
     }, 400);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+    };
   }, [loadEmployees]);
 
-  const toggleStatus = async (id: string) => {
+  const handleStatus = async (id: string, isActive: boolean) => {
     try {
-      await fetch(`${API_URL}/api/employees/${id}/status`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await updateEmployeeStatus(id, isActive);
 
-      loadEmployees();
+      await loadEmployees();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    const confirmDelete = window.confirm("Supprimer cet employé ?");
+
+    if (!confirmDelete) return;
+
+    try {
+      await deleteEmployee(id);
+
+      await loadEmployees();
     } catch (error) {
       console.error(error);
     }
@@ -127,186 +114,36 @@ export default function Employees() {
         />
       </section>
 
+      <EmployeeStats employees={employees} />
+
       {/* LISTE */}
 
       <section className="overflow-hidden rounded-3xl border border-(--border) bg-white">
         {loading ? (
-          <div className="p-10 text-center text-(--brown)">
-            Chargement des employés...
+          <div className="p-10 text-center text-(--brown)">Chargement...</div>
+        ) : employees.length === 0 ? (
+          <div className="p-10 text-center text-(--muted)">
+            Aucun employé trouvé.
           </div>
         ) : (
-          <div className="flex flex-col">
-            {employees.map((employee) => (
-              <motion.div
-                key={employee._id}
-                whileHover={{ scale: 1.01 }}
-                className="flex flex-col gap-5 border-b border-(--border) p-5 transition last:border-none lg:flex-row lg:items-center lg:justify-between"
-              >
-                <div className="flex items-center gap-3 min-w-55">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-(--cream) text-(--brown)">
-                    <User size={20} />
-                  </div>
-
-                  <div>
-                    <p className="font-semibold">
-                      {employee.firstName} {employee.lastName}
-                    </p>
-
-                    <p className="text-sm text-(--muted)">
-                      {employee.role === "employee" ? "Employé" : "Caissier"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Scissors size={17} className="text-(--brown)" />
-
-                  <span>{employee.speciality || "Non définie"}</span>
-                </div>
-
-                <span
-                  className={`rounded-full px-4 py-2 text-xs font-semibold ${
-                    employee.isActive
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700"
-                  }`}
-                >
-                  {employee.isActive ? "Actif" : "Inactif"}
-                </span>
-
-                <span className="text-sm">
-                  {employee.phone || "Aucun téléphone"}
-                </span>
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => navigate(`/admin/employees/${employee._id}`)}
-                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-(--cream)"
-                  >
-                    <Eye size={17} />
-                  </button>
-
-                  <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-(--black) text-white">
-                    <Pencil size={17} />
-                  </button>
-
-                  <button
-                    onClick={() => toggleStatus(employee._id)}
-                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-600"
-                  >
-                    <Power size={17} />
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+          employees.map((employee) => (
+            <EmployeeCard
+              key={employee._id}
+              employee={employee}
+              onStatusChange={handleStatus}
+              onDelete={handleDelete}
+              onView={(id) => navigate(`/admin/employees/${id}`)}
+              onEdit={(id) => navigate(`/admin/employees/${id}/edit`)}
+            />
+          ))
         )}
       </section>
 
-      {/* STATS */}
-
-      <div className="flex flex-col gap-4 sm:flex-row">
-        <SummaryCard title="Total employés" value={`${employees.length}`} />
-
-        <SummaryCard
-          title="Employés actifs"
-          value={`${employees.filter((employee) => employee.isActive).length}`}
-        />
-
-        <SummaryCard title="Profils" value="Employé / Caissier" />
-      </div>
-
-      {showModal && (
-        <EmployeeModal
-          close={() => setShowModal(false)}
-          refresh={loadEmployees}
-        />
-      )}
-    </div>
-  );
-}
-
-function SummaryCard({ title, value }: { title: string; value: string }) {
-  return (
-    <motion.div
-      whileHover={{ y: -4 }}
-      className="flex-1 rounded-3xl border border-(--border) bg-white p-6"
-    >
-      <p className="text-sm text-(--muted)">{title}</p>
-
-      <h2 className="mt-2 text-3xl font-bold">{value}</h2>
-    </motion.div>
-  );
-}
-
-function EmployeeModal({
-  close,
-  refresh,
-}: {
-  close: () => void;
-  refresh: () => void;
-}) {
-  const token = localStorage.getItem("token");
-
-  const [form, setForm] = useState<EmployeeForm>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    role: "employee",
-    speciality: "Hair",
-  });
-
-  const createEmployee = async () => {
-    await fetch(`${API_URL}/api/employees`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(form),
-    });
-
-    refresh();
-
-    close();
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-md rounded-3xl bg-white p-6">
-        <h2 className="font-title text-2xl font-bold">Créer un employé</h2>
-
-        <div className="mt-5 flex flex-col gap-3">
-          {Object.entries(form).map(([key, value]) => (
-            <input
-              key={key}
-              value={value}
-              placeholder={key}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  [key]: e.target.value,
-                } as EmployeeForm)
-              }
-              className="rounded-xl border border-(--border) p-3 outline-none"
-            />
-          ))}
-        </div>
-
-        <div className="mt-5 flex gap-3">
-          <button onClick={close} className="flex-1 rounded-xl border py-3">
-            Annuler
-          </button>
-
-          <button
-            onClick={createEmployee}
-            className="flex-1 rounded-xl bg-(--black) py-3 text-(--cream)"
-          >
-            Créer
-          </button>
-        </div>
-      </div>
+      <EmployeeModal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        onCreated={loadEmployees}
+      />
     </div>
   );
 }

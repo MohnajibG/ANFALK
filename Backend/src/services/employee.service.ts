@@ -45,7 +45,17 @@ const validateEmployeeRole = (role: string) => {
   }
 };
 
-const validateSpeciality = (speciality?: string) => {
+const validateSpeciality = (role: UserRole, speciality?: Speciality) => {
+  // Employee obligatoire
+  if (role === "employee" && !speciality) {
+    throw new Error("La spécialité est obligatoire pour un employé");
+  }
+
+  // Cashier interdit
+  if (role === "cashier" && speciality) {
+    throw new Error("Un caissier ne peut pas avoir de spécialité");
+  }
+
   if (speciality && !allowedSpecialities.includes(speciality as any)) {
     throw new Error("Invalid speciality");
   }
@@ -70,7 +80,7 @@ export const createEmployee = async (
 
   validateEmployeeRole(data.role);
 
-  validateSpeciality(data.speciality);
+  validateSpeciality(data.role, data.speciality);
 
   const existingUser = await User.findOne({
     email,
@@ -98,7 +108,7 @@ export const createEmployee = async (
 
     role: data.role,
 
-    speciality: data.speciality,
+    speciality: data.role === "employee" ? data.speciality : undefined,
 
     mustChangePassword: true,
 
@@ -198,13 +208,13 @@ export const updateEmployee = async (id: string, data: UpdateEmployeeData) => {
     throw new Error("Cannot update admin");
   }
 
-  if (data.role) {
-    validateEmployeeRole(data.role);
-  }
+  const newRole = data.role ?? employee.role;
 
-  if (data.speciality) {
-    validateSpeciality(data.speciality);
-  }
+  const newSpeciality = data.speciality ?? employee.speciality;
+
+  validateEmployeeRole(newRole);
+
+  validateSpeciality(newRole, newSpeciality);
 
   if (data.firstName) {
     employee.firstName = data.firstName.trim();
@@ -218,13 +228,9 @@ export const updateEmployee = async (id: string, data: UpdateEmployeeData) => {
     employee.phone = data.phone.trim();
   }
 
-  if (data.role) {
-    employee.role = data.role;
-  }
+  employee.role = newRole;
 
-  if (data.speciality) {
-    employee.speciality = data.speciality;
-  }
+  employee.speciality = newRole === "employee" ? newSpeciality : undefined;
 
   await employee.save();
 

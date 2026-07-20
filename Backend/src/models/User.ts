@@ -57,13 +57,18 @@ const userSchema = new Schema<IUser>(
     password: {
       type: String,
       required: true,
-      select: false, // sécurité
+      select: false,
     },
 
     phone: {
       type: String,
       default: "",
       trim: true,
+    },
+
+    avatar: {
+      type: String,
+      default: undefined,
     },
 
     role: {
@@ -79,6 +84,11 @@ const userSchema = new Schema<IUser>(
       default: undefined,
     },
 
+    lastLogin: {
+      type: Date,
+      default: undefined,
+    },
+
     isActive: {
       type: Boolean,
       default: true,
@@ -86,13 +96,15 @@ const userSchema = new Schema<IUser>(
 
     mustChangePassword: {
       type: Boolean,
-      default: false,
+      default: true,
     },
 
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      default: undefined,
     },
+
     isDeleted: {
       type: Boolean,
       default: false,
@@ -100,11 +112,13 @@ const userSchema = new Schema<IUser>(
 
     deletedAt: {
       type: Date,
+      default: undefined,
     },
 
     deletedBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      default: undefined,
     },
   },
   {
