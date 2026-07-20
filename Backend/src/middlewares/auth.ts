@@ -13,7 +13,8 @@ export const authenticate = async (
 
     if (!authHeader?.startsWith("Bearer ")) {
       return res.status(401).json({
-        message: "Unauthorized",
+        success: false,
+        message: "Token manquant",
       });
     }
 
@@ -25,25 +26,28 @@ export const authenticate = async (
 
     if (!user) {
       return res.status(401).json({
-        message: "User not found",
+        success: false,
+        message: "Utilisateur introuvable",
       });
     }
 
     if (!user.isActive) {
       return res.status(403).json({
-        message: "Account disabled",
+        success: false,
+        message: "Compte désactivé",
       });
     }
 
     req.user = {
-      id: user.id,
+      id: user._id.toString(),
       role: user.role,
     };
 
     next();
   } catch {
     return res.status(401).json({
-      message: "Invalid or expired token",
+      success: false,
+      message: "Token invalide ou expiré",
     });
   }
 };
