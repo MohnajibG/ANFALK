@@ -15,54 +15,56 @@ import { authorize } from "../middlewares/authorize";
 const router = Router();
 
 /**
- * Protection globale
- * Toutes les routes employees :
- * - nécessitent un JWT valide
- * - nécessitent le rôle ADMIN
+ * Toutes les routes nécessitent un JWT valide
  */
 router.use(authenticate);
-router.use(authorize("admin"));
 
 /**
- * @route   POST /api/employees
- * @desc    Créer un employee ou cashier
- * @access  Admin
+ * POST /api/employees
+ * Créer un employee ou cashier
+ *
+ * Admin uniquement
  */
-router.post("/", createEmployeeController);
+router.post("/", authorize("admin"), createEmployeeController);
 
 /**
- * @route   GET /api/employees
- * @desc    Liste des employees et cashiers actifs
- * @access  Admin
+ * GET /api/employees
+ *
+ * Utilisé par :
+ * - Admin
+ * - Caissier (POS)
+ *
+ * Exemple :
+ * /api/employees?search=Sarah
  */
-router.get("/", getEmployeesController);
+router.get("/", authorize("admin", "cashier"), getEmployeesController);
 
 /**
- * @route   GET /api/employees/:id
- * @desc    Récupérer un employee/cashier par ID
- * @access  Admin
+ * GET /api/employees/:id
+ *
+ * Admin + Caissier
  */
-router.get("/:id", getEmployeeByIdController);
+router.get("/:id", authorize("admin", "cashier"), getEmployeeByIdController);
 
 /**
- * @route   PATCH /api/employees/:id
- * @desc    Modifier un employee/cashier
- * @access  Admin
+ * PATCH /api/employees/:id
+ *
+ * Admin uniquement
  */
-router.patch("/:id", updateEmployeeController);
+router.patch("/:id", authorize("admin"), updateEmployeeController);
 
 /**
- * @route   PATCH /api/employees/:id/status
- * @desc    Activer ou désactiver un employee/cashier
- * @access  Admin
+ * PATCH /api/employees/:id/status
+ *
+ * Admin uniquement
  */
-router.patch("/:id/status", updateEmployeeStatusController);
+router.patch("/:id/status", authorize("admin"), updateEmployeeStatusController);
 
 /**
- * @route   DELETE /api/employees/:id
- * @desc    Suppression logique employee/cashier
- * @access  Admin
+ * DELETE /api/employees/:id
+ *
+ * Admin uniquement
  */
-router.delete("/:id", deleteEmployeeController);
+router.delete("/:id", authorize("admin"), deleteEmployeeController);
 
 export default router;

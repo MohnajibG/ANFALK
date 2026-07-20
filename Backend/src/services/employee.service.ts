@@ -46,12 +46,10 @@ const validateEmployeeRole = (role: string) => {
 };
 
 const validateSpeciality = (role: UserRole, speciality?: Speciality) => {
-  // Employee obligatoire
   if (role === "employee" && !speciality) {
     throw new Error("La spécialité est obligatoire pour un employé");
   }
 
-  // Cashier interdit
   if (role === "cashier" && speciality) {
     throw new Error("Un caissier ne peut pas avoir de spécialité");
   }
@@ -68,10 +66,6 @@ export const createEmployee = async (
   data: CreateEmployeeData,
   adminId: string,
 ) => {
-  const firstName = data.firstName.trim();
-
-  const lastName = data.lastName.trim();
-
   const email = data.email.trim().toLowerCase();
 
   if (!validateEmail(email)) {
@@ -93,18 +87,16 @@ export const createEmployee = async (
 
   const temporaryPassword = generateTemporaryPassword();
 
-  const hashedPassword = await hashPassword(temporaryPassword);
-
   const employee = await User.create({
-    firstName,
+    firstName: data.firstName.trim(),
 
-    lastName,
+    lastName: data.lastName.trim(),
 
     email,
 
     phone: data.phone?.trim() ?? "",
 
-    password: hashedPassword,
+    password: await hashPassword(temporaryPassword),
 
     role: data.role,
 
@@ -120,17 +112,11 @@ export const createEmployee = async (
   return {
     employee: {
       id: employee.id,
-
       firstName: employee.firstName,
-
       lastName: employee.lastName,
-
       email: employee.email,
-
       role: employee.role,
-
       speciality: employee.speciality,
-
       mustChangePassword: employee.mustChangePassword,
     },
 
@@ -140,20 +126,45 @@ export const createEmployee = async (
 
 /**
  * Liste employés
+ *
+ * Admin :
+ * employee + cashier
+ *
+ * POS :
+ * employee uniquement
  */
-export const getEmployees = async () => {
-  return User.find({
-    role: {
-      $in: ["employee", "cashier"],
-    },
+export const getEmployees = async (search?: string) => {
+  const query: any = {
+    role: "employee",
 
     isDeleted: false,
-  })
+
+    isActive: true,
+  };
+
+  if (search) {
+    query.$or = [
+      {
+        firstName: {
+          $regex: search,
+          $options: "i",
+        },
+      },
+      {
+        lastName: {
+          $regex: search,
+          $options: "i",
+        },
+      },
+    ];
+  }
+
+  return User.find(query)
 
     .select("-password")
 
     .sort({
-      createdAt: -1,
+      firstName: 1,
     });
 };
 
@@ -168,11 +179,11 @@ export const getEmployeeById = async (id: string) => {
   const employee = await User.findOne({
     _id: id,
 
+    role: "employee",
+
     isDeleted: false,
 
-    role: {
-      $in: ["employee", "cashier"],
-    },
+    isActive: true,
   })
 
     .select("-password")
@@ -187,7 +198,7 @@ export const getEmployeeById = async (id: string) => {
 };
 
 /**
- * Modification employé
+ * Modifier employé
  */
 export const updateEmployee = async (id: string, data: UpdateEmployeeData) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -196,7 +207,6 @@ export const updateEmployee = async (id: string, data: UpdateEmployeeData) => {
 
   const employee = await User.findOne({
     _id: id,
-
     isDeleted: false,
   });
 
@@ -216,21 +226,11 @@ export const updateEmployee = async (id: string, data: UpdateEmployeeData) => {
 
   validateSpeciality(newRole, newSpeciality);
 
-  if (data.firstName) {
-    employee.firstName = data.firstName.trim();
-  }
-
-  if (data.lastName) {
-    employee.lastName = data.lastName.trim();
-  }
-
-  if (data.phone !== undefined) {
-    employee.phone = data.phone.trim();
-  }
-
-  employee.role = newRole;
-
-  employee.speciality = newRole === "employee" ? newSpeciality : undefined;
+  Object.assign(employee, {
+    ...data,
+    role: newRole,
+    speciality: newRole === "employee" ? newSpeciality : undefined,
+  });
 
   await employee.save();
 
@@ -238,12 +238,11 @@ export const updateEmployee = async (id: string, data: UpdateEmployeeData) => {
 };
 
 /**
- * Activation / désactivation
+ * Activation
  */
 export const updateEmployeeStatus = async (id: string, isActive: boolean) => {
   const employee = await User.findOne({
     _id: id,
-
     isDeleted: false,
   });
 
@@ -268,7 +267,6 @@ export const updateEmployeeStatus = async (id: string, isActive: boolean) => {
 export const deleteEmployee = async (id: string, adminId: string) => {
   const employee = await User.findOne({
     _id: id,
-
     isDeleted: false,
   });
 

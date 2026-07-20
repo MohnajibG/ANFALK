@@ -14,51 +14,32 @@ import { authorize } from "../middlewares/authorize";
 
 const router = Router();
 
-/**
- * Toutes les routes Services
- * nécessitent un administrateur connecté
- */
 router.use(authenticate);
-router.use(authorize("admin"));
-
-/**
- * POST /api/services
- * Créer un service
- */
-router.post("/", createServiceController);
 
 /**
  * GET /api/services
- * Liste des services
- * Filtres disponibles :
- * ?category=
- * ?isActive=true
- * ?search=
+ * Utilisé par :
+ * - Admin
+ * - Caissier (POS)
  */
-router.get("/", getServicesController);
+router.get("/", authorize("admin", "cashier"), getServicesController);
 
 /**
  * GET /api/services/:id
- * Détails d'un service
+ * Admin + Caissier
  */
-router.get("/:id", getServiceByIdController);
+router.get("/:id", authorize("admin", "cashier"), getServiceByIdController);
 
 /**
- * PATCH /api/services/:id
- * Modifier un service
+ * Gestion services
+ * Admin uniquement
  */
-router.patch("/:id", updateServiceController);
+router.post("/", authorize("admin"), createServiceController);
 
-/**
- * PATCH /api/services/:id/status
- * Activer / Désactiver un service
- */
-router.patch("/:id/status", updateServiceStatusController);
+router.patch("/:id", authorize("admin"), updateServiceController);
 
-/**
- * DELETE /api/services/:id
- * Suppression logique
- */
-router.delete("/:id", deleteServiceController);
+router.patch("/:id/status", authorize("admin"), updateServiceStatusController);
+
+router.delete("/:id", authorize("admin"), deleteServiceController);
 
 export default router;

@@ -12,12 +12,20 @@ export const createService = async (
     price: number;
     duration: number;
   },
-  adminId: string,
+  userId: string,
 ) => {
   const category = await Category.findById(data.category);
 
   if (!category || category.isDeleted) {
     throw new Error("Category not found");
+  }
+
+  if (data.price < 0) {
+    throw new Error("Invalid price");
+  }
+
+  if (data.duration <= 0) {
+    throw new Error("Invalid duration");
   }
 
   const normalizedName = data.name.trim();
@@ -36,11 +44,11 @@ export const createService = async (
 
   const service = await Service.create({
     name: normalizedName,
-    description: data.description ?? "",
+    description: data.description?.trim() ?? "",
     category: data.category,
     price: data.price,
     duration: data.duration,
-    createdBy: adminId,
+    createdBy: userId,
   });
 
   return service.populate("category", "name");
@@ -48,17 +56,19 @@ export const createService = async (
 
 /**
  * Liste des services
- */
-/**
- * Liste des services
+ *
+ * Utilisé par :
+ * - Admin
+ * - Caissier (POS)
  */
 export const getServices = async (filters?: {
   category?: string;
   isActive?: boolean;
   search?: string;
 }) => {
-  const query: any = {
+  const query: Record<string, unknown> = {
     isDeleted: false,
+    isActive: true,
   };
 
   if (filters?.category) {
@@ -76,16 +86,13 @@ export const getServices = async (filters?: {
     };
   }
 
-  return await Service.find(query)
-    .populate("category", "name")
-    .select("-__v")
-    .sort({
-      name: 1,
-    });
+  return Service.find(query).populate("category", "name").select("-__v").sort({
+    name: 1,
+  });
 };
 
 /**
- * Un service
+ * Un service par ID
  */
 export const getServiceById = async (id: string) => {
   const service = await Service.findOne({
@@ -112,12 +119,20 @@ export const updateService = async (
     price?: number;
     duration?: number;
   },
-  adminId: string,
+  userId: string,
 ) => {
   const service = await Service.findById(id);
 
   if (!service || service.isDeleted) {
     throw new Error("Service not found");
+  }
+
+  if (data.price !== undefined && data.price < 0) {
+    throw new Error("Invalid price");
+  }
+
+  if (data.duration !== undefined && data.duration <= 0) {
+    throw new Error("Invalid duration");
   }
 
   if (data.category) {
@@ -135,7 +150,7 @@ export const updateService = async (
   }
 
   if (data.description !== undefined) {
-    service.description = data.description;
+    service.description = data.description.trim();
   }
 
   if (data.price !== undefined) {
@@ -146,7 +161,7 @@ export const updateService = async (
     service.duration = data.duration;
   }
 
-  service.updatedBy = adminId as any;
+  service.updatedBy = userId as any;
 
   await service.save();
 
@@ -154,12 +169,12 @@ export const updateService = async (
 };
 
 /**
- * Activer / Désactiver
+ * Activer / Désactiver un service
  */
 export const updateServiceStatus = async (
   id: string,
   isActive: boolean,
-  adminId: string,
+  userId: string,
 ) => {
   const service = await Service.findById(id);
 
@@ -168,7 +183,7 @@ export const updateServiceStatus = async (
   }
 
   service.isActive = isActive;
-  service.updatedBy = adminId as any;
+  service.updatedBy = userId as any;
 
   await service.save();
 
@@ -178,7 +193,7 @@ export const updateServiceStatus = async (
 /**
  * Suppression logique
  */
-export const deleteService = async (id: string, adminId: string) => {
+export const deleteService = async (id: string, userId: string) => {
   const service = await Service.findById(id);
 
   if (!service || service.isDeleted) {
@@ -189,7 +204,7 @@ export const deleteService = async (id: string, adminId: string) => {
   service.isActive = false;
 
   service.deletedAt = new Date();
-  service.deletedBy = adminId as any;
+  service.deletedBy = userId as any;
 
   await service.save();
 

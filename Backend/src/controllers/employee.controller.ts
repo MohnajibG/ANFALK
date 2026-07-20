@@ -21,7 +21,8 @@ const getErrorMessage = (error: unknown) => {
 
 /**
  * POST /api/employees
- * Créer un employé ou un caissier
+ * Créer employee ou cashier
+ * ADMIN uniquement
  */
 export const createEmployeeController = async (
   req: AuthRequest,
@@ -55,17 +56,30 @@ export const createEmployeeController = async (
 
 /**
  * GET /api/employees
- * Liste employés et caissiers
+ *
+ * Admin :
+ * - employee
+ * - cashier
+ *
+ * Cashier :
+ * - employee uniquement
+ *
+ * Query :
+ * ?search=Sarah
  */
 export const getEmployeesController = async (
   req: AuthRequest,
   res: Response,
 ) => {
   try {
-    const employees = await getEmployees();
+    const search =
+      typeof req.query.search === "string" ? req.query.search : undefined;
+
+    const employees = await getEmployees(search);
 
     return res.status(200).json({
       success: true,
+
       employees,
     });
   } catch (error: unknown) {
@@ -73,6 +87,7 @@ export const getEmployeesController = async (
 
     return res.status(500).json({
       success: false,
+
       message: getErrorMessage(error),
     });
   }
@@ -90,11 +105,13 @@ export const getEmployeeByIdController = async (
 
     return res.status(200).json({
       success: true,
+
       employee,
     });
   } catch (error: unknown) {
     return res.status(404).json({
       success: false,
+
       message: getErrorMessage(error),
     });
   }
@@ -102,6 +119,7 @@ export const getEmployeeByIdController = async (
 
 /**
  * PATCH /api/employees/:id
+ * ADMIN uniquement
  */
 export const updateEmployeeController = async (
   req: AuthRequest,
@@ -112,11 +130,13 @@ export const updateEmployeeController = async (
 
     return res.status(200).json({
       success: true,
+
       employee,
     });
   } catch (error: unknown) {
     return res.status(400).json({
       success: false,
+
       message: getErrorMessage(error),
     });
   }
@@ -135,6 +155,7 @@ export const updateEmployeeStatusController = async (
     if (typeof isActive !== "boolean") {
       return res.status(400).json({
         success: false,
+
         message: "isActive doit être un booléen",
       });
     }
@@ -146,11 +167,13 @@ export const updateEmployeeStatusController = async (
 
     return res.status(200).json({
       success: true,
+
       employee,
     });
   } catch (error: unknown) {
     return res.status(400).json({
       success: false,
+
       message: getErrorMessage(error),
     });
   }
@@ -169,6 +192,7 @@ export const deleteEmployeeController = async (
     if (!adminId) {
       return res.status(401).json({
         success: false,
+
         message: "Non autorisé",
       });
     }
@@ -177,12 +201,15 @@ export const deleteEmployeeController = async (
 
     return res.status(200).json({
       success: true,
+
       message: "Employé supprimé avec succès",
+
       employee,
     });
   } catch (error: unknown) {
     return res.status(400).json({
       success: false,
+
       message: getErrorMessage(error),
     });
   }
