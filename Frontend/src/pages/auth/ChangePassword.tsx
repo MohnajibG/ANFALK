@@ -1,5 +1,3 @@
-// src/pages/auth/ChangePassword.tsx
-
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
@@ -21,50 +19,48 @@ const PasswordInput = ({
   show,
   setShow,
   placeholder,
-}: PasswordInputProps) => {
-  return (
-    <div className="relative">
-      <input
-        type={show ? "text" : "password"}
-        value={value}
-        onChange={(event) => setValue(event.target.value)}
-        placeholder={placeholder}
-        className="
-          w-full
-          rounded-2xl
-          border
-          border-(--border)
-          bg-(--white)
-          px-6
-          py-4
-          pr-14
-          font-body
-          text-base
-          outline-none
-          transition
-          focus:border-(--gold)
-          focus:ring-4
-          focus:ring-(--gold)/10
-        "
-      />
+}: PasswordInputProps) => (
+  <div className="relative">
+    <input
+      type={show ? "text" : "password"}
+      value={value}
+      onChange={(event) => setValue(event.target.value)}
+      placeholder={placeholder}
+      className="
+        w-full
+        rounded-2xl
+        border
+        border-(--border)
+        bg-(--white)
+        px-6
+        py-4
+        pr-14
+        font-body
+        text-base
+        outline-none
+        transition
+        focus:border-(--gold)
+        focus:ring-4
+        focus:ring-(--gold)/10
+      "
+    />
 
-      <button
-        type="button"
-        onClick={() => setShow(!show)}
-        className="
-          absolute
-          right-5
-          top-1/2
-          -translate-y-1/2
-          text-(--muted)
-          hover:text-(--black)
-        "
-      >
-        {show ? <EyeOff size={19} /> : <Eye size={19} />}
-      </button>
-    </div>
-  );
-};
+    <button
+      type="button"
+      onClick={() => setShow(!show)}
+      className="
+        absolute
+        right-5
+        top-1/2
+        -translate-y-1/2
+        text-(--muted)
+        hover:text-(--black)
+      "
+    >
+      {show ? <EyeOff size={19} /> : <Eye size={19} />}
+    </button>
+  </div>
+);
 
 const ChangePassword = () => {
   const navigate = useNavigate();
@@ -85,7 +81,7 @@ const ChangePassword = () => {
 
   const [error, setError] = useState("");
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (loading) return;
@@ -122,7 +118,6 @@ const ChangePassword = () => {
 
           body: JSON.stringify({
             currentPassword,
-
             newPassword,
           }),
         },
@@ -132,11 +127,17 @@ const ChangePassword = () => {
 
       if (!response.ok) {
         throw new Error(
-          data.message || "Erreur lors du changement de mot de passe",
+          data.message ?? "Erreur lors du changement de mot de passe",
         );
       }
 
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      const storedUser = localStorage.getItem("user");
+
+      const user = storedUser ? JSON.parse(storedUser) : null;
+
+      if (!user?.role) {
+        throw new Error("Utilisateur introuvable");
+      }
 
       const updatedUser = {
         ...user,
@@ -153,10 +154,12 @@ const ChangePassword = () => {
         employee: "/employee/dashboard",
       };
 
-      navigate(dashboardByRole[user.role], {
+      const role = user.role as Role;
+
+      navigate(dashboardByRole[role], {
         replace: true,
       });
-    } catch (error) {
+    } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Erreur serveur");
     } finally {
       setLoading(false);
@@ -166,22 +169,22 @@ const ChangePassword = () => {
   return (
     <div
       className="
-        relative
-        flex
-        min-h-screen
-        w-full
-        items-center
-        justify-center
-        bg-(--cream)
-        p-4
-      "
+      relative
+      flex
+      min-h-screen
+      w-full
+      items-center
+      justify-center
+      bg-(--cream)
+      p-4
+    "
     >
       <div
         className="
-          absolute
-          inset-0
-          bg-black/10
-        "
+        absolute
+        inset-0
+        bg-black/10
+      "
       />
 
       <motion.div
@@ -209,22 +212,22 @@ const ChangePassword = () => {
         <div className="mb-10">
           <h1
             className="
-              font-title
-              text-4xl
-              font-bold
-              text-(--dark)
-            "
+            font-title
+            text-4xl
+            font-bold
+            text-(--dark)
+          "
           >
             Nouveau mot de passe
           </h1>
 
           <p
             className="
-              mt-3
-              font-body
-              text-sm
-              text-(--muted)
-            "
+            mt-3
+            font-body
+            text-sm
+            text-(--muted)
+          "
           >
             Sécurisez votre compte avant de continuer.
           </p>
@@ -265,14 +268,13 @@ const ChangePassword = () => {
           {error && (
             <div
               className="
-                  rounded-xl
-                  bg-red-50
-                  px-4
-                  py-3
-                  font-body
-                  text-sm
-                  text-red-600
-                "
+              rounded-xl
+              bg-red-50
+              px-4
+              py-3
+              text-sm
+              text-red-600
+            "
             >
               {error}
             </div>
@@ -309,14 +311,14 @@ const ChangePassword = () => {
 
         <div
           className="
-            mt-8
-            text-center
-            font-body
-            text-xs
-            uppercase
-            tracking-[0.3em]
-            text-(--muted)
-          "
+          mt-8
+          text-center
+          font-body
+          text-xs
+          uppercase
+          tracking-[0.3em]
+          text-(--muted)
+        "
         >
           ANFEL K APP
           <br />

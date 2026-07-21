@@ -61,7 +61,7 @@ const Login = () => {
 
       // Seuls les employés et les caissiers changent leur mot de passe
       // lors de la première connexion.
-      if (user.role !== "admin" && user.mustChangePassword) {
+      if (user.role !== "admin" && user.mustChangePassword === true) {
         navigate("/change-password", {
           replace: true,
         });
@@ -69,7 +69,9 @@ const Login = () => {
         return;
       }
 
-      navigate(dashboardByRole[user.role], {
+      const role = user.role as Role;
+
+      navigate(dashboardByRole[role], {
         replace: true,
       });
     } catch (error) {

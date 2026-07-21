@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useEffect, useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -13,7 +14,7 @@ import type {
 } from "../../types/employee";
 
 export default function EmployeeEdit() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
 
   const navigate = useNavigate();
 
@@ -24,32 +25,35 @@ export default function EmployeeEdit() {
   const [saving, setSaving] = useState(false);
 
   const [error, setError] = useState("");
-  useEffect(() => {
-    if (!id) return;
 
+  useEffect(() => {
     let cancelled = false;
 
-    async function fetchEmployee() {
+    const fetchEmployee = async () => {
+      if (!id) {
+        return;
+      }
+
       try {
         const data = await getEmployeeById(id);
 
-        if (cancelled) return;
-
-        setEmployee(data);
+        if (!cancelled) {
+          setEmployee(data);
+        }
       } catch (error: unknown) {
-        if (cancelled) return;
-
-        if (error instanceof Error) {
-          setError(error.message);
-        } else {
-          setError("Impossible de charger l'employé");
+        if (!cancelled) {
+          if (error instanceof Error) {
+            setError(error.message);
+          } else {
+            setError("Impossible de charger l'employé");
+          }
         }
       } finally {
         if (!cancelled) {
           setLoading(false);
         }
       }
-    }
+    };
 
     void fetchEmployee();
 
@@ -59,24 +63,25 @@ export default function EmployeeEdit() {
   }, [id]);
 
   const handleSubmit = async (form: EmployeeFormType) => {
-    if (!id) return;
-
     try {
       setSaving(true);
-
       setError("");
 
       await updateEmployee(id, {
         firstName: form.firstName,
+
         lastName: form.lastName,
+
         phone: form.phone,
+
         role: form.role,
-        speciality: form.speciality,
+
+        speciality: form.speciality ?? "Hair",
       });
 
       navigate(`/admin/employees/${id}`);
     } catch (error: any) {
-      setError(error.message || "Erreur modification");
+      setError(error?.message ?? "Erreur modification");
     } finally {
       setSaving(false);
     }
@@ -105,11 +110,11 @@ export default function EmployeeEdit() {
 
     email: employee.email,
 
-    phone: employee.phone || "",
+    phone: employee.phone ?? "",
 
     role: employee.role,
 
-    speciality: employee.speciality || "Hair",
+    speciality: employee.speciality ?? "Hair",
   };
 
   return (
