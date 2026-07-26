@@ -1,18 +1,10 @@
+// src/context/AuthContext.tsx
+
 import { createContext, useEffect, useState, type ReactNode } from "react";
 
 import { authService } from "../services/auth.service";
-import type { LoginPayload } from "../api/auth.api";
 
-export type AuthUser = {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: "admin" | "cashier" | "employee";
-  speciality?: string;
-  mustChangePassword: boolean;
-  isActive: boolean;
-};
+import type { AuthUser, LoginPayload } from "../types/auth";
 
 export type AuthContextType = {
   user: AuthUser | null;
@@ -31,9 +23,10 @@ type Props = {
 
 export function AuthProvider({ children }: Props) {
   const [user, setUser] = useState<AuthUser | null>(null);
+
   const [loading, setLoading] = useState(true);
 
-  const refreshUser = async () => {
+  const loadUser = async () => {
     try {
       const token = authService.getToken();
 
@@ -42,11 +35,14 @@ export function AuthProvider({ children }: Props) {
         return;
       }
 
-      const currentUser = await authService.me();
+      const response = await authService.me();
 
-      setUser(currentUser);
-    } catch {
+      setUser(response.user);
+    } catch (error) {
+      console.error("Erreur récupération utilisateur", error);
+
       await authService.logout();
+
       setUser(null);
     } finally {
       setLoading(false);
@@ -54,20 +50,37 @@ export function AuthProvider({ children }: Props) {
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void refreshUser();
+    let mounted = true;
+
+    const init = async () => {
+      if (mounted) {
+        await loadUser();
+      }
+    };
+
+    void init();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const login = async (data: LoginPayload) => {
-    const loggedUser = await authService.login(data);
+    const response = await authService.login(data);
 
-    setUser(loggedUser);
+    setUser(response.user);
   };
 
   const logout = async () => {
-    await authService.logout();
+    try {
+      await authService.logout();
+    } finally {
+      setUser(null);
+    }
+  };
 
-    setUser(null);
+  const refreshUser = async () => {
+    await loadUser();
   };
 
   return (

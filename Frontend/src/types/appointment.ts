@@ -1,3 +1,5 @@
+// src/types/appointment.ts
+
 export type AppointmentStatus =
   | "pending"
   | "confirmed"
@@ -41,96 +43,51 @@ export interface AppointmentService {
 
 export interface Appointment {
   _id: string;
-
   client: string | AppointmentClient;
-
   services: AppointmentService[];
-
   date: string;
-
   startTime: string;
-
   endTime: string;
-
   totalDuration: number;
-
   estimatedPrice: number;
-
   status: AppointmentStatus;
-
   source: AppointmentSource;
-
   notes?: string;
-
-  createdBy?: string | AppointmentEmployee;
-
+  createdBy: string | AppointmentEmployee;
   createdAt: string;
-
   updatedAt: string;
 }
 
-/*
-=========================
-CREATE
-=========================
-*/
-
 export interface CreateAppointmentService {
   service: string;
-
   employee: string;
-
   name: string;
-
   price: number;
-
   duration: number;
 }
 
 export interface CreateAppointmentPayload {
   client: string;
-
+  createdBy: string;
   services: CreateAppointmentService[];
-
   date: string;
-
   startTime: string;
-
   endTime: string;
-
   totalDuration: number;
-
   estimatedPrice: number;
-
-  source?: AppointmentSource;
-
+  source: AppointmentSource;
   notes?: string;
 }
 
-/*
-=========================
-UPDATE
-=========================
-*/
-
 export interface UpdateAppointmentPayload {
   client?: string;
-
   services?: AppointmentService[];
-
   date?: string;
-
   startTime?: string;
-
   endTime?: string;
-
   totalDuration?: number;
-
   estimatedPrice?: number;
-
   status?: AppointmentStatus;
-
   source?: AppointmentSource;
-
   notes?: string;
 }

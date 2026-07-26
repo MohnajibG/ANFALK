@@ -1,13 +1,20 @@
-import User from "../models/User";
-import { hashPassword } from "../utils/hash";
 import { Types } from "mongoose";
+
+import User from "../models/User";
+
+import { hashPassword } from "../utils/hash";
 
 import type { UserRole, Speciality } from "../models/User";
 
+const EMPLOYEE_ROLES = ["employee", "cashier"] as const;
+
 interface CreateEmployeeData {
   firstName: string;
+
   lastName: string;
+
   email: string;
+
   phone?: string;
 
   role: "employee" | "cashier";
@@ -17,7 +24,9 @@ interface CreateEmployeeData {
 
 interface UpdateEmployeeData {
   firstName?: string;
+
   lastName?: string;
+
   phone?: string;
 
   role?: UserRole;
@@ -26,35 +35,36 @@ interface UpdateEmployeeData {
 }
 
 /**
- * Créer un employé ou caissier
+ * Création employé / caissier
  */
 export const createEmployee = async (
   adminId: string,
   data: CreateEmployeeData,
 ) => {
+  const email = data.email.toLowerCase();
+
   const existingUser = await User.findOne({
-    email: data.email.toLowerCase(),
+    email,
   });
 
   if (existingUser) {
     throw new Error("Email already exists");
   }
 
-  // Mot de passe temporaire
   const temporaryPassword = "Temp1234!";
 
-  const hashedPassword = await hashPassword(temporaryPassword);
+  const password = await hashPassword(temporaryPassword);
 
   const employee = await User.create({
     firstName: data.firstName,
 
     lastName: data.lastName,
 
-    email: data.email.toLowerCase(),
+    email,
 
     phone: data.phone ?? "",
 
-    password: hashedPassword,
+    password,
 
     role: data.role,
 
@@ -69,7 +79,7 @@ export const createEmployee = async (
 
   return {
     employee: {
-      id: employee.id,
+      _id: employee._id,
 
       firstName: employee.firstName,
 
@@ -91,30 +101,34 @@ export const createEmployee = async (
 };
 
 /**
- * Liste des employés
+ * Liste employés
  */
 export const getEmployees = async () => {
-  return await User.find({
+  return User.find({
     role: {
-      $in: ["employee", "cashier"],
+      $in: EMPLOYEE_ROLES,
     },
   })
+
     .select("-password")
+
     .populate("createdBy", "firstName lastName email");
 };
 
 /**
- * Récupérer un employé
+ * Employé par ID
  */
 export const getEmployeeById = async (id: string) => {
   const employee = await User.findOne({
     _id: id,
 
     role: {
-      $in: ["employee", "cashier"],
+      $in: EMPLOYEE_ROLES,
     },
   })
+
     .select("-password")
+
     .populate("createdBy", "firstName lastName");
 
   if (!employee) {
@@ -125,7 +139,7 @@ export const getEmployeeById = async (id: string) => {
 };
 
 /**
- * Modifier un employé
+ * Mise à jour employé
  */
 export const updateEmployee = async (id: string, data: UpdateEmployeeData) => {
   const employee = await User.findOneAndUpdate(
@@ -133,7 +147,7 @@ export const updateEmployee = async (id: string, data: UpdateEmployeeData) => {
       _id: id,
 
       role: {
-        $in: ["employee", "cashier"],
+        $in: EMPLOYEE_ROLES,
       },
     },
 
@@ -144,7 +158,9 @@ export const updateEmployee = async (id: string, data: UpdateEmployeeData) => {
     {
       new: true,
     },
-  ).select("-password");
+  )
+
+    .select("-password");
 
   if (!employee) {
     throw new Error("Employee not found");
@@ -154,13 +170,11 @@ export const updateEmployee = async (id: string, data: UpdateEmployeeData) => {
 };
 
 /**
- * Activer / désactiver un employé
+ * Activation / désactivation
  */
 export const updateEmployeeStatus = async (id: string, isActive: boolean) => {
-  const employee = await User.findOneAndUpdate(
-    {
-      _id: id,
-    },
+  const employee = await User.findByIdAndUpdate(
+    id,
 
     {
       isActive,
@@ -169,7 +183,9 @@ export const updateEmployeeStatus = async (id: string, isActive: boolean) => {
     {
       new: true,
     },
-  ).select("-password");
+  )
+
+    .select("-password");
 
   if (!employee) {
     throw new Error("Employee not found");
@@ -192,7 +208,9 @@ export const deleteEmployee = async (id: string) => {
     {
       new: true,
     },
-  ).select("-password");
+  )
+
+    .select("-password");
 
   if (!employee) {
     throw new Error("Employee not found");

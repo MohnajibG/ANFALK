@@ -1,6 +1,6 @@
 // src/pages/admin/Appointments.tsx
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Search,
   Check,
@@ -25,6 +25,12 @@ import type { Appointment, AppointmentStatus } from "../types/appointment";
 
 import AppointmentForm from "../components/appointments/AppointmentForm";
 
+import { getServices } from "../api/service.api";
+import { getEmployees } from "../api/employee.api";
+
+import type { Service } from "../types/service";
+import type { Employee } from "../types/employee";
+
 const statusLabels: Record<AppointmentStatus, string> = {
   pending: "En attente",
   confirmed: "Confirmé",
@@ -47,64 +53,60 @@ const statusStyle: Record<AppointmentStatus, string> = {
   no_show: "bg-stone-100 text-stone-700",
 };
 
+const moneyFormat = new Intl.NumberFormat("fr-FR");
+
 export default function Appointments() {
   const { user } = useAuth();
 
   const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+
+  const [services, setServices] = useState<Service[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<AppointmentStatus | "all">(
     "all",
   );
 
+  const userId = user?._id;
   const isEmployee = user?.role === "employee";
-
   const canDelete = user?.role === "admin" || user?.role === "cashier";
 
-  useEffect(() => {
-    let mounted = true;
-
-    const fetchAppointments = async () => {
-      try {
-        setLoading(true);
-
-        const data = await getAppointments();
-
-        if (mounted) {
-          setAppointments(data);
-        }
-      } catch (error) {
-        console.error("Erreur chargement rendez-vous", error);
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchAppointments();
-
-    return () => {
-      mounted = false;
-    };
+  const refreshAppointments = useCallback(async () => {
+    try {
+      const data = await getAppointments();
+      setAppointments(data);
+    } catch (error) {
+      console.error("Erreur chargement rendez-vous:", error);
+    }
   }, []);
 
+  useEffect(() => {
+    const loadAppointments = async () => {
+      setLoading(true);
+
+      await refreshAppointments();
+
+      setLoading(false);
+    };
+
+    loadAppointments();
+  }, [refreshAppointments]);
+
   const filteredAppointments = useMemo(() => {
+    const query = search.toLowerCase();
+
     return appointments.filter((appointment) => {
       if (isEmployee) {
-        const ownAppointment = appointment.services.some((service) => {
-          if (typeof service.employee === "string") {
-            return service.employee === user?._id;
-          }
+        const assigned = appointment.services.some((service) =>
+          typeof service.employee === "string"
+            ? service.employee === userId
+            : service.employee?._id === userId,
+        );
 
-          return service.employee?._id === user?._id;
-        });
-
-        if (!ownAppointment) {
-          return false;
-        }
+        if (!assigned) return false;
       }
 
       const client =
@@ -117,41 +119,45 @@ export default function Appointments() {
           ? ""
           : (appointment.client.phone ?? "");
 
-      const searchMatch =
-        client.includes(search.toLowerCase()) || phone.includes(search);
+      const matchesSearch = client.includes(query) || phone.includes(search);
 
-      const statusMatch =
+      const matchesStatus =
         statusFilter === "all" || appointment.status === statusFilter;
 
-      return searchMatch && statusMatch;
+      return matchesSearch && matchesStatus;
     });
-  }, [appointments, search, statusFilter, isEmployee, user]);
+  }, [appointments, search, statusFilter, isEmployee, userId]);
+
+  const loadFormData = useCallback(async () => {
+    try {
+      const [servicesData, employeesData] = await Promise.all([
+        getServices(),
+        getEmployees(),
+      ]);
+
+      setServices(servicesData);
+      setEmployees(employeesData);
+    } catch (error) {
+      console.error("Erreur chargement formulaire rendez-vous:", error);
+    }
+  }, []);
 
   const changeStatus = async (id: string, status: AppointmentStatus) => {
     try {
-      await updateAppointment(id, {
-        status,
-      });
+      await updateAppointment(id, { status });
 
       setAppointments((current) =>
         current.map((appointment) =>
-          appointment._id === id
-            ? {
-                ...appointment,
-                status,
-              }
-            : appointment,
+          appointment._id === id ? { ...appointment, status } : appointment,
         ),
       );
     } catch (error) {
-      console.error(error);
+      console.error("Erreur modification statut:", error);
     }
   };
 
   const handleCancel = async (id: string) => {
-    if (!window.confirm("Annuler ce rendez-vous ?")) {
-      return;
-    }
+    if (!confirm("Annuler ce rendez-vous ?")) return;
 
     try {
       await cancelAppointment(id);
@@ -167,14 +173,12 @@ export default function Appointments() {
         ),
       );
     } catch (error) {
-      console.error(error);
+      console.error("Erreur annulation:", error);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Supprimer définitivement ce rendez-vous ?")) {
-      return;
-    }
+    if (!confirm("Supprimer définitivement ce rendez-vous ?")) return;
 
     try {
       await deleteAppointment(id);
@@ -183,7 +187,7 @@ export default function Appointments() {
         current.filter((appointment) => appointment._id !== id),
       );
     } catch (error) {
-      console.error(error);
+      console.error("Erreur suppression:", error);
     }
   };
 
@@ -199,7 +203,10 @@ export default function Appointments() {
         </div>
 
         <button
-          onClick={() => setShowForm(true)}
+          onClick={async () => {
+            await loadFormData();
+            setShowForm(true);
+          }}
           className="flex items-center justify-center gap-2 rounded-xl bg-(--black) px-5 py-3 text-(--cream)"
         >
           <Plus size={18} />
@@ -209,16 +216,12 @@ export default function Appointments() {
 
       {showForm && (
         <AppointmentForm
+          services={services}
+          employees={employees}
           onClose={() => setShowForm(false)}
           onSuccess={() => {
             setShowForm(false);
-
-            const refresh = async () => {
-              const data = await getAppointments();
-              setAppointments(data);
-            };
-
-            refresh();
+            refreshAppointments();
           }}
         />
       )}
@@ -255,6 +258,10 @@ export default function Appointments() {
       {loading ? (
         <div className="rounded-3xl bg-white p-10 text-center">
           Chargement...
+        </div>
+      ) : filteredAppointments.length === 0 ? (
+        <div className="rounded-3xl bg-white p-10 text-center text-stone-500">
+          Aucun rendez-vous trouvé
         </div>
       ) : (
         <div className="space-y-4">
@@ -302,7 +309,9 @@ export default function Appointments() {
                     .join(", ")}
                 </span>
 
-                <strong>{appointment.estimatedPrice} DA</strong>
+                <strong>
+                  {moneyFormat.format(appointment.estimatedPrice)} DA
+                </strong>
               </div>
 
               <div className="mt-5 flex flex-wrap gap-2 border-t border-(--border) pt-4">

@@ -1,15 +1,6 @@
 import api from "./axios";
-import type { AuthUser } from "../context/AuthContext";
 
-export type LoginPayload = {
-  email: string;
-  password: string;
-};
-
-export type LoginResponse = {
-  token: string;
-  user: AuthUser;
-};
+import type { LoginPayload, LoginResponse, AuthResponse } from "../types/auth";
 
 class AuthApi {
   async login(data: LoginPayload): Promise<LoginResponse> {
@@ -18,8 +9,8 @@ class AuthApi {
     return response.data;
   }
 
-  async me(): Promise<AuthUser> {
-    const response = await api.get<AuthUser>("/auth/me");
+  async me(): Promise<AuthResponse> {
+    const response = await api.get<AuthResponse>("/auth/me");
 
     return response.data;
   }
@@ -35,8 +26,7 @@ class AuthApi {
   }
 
   async logout(): Promise<void> {
-    // si plus tard tu fais un logout serveur
-    // await api.post("/auth/logout");
+    // logout serveur si nécessaire
   }
 }
 

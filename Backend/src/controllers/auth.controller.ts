@@ -1,11 +1,34 @@
-import { Request, Response } from "express";
+// src/controllers/auth.controller.ts
+
+import type { Request, Response } from "express";
 
 import User from "../models/User";
 
 import { comparePassword, hashPassword } from "../utils/hash";
+
 import { generateToken } from "../utils/jwt";
 
-import { AuthRequest } from "../types/auth";
+import type { AuthRequest } from "../types/auth";
+
+const formatUser = (user: any) => ({
+  _id: user._id.toString(),
+
+  firstName: user.firstName,
+
+  lastName: user.lastName,
+
+  email: user.email,
+
+  phone: user.phone,
+
+  role: user.role,
+
+  speciality: user.speciality,
+
+  mustChangePassword: user.mustChangePassword,
+
+  isActive: user.isActive,
+});
 
 /**
  * Login
@@ -21,28 +44,28 @@ export const login = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Invalid email or password",
+        message: "Email ou mot de passe incorrect",
       });
     }
 
     if (!user.isActive) {
       return res.status(403).json({
         success: false,
-        message: "Your account has been disabled.",
+        message: "Compte désactivé",
       });
     }
 
-    const passwordIsValid = await comparePassword(password, user.password);
+    const validPassword = await comparePassword(password, user.password);
 
-    if (!passwordIsValid) {
+    if (!validPassword) {
       return res.status(401).json({
         success: false,
-        message: "Invalid email or password",
+        message: "Email ou mot de passe incorrect",
       });
     }
 
     const token = generateToken({
-      id: user.id,
+      id: user._id.toString(),
       role: user.role,
     });
 
@@ -51,28 +74,10 @@ export const login = async (req: Request, res: Response) => {
 
       token,
 
-      user: {
-        id: user.id,
-
-        firstName: user.firstName,
-
-        lastName: user.lastName,
-
-        email: user.email,
-
-        phone: user.phone,
-
-        role: user.role,
-
-        speciality: user.speciality,
-
-        mustChangePassword: user.mustChangePassword,
-
-        isActive: user.isActive,
-      },
+      user: formatUser(user),
     });
   } catch (error) {
-    console.error(error);
+    console.error("LOGIN ERROR", error);
 
     return res.status(500).json({
       success: false,
@@ -82,7 +87,7 @@ export const login = async (req: Request, res: Response) => {
 };
 
 /**
- * First password change
+ * Changer mot de passe
  */
 export const changePassword = async (req: AuthRequest, res: Response) => {
   try {
@@ -93,19 +98,16 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found",
+        message: "Utilisateur introuvable",
       });
     }
 
-    const passwordIsValid = await comparePassword(
-      currentPassword,
-      user.password,
-    );
+    const validPassword = await comparePassword(currentPassword, user.password);
 
-    if (!passwordIsValid) {
+    if (!validPassword) {
       return res.status(400).json({
         success: false,
-        message: "Current password is incorrect",
+        message: "Ancien mot de passe incorrect",
       });
     }
 
@@ -117,10 +119,10 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
 
     return res.status(200).json({
       success: true,
-      message: "Password updated successfully",
+      message: "Mot de passe modifié",
     });
   } catch (error) {
-    console.error(error);
+    console.error("CHANGE PASSWORD ERROR", error);
 
     return res.status(500).json({
       success: false,
@@ -130,7 +132,7 @@ export const changePassword = async (req: AuthRequest, res: Response) => {
 };
 
 /**
- * Current connected user
+ * Utilisateur connecté
  */
 export const me = async (req: AuthRequest, res: Response) => {
   try {
@@ -139,16 +141,17 @@ export const me = async (req: AuthRequest, res: Response) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found",
+        message: "Utilisateur introuvable",
       });
     }
 
     return res.status(200).json({
       success: true,
-      user,
+
+      user: formatUser(user),
     });
   } catch (error) {
-    console.error(error);
+    console.error("ME ERROR", error);
 
     return res.status(500).json({
       success: false,

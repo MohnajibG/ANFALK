@@ -1,7 +1,10 @@
+// src/components/appointments/AppointmentForm.tsx
+
 import { useCallback, useMemo, useState } from "react";
 import { AxiosError } from "axios";
 
 import { createAppointment } from "../../api/appointment.api";
+import { useAuth } from "../../hooks/useAuth";
 
 import type {
   AppointmentService,
@@ -28,6 +31,8 @@ const AppointmentForm = ({
   employees = [],
   onSuccess,
 }: AppointmentFormProps) => {
+  const { user } = useAuth();
+  console.log("AUTH USER", user);
   const [client, setClient] = useState<Client | null>(null);
 
   const [selectedServices, setSelectedServices] = useState<
@@ -37,14 +42,13 @@ const AppointmentForm = ({
   const [date, setDate] = useState("");
   const [startTime, setStartTime] = useState("09:00");
 
-  const [customPrice, setCustomPrice] = useState<number>();
-  const [customDuration, setCustomDuration] = useState<number>();
-  const [customEndTime, setCustomEndTime] = useState<string>();
+  const [customPrice, setCustomPrice] = useState<number | undefined>();
+  const [customDuration, setCustomDuration] = useState<number | undefined>();
+
+  const [customEndTime, setCustomEndTime] = useState<string | undefined>();
 
   const [manualPrice, setManualPrice] = useState(false);
-
   const [manualDuration, setManualDuration] = useState(false);
-
   const [manualEndTime, setManualEndTime] = useState(false);
 
   const [notes, setNotes] = useState("");
@@ -52,25 +56,27 @@ const AppointmentForm = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const automaticValues = useMemo(() => {
-    return selectedServices.reduce(
-      (acc, service) => ({
-        price: acc.price + service.price,
-        duration: acc.duration + service.duration,
-      }),
-      {
-        price: 0,
-        duration: 0,
-      },
-    );
-  }, [selectedServices]);
+  const automaticValues = useMemo(
+    () =>
+      selectedServices.reduce(
+        (total, service) => ({
+          price: total.price + service.price,
+          duration: total.duration + service.duration,
+        }),
+        {
+          price: 0,
+          duration: 0,
+        },
+      ),
+    [selectedServices],
+  );
 
   const totalDuration = manualDuration
-    ? (customDuration ?? 0)
+    ? (customDuration ?? automaticValues.duration)
     : automaticValues.duration;
 
   const estimatedPrice = manualPrice
-    ? (customPrice ?? 0)
+    ? (customPrice ?? automaticValues.price)
     : automaticValues.price;
 
   const calculateEndTime = useCallback((time: string, duration: number) => {
@@ -82,7 +88,10 @@ const AppointmentForm = ({
 
     const endMinutes = totalMinutes % 60;
 
-    return `${String(endHours).padStart(2, "0")}:${String(endMinutes).padStart(2, "0")}`;
+    return `${String(endHours).padStart(2, "0")}:${String(endMinutes).padStart(
+      2,
+      "0",
+    )}`;
   }, []);
 
   const endTime = useMemo(() => {
@@ -96,14 +105,14 @@ const AppointmentForm = ({
 
     return calculateEndTime(startTime, totalDuration);
   }, [
-    manualEndTime,
+    calculateEndTime,
     customEndTime,
+    manualEndTime,
     startTime,
     totalDuration,
-    calculateEndTime,
   ]);
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setClient(null);
     setSelectedServices([]);
 
@@ -120,7 +129,7 @@ const AppointmentForm = ({
 
     setNotes("");
     setError("");
-  };
+  }, []);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -133,6 +142,10 @@ const AppointmentForm = ({
         throw new Error("Veuillez sélectionner une cliente");
       }
 
+      if (!user?._id) {
+        throw new Error("Utilisateur non authentifié");
+      }
+
       if (!date) {
         throw new Error("Veuillez sélectionner une date");
       }
@@ -143,6 +156,8 @@ const AppointmentForm = ({
 
       const payload: CreateAppointmentPayload = {
         client: client._id,
+
+        createdBy: user._id,
 
         services: selectedServices.map((service) => ({
           service: service.service,
@@ -212,7 +227,7 @@ const AppointmentForm = ({
           <input
             type="date"
             value={date}
-            onChange={(e) => setDate(e.target.value)}
+            onChange={(event) => setDate(event.target.value)}
             className="h-12 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
           />
         </div>
@@ -223,7 +238,7 @@ const AppointmentForm = ({
           <input
             type="time"
             value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
+            onChange={(event) => setStartTime(event.target.value)}
             className="h-12 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
           />
         </div>
@@ -259,7 +274,7 @@ const AppointmentForm = ({
       <textarea
         rows={3}
         value={notes}
-        onChange={(e) => setNotes(e.target.value)}
+        onChange={(event) => setNotes(event.target.value)}
         placeholder="Ajouter une remarque..."
         className="rounded-2xl border border-(--border) bg-(--cream) p-4"
       />
