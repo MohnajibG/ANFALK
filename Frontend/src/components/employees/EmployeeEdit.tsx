@@ -63,19 +63,20 @@ export default function EmployeeEdit() {
   }, [id]);
 
   const handleSubmit = async (form: EmployeeFormType) => {
+    if (!id) {
+      setError("Identifiant de l'employé introuvable");
+      return;
+    }
+
     try {
       setSaving(true);
       setError("");
 
       await updateEmployee(id, {
         firstName: form.firstName,
-
         lastName: form.lastName,
-
         phone: form.phone,
-
         role: form.role,
-
         speciality: form.speciality ?? "Hair",
       });
 
