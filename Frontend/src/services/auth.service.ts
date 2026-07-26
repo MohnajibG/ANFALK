@@ -1,5 +1,6 @@
-import { authApi, type LoginPayload } from "../api/auth.api";
-import type { AuthUser } from "../context/AuthContext";
+import { authApi } from "../api/auth.api";
+
+import type { LoginPayload, AuthUser } from "../types/auth";
 
 const TOKEN_KEY = "token";
 
@@ -13,7 +14,9 @@ class AuthService {
   }
 
   async me(): Promise<AuthUser> {
-    return authApi.me();
+    const response = await authApi.me();
+
+    return response.user;
   }
 
   async changePassword(currentPassword: string, newPassword: string) {
@@ -31,7 +34,7 @@ class AuthService {
   }
 
   isAuthenticated() {
-    return !!this.getToken();
+    return Boolean(this.getToken());
   }
 }
 

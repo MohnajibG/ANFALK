@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState, type ReactNode } from "react";
-
-import { AuthContext } from "./Auth.context";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { authService } from "../services/auth.service";
+
+import { AuthContext, type AuthContextType } from "./Auth.context";
 
 import type { AuthUser, LoginPayload } from "../types/auth";
 
@@ -15,7 +15,9 @@ export function AuthProvider({ children }: Props) {
 
   const [loading, setLoading] = useState(true);
 
-  const loadUser = useCallback(async () => {
+  const initialized = useRef(false);
+
+  const refreshUser = async () => {
     try {
       const token = authService.getToken();
 
@@ -37,12 +39,15 @@ export function AuthProvider({ children }: Props) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void loadUser();
-  }, [loadUser]);
+    if (initialized.current) return;
+
+    initialized.current = true;
+
+    void refreshUser();
+  }, []);
 
   const login = async (data: LoginPayload) => {
     const loggedUser = await authService.login(data);
@@ -58,17 +63,13 @@ export function AuthProvider({ children }: Props) {
     }
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        login,
-        logout,
-        refreshUser: loadUser,
-      }}
-    >
-      {children}
-    </AuthContext.Provider>
-  );
+  const value: AuthContextType = {
+    user,
+    loading,
+    login,
+    logout,
+    refreshUser,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
