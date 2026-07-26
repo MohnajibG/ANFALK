@@ -18,12 +18,12 @@ import {
   updateAppointment,
   cancelAppointment,
   deleteAppointment,
-} from "../../api/appointment.api";
+} from "../api/appointment.api";
 
-import { useAuth } from "../../hooks/useAuth";
-import type { Appointment, AppointmentStatus } from "../../types/appointment";
+import { useAuth } from "../hooks/useAuth";
+import type { Appointment, AppointmentStatus } from "../types/appointment";
 
-import AppointmentForm from "../../components/appointments/AppointmentForm";
+import AppointmentForm from "../components/appointments/AppointmentForm";
 
 const statusLabels: Record<AppointmentStatus, string> = {
   pending: "En attente",

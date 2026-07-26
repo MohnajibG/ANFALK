@@ -29,7 +29,7 @@ const ClientAutocomplete = ({ value, onChange }: Props) => {
         limit: 10,
       });
 
-      setClients(data);
+      setClients(data.clients);
     } catch (err) {
       console.error("[ClientAutocomplete]", err);
       setError("Impossible de charger les clientes.");

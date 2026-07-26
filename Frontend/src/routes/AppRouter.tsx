@@ -20,7 +20,7 @@ import Clients from "../pages/admin/Clients";
 import Employees from "../pages/admin/Employees";
 import Categories from "../pages/admin/Categories";
 import Services from "../pages/admin/Services";
-import Appointments from "../pages/admin/Appointments";
+import Appointments from "../pages/Appointments";
 import Tickets from "../pages/admin/ticket";
 
 // Cashier pages

@@ -37,7 +37,7 @@ export interface EmployeeForm {
 
   role: EmployeeRole;
 
-  speciality: Speciality;
+  speciality: Speciality | undefined;
 }
 
 export interface CreateEmployeeResponse {
