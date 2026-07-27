@@ -164,14 +164,15 @@ export const completeAppointmentController = async (
   res: Response,
 ) => {
   try {
-    const appointment = await completeAppointment(
+    const result = await completeAppointment(
       req.params.id as string,
       req.user!.id,
     );
 
     return res.json({
       success: true,
-      appointment,
+      appointment: result.appointment,
+      ticket: result.ticket,
     });
   } catch (error: any) {
     return res.status(400).json({

@@ -78,8 +78,8 @@ const ticketSchema = new Schema(
 
     status: {
       type: String,
-      enum: ["paid", "cancelled"],
-      default: "paid",
+      enum: ["waiting_payment", "paid", "cancelled"],
+      default: "waiting_payment",
     },
 
     notes: String,

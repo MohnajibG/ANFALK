@@ -2,6 +2,7 @@ import Appointment from "../models/Appointment";
 import Client from "../models/Client";
 import User from "../models/User";
 import Service from "../models/Service";
+import Ticket from "../models/Ticket";
 
 interface CreateAppointmentData {
   client: string;
@@ -207,13 +208,40 @@ export const completeAppointment = async (id: string, userId: string) => {
     throw new Error("Rendez-vous introuvable");
   }
 
-  appointment.status = "waiting_payment";
+  if (
+    appointment.status !== "confirmed" &&
+    appointment.status !== "in_progress"
+  ) {
+    throw new Error("Rendez-vous impossible à terminer");
+  }
 
+  appointment.status = "completed";
   appointment.updatedBy = userId as any;
 
   await appointment.save();
 
-  return appointment;
+  const ticket = await Ticket.create({
+    client: appointment.client,
+
+    appointment: appointment._id,
+
+    items: appointment.services.map((item) => ({
+      service: item.service,
+      employee: item.employee,
+      finalPrice: item.price,
+    })),
+
+    total: appointment.estimatedPrice,
+
+    status: "waiting_payment",
+
+    createdBy: userId,
+  });
+
+  return {
+    appointment,
+    ticket,
+  };
 };
 
 /**
