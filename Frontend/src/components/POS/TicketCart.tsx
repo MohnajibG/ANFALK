@@ -1,18 +1,13 @@
 import { Receipt, Trash2 } from "lucide-react";
 
 import type { Employee } from "../../types/employee";
-
 import type { CartItem } from "../../hooks/usePOS";
 
 type Props = {
   cart: CartItem[];
-
   employees: Employee[];
-
   removeItem: (index: number) => void;
-
   updateEmployee: (index: number, employee: Employee) => void;
-
   updatePrice: (index: number, price: number) => void;
 };
 
@@ -24,26 +19,13 @@ export default function TicketCart({
   updatePrice,
 }: Props) {
   return (
-    <section
-      className="
-rounded-3xl
-border border-[#D8B98A]/30
-bg-white
-p-6
-"
-    >
+    <section className="rounded-3xl border border-[#D8B98A]/30 bg-white p-6">
       <div className="flex justify-between">
         <h2 className="text-xl font-bold">Ticket</h2>
-
         <Receipt />
       </div>
 
-      <div
-        className="
-mt-5
-space-y-4
-"
-      >
+      <div className="mt-5 space-y-4">
         {!cart.length && (
           <p className="text-sm text-gray-400">Aucun service ajouté</p>
         )}
@@ -51,22 +33,11 @@ space-y-4
         {cart.map((item, index) => (
           <div
             key={`${item.service._id}-${index}`}
-            className="
-rounded-2xl
-border
-p-4
-"
+            className="rounded-2xl border p-4"
           >
-            <div
-              className="
-flex
-items-start
-justify-between
-"
-            >
+            <div className="flex items-start justify-between">
               <div>
                 <p className="font-semibold">{item.service.name}</p>
-
                 <p className="text-xs text-gray-500">{item.duration} min</p>
               </div>
 
@@ -88,19 +59,9 @@ justify-between
                   const employee = employees.find(
                     (emp) => emp._id === e.target.value,
                   );
-
-                  if (employee) {
-                    updateEmployee(index, employee);
-                  }
+                  if (employee) updateEmployee(index, employee);
                 }}
-                className="
-mt-2
-w-full
-rounded-xl
-border
-p-3
-outline-none
-"
+                className="mt-2 w-full rounded-xl border p-3 outline-none"
               >
                 <option value="">Choisir un employé</option>
 
@@ -120,14 +81,7 @@ outline-none
                 type="number"
                 value={item.finalPrice}
                 onChange={(e) => updatePrice(index, Number(e.target.value))}
-                className="
-mt-2
-w-full
-rounded-xl
-border
-p-3
-outline-none
-"
+                className="mt-2 w-full rounded-xl border p-3 outline-none"
               />
             </div>
           </div>

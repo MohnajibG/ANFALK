@@ -1,9 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
 import { Eye, Search, Receipt, XCircle, X } from "lucide-react";
 
-import { getTickets, cancelTicket } from "../../api/ticket.api";
+import useTickets from "../../hooks/useTickets";
 
-import type { Ticket, TicketStatus } from "../../types/ticket";
+import type { TicketStatus } from "../../types/ticket";
 
 const statusLabels: Record<TicketStatus, string> = {
   paid: "Payé",
@@ -11,59 +10,23 @@ const statusLabels: Record<TicketStatus, string> = {
 };
 
 const CashierTickets = () => {
-  const [tickets, setTickets] = useState<Ticket[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<"all" | TicketStatus>("all");
-  const [selected, setSelected] = useState<Ticket | null>(null);
+  const {
+    filteredTickets,
+    loading,
+    error,
+    search,
+    setSearch,
+    status,
+    setStatus,
+    selectedTicket,
+    setSelectedTicket,
+    handleCancel,
+  } = useTickets();
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const data = await getTickets();
-        setTickets(data);
-      } catch (error) {
-        console.error("[Cashier Tickets]", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    void load();
-  }, []);
-
-  const filteredTickets = useMemo(() => {
-    const value = search.toLowerCase().trim();
-
-    return tickets.filter((ticket) => {
-      const client =
-        typeof ticket.client === "object"
-          ? `${ticket.client.firstName} ${ticket.client.lastName}`
-          : "";
-
-      const matchSearch =
-        !value ||
-        ticket.ticketNumber.toLowerCase().includes(value) ||
-        client.toLowerCase().includes(value);
-
-      const matchStatus = status === "all" || ticket.status === status;
-
-      return matchSearch && matchStatus;
-    });
-  }, [tickets, search, status]);
-
-  const handleCancel = async (ticket: Ticket) => {
+  const cancelTicket = async (id: string) => {
     if (!confirm("Annuler ce ticket ?")) return;
 
-    try {
-      const updated = await cancelTicket(ticket._id);
-
-      setTickets((prev) =>
-        prev.map((item) => (item._id === updated._id ? updated : item)),
-      );
-    } catch (error) {
-      console.error("[Cancel Ticket]", error);
-    }
+    await handleCancel(id);
   };
 
   if (loading) {
@@ -84,6 +47,10 @@ const CashierTickets = () => {
         <p className="ak-muted">Consultez les ventes réalisées.</p>
       </section>
 
+      {error && (
+        <div className="rounded-2xl bg-red-50 p-4 text-red-600">{error}</div>
+      )}
+
       <section className="ak-card flex flex-col gap-4 p-5 md:flex-row">
         <div className="flex flex-1 items-center gap-3 rounded-xl border border-[#D8B98A]/30 bg-[#FFFDF8] p-3">
           <Search size={18} className="text-[#D8B98A]" />
@@ -102,17 +69,19 @@ const CashierTickets = () => {
           className="rounded-xl border border-[#D8B98A]/30 p-3"
         >
           <option value="all">Tous</option>
+
           <option value="paid">Payés</option>
+
           <option value="cancelled">Annulés</option>
         </select>
       </section>
 
       <section className="ak-card p-5">
-        <div className="flex flex-col gap-4">
-          {filteredTickets.length === 0 && (
-            <p className="text-center text-gray-400">Aucun ticket trouvé</p>
-          )}
+        {!filteredTickets.length && (
+          <p className="text-center text-gray-400">Aucun ticket trouvé</p>
+        )}
 
+        <div className="flex flex-col gap-4">
           {filteredTickets.map((ticket) => {
             const client =
               typeof ticket.client === "object"
@@ -150,7 +119,7 @@ const CashierTickets = () => {
 
                 <div className="flex gap-2">
                   <button
-                    onClick={() => setSelected(ticket)}
+                    onClick={() => setSelectedTicket(ticket)}
                     className="rounded-xl bg-[#151515] p-3 text-[#FFF4D6]"
                   >
                     <Eye size={18} />
@@ -158,7 +127,7 @@ const CashierTickets = () => {
 
                   {ticket.status === "paid" && (
                     <button
-                      onClick={() => handleCancel(ticket)}
+                      onClick={() => cancelTicket(ticket._id)}
                       className="rounded-xl bg-red-100 p-3 text-red-600"
                     >
                       <XCircle size={18} />
@@ -170,16 +139,17 @@ const CashierTickets = () => {
           })}
         </div>
       </section>
-      {selected && (
+
+      {selectedTicket && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-5">
           <div className="w-full max-w-lg rounded-3xl bg-white p-6">
             <div className="flex items-center justify-between">
               <h2 className="font-[Cinzel] text-xl font-bold">
-                {selected.ticketNumber}
+                {selectedTicket.ticketNumber}
               </h2>
 
               <button
-                onClick={() => setSelected(null)}
+                onClick={() => setSelectedTicket(null)}
                 className="rounded-xl p-2 hover:bg-gray-100"
               >
                 <X size={20} />
@@ -187,7 +157,7 @@ const CashierTickets = () => {
             </div>
 
             <div className="mt-5 flex flex-col gap-3">
-              {selected.items.map((item, index) => (
+              {selectedTicket.items.map((item, index) => (
                 <div
                   key={index}
                   className="flex items-center justify-between rounded-xl bg-[#F7F2EA] p-4"
@@ -195,22 +165,18 @@ const CashierTickets = () => {
                   <div>
                     <p className="font-semibold">{item.name}</p>
 
-                    {item.duration && (
-                      <p className="text-xs text-gray-500">
-                        {item.duration} min
-                      </p>
-                    )}
+                    <p className="text-xs text-gray-500">{item.duration} min</p>
                   </div>
 
                   <strong>{item.finalPrice.toLocaleString("fr-FR")} DA</strong>
                 </div>
               ))}
 
-              {selected.discount > 0 && (
+              {selectedTicket.discount > 0 && (
                 <div className="flex justify-between border-t pt-3 text-sm">
                   <span>Remise</span>
 
-                  <strong>-{selected.discount} DA</strong>
+                  <strong>-{selectedTicket.discount} DA</strong>
                 </div>
               )}
 
@@ -218,7 +184,7 @@ const CashierTickets = () => {
                 <span>Total</span>
 
                 <strong className="text-[#3E2C23]">
-                  {selected.total.toLocaleString("fr-FR")} DA
+                  {selectedTicket.total.toLocaleString("fr-FR")} DA
                 </strong>
               </div>
             </div>

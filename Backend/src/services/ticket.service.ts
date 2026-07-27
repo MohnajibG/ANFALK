@@ -187,7 +187,7 @@ export const cancelTicket = async (id: string, userId: string) => {
   return ticket;
 };
 
-export const completeAppointmentFromTicket = async (
+export const createTicketFromAppointment = async (
   data: CreateTicketData & {
     appointment: string;
   },

@@ -8,11 +8,7 @@ type Props = {
 };
 
 const WaitingAppointments = ({ appointments, selectAppointment }: Props) => {
-  console.log("Appointments :", appointments);
-
-  if (!appointments.length) {
-    return null;
-  }
+  if (!appointments.length) return null;
 
   return (
     <section className="rounded-3xl border border-[#D8B98A]/30 bg-white p-5">
@@ -27,17 +23,11 @@ const WaitingAppointments = ({ appointments, selectAppointment }: Props) => {
             key={appointment._id}
             type="button"
             onClick={() => selectAppointment(appointment)}
-            className="
-            flex w-full items-center justify-between
-            rounded-2xl bg-[#F7F2EA]
-            p-4 text-left
-            hover:bg-[#EFE3D2]
-            "
+            className="flex w-full items-center justify-between rounded-2xl bg-[#F7F2EA] p-4 text-left hover:bg-[#EFE3D2]"
           >
             <div>
               <div className="flex items-center gap-2 font-semibold">
                 <User size={16} />
-
                 {typeof appointment.client === "object"
                   ? `${appointment.client.firstName} ${appointment.client.lastName}`
                   : "Client"}
@@ -46,7 +36,6 @@ const WaitingAppointments = ({ appointments, selectAppointment }: Props) => {
               <p className="mt-1 text-sm text-gray-500">
                 {appointment.startTime} - {appointment.endTime}
               </p>
-
               <p className="text-xs text-gray-500">
                 {appointment.services.length} prestation(s)
               </p>

@@ -5,7 +5,7 @@ import {
   getTicketsController,
   getTicketByIdController,
   cancelTicketController,
-  completeAppointmentFromTicket,
+  createTicketFromAppointment,
 } from "../controllers/ticket.controller";
 
 import { authenticate } from "../middlewares/auth";
@@ -45,7 +45,7 @@ router.post(
   "/appointment/:id/create-ticket",
   authenticate,
   authorize("admin", "cashier"),
-  completeAppointmentFromTicket,
+  createTicketFromAppointment,
 );
 
 export default router;

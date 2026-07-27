@@ -28,9 +28,13 @@ const usePOS = () => {
     [],
   );
 
+  const [selectedAppointment, setSelectedAppointment] =
+    useState<Appointment | null>(null);
+
   const [selectedClient, setSelectedClient] = useState<
     Client | AppointmentClient | null
   >(null);
+
   const [cart, setCart] = useState<CartItem[]>([]);
 
   const [searchService, setSearchService] = useState("");
@@ -51,18 +55,22 @@ const usePOS = () => {
             getEmployees(),
             getWaitingPaymentAppointments(),
           ]);
-        console.log("appointmentsData", appointmentsData);
+        console.log("SERVICES", servicesData);
+        console.log("EMPLOYEES", employeesData);
+        console.log("APPOINTMENTS", appointmentsData);
         setServices(Array.isArray(servicesData) ? servicesData : []);
+
         setEmployees(
           Array.isArray(employeesData)
             ? employeesData.filter((e) => e.role === "employee")
             : [],
         );
+
         setWaitingAppointments(
           Array.isArray(appointmentsData) ? appointmentsData : [],
         );
-      } catch (err) {
-        console.error("[POS]", err);
+      } catch (error) {
+        console.error("[POS]", error);
         setError("Impossible de charger la caisse");
       } finally {
         setLoading(false);
@@ -85,9 +93,9 @@ const usePOS = () => {
     [cart],
   );
 
-  const addService = (service: Service) =>
-    setCart((cart) => [
-      ...cart,
+  const addService = (service: Service) => {
+    setCart((prev) => [
+      ...prev,
       {
         service,
         employee: null,
@@ -96,25 +104,41 @@ const usePOS = () => {
         duration: service.duration,
       },
     ]);
+  };
 
-  const removeItem = (index: number) =>
-    setCart((cart) => cart.filter((_, i) => i !== index));
+  const removeItem = (index: number) => {
+    setCart((prev) => prev.filter((_, i) => i !== index));
+  };
 
-  const updateEmployee = (index: number, employee: Employee) =>
-    setCart((cart) =>
-      cart.map((item, i) => (i === index ? { ...item, employee } : item)),
-    );
-
-  const updatePrice = (index: number, price: number) =>
-    setCart((cart) =>
-      cart.map((item, i) =>
-        i === index ? { ...item, finalPrice: price } : item,
+  const updateEmployee = (index: number, employee: Employee) => {
+    setCart((prev) =>
+      prev.map((item, i) =>
+        i === index
+          ? {
+              ...item,
+              employee,
+            }
+          : item,
       ),
     );
-  const selectAppointment = (appointment: Appointment) => {
-    loadAppointmentToCart(appointment);
   };
+
+  const updatePrice = (index: number, price: number) => {
+    setCart((prev) =>
+      prev.map((item, i) =>
+        i === index
+          ? {
+              ...item,
+              finalPrice: price,
+            }
+          : item,
+      ),
+    );
+  };
+
   const loadAppointmentToCart = (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
+
     if (typeof appointment.client === "object") {
       setSelectedClient(appointment.client);
     }
@@ -126,10 +150,14 @@ const usePOS = () => {
           name: item.name,
           price: item.price,
           duration: item.duration,
-          category: { _id: "", name: "" },
+          category: {
+            _id: "",
+            name: "",
+          },
           speciality: "Reception",
           isActive: true,
         },
+
         employee:
           typeof item.employee === "object"
             ? ({
@@ -142,19 +170,34 @@ const usePOS = () => {
                 isActive: true,
               } as Employee)
             : null,
+
         originalPrice: item.price,
         finalPrice: item.price,
         duration: item.duration,
       })),
     );
   };
+
+  const selectAppointment = (appointment: Appointment) => {
+    loadAppointmentToCart(appointment);
+  };
+
+  const newTicket = () => {
+    setCart([]);
+    setSelectedClient(null);
+    setSelectedAppointment(null);
+    setSearchClient("");
+    setSearchService("");
+    setError("");
+  };
+
   const checkout = async () => {
     if (!selectedClient) {
       setError("Veuillez sélectionner un client");
       return;
     }
 
-    if (cart.length === 0) {
+    if (!cart.length) {
       setError("Panier vide");
       return;
     }
@@ -170,24 +213,23 @@ const usePOS = () => {
 
       const payload: CreateTicketPayload = {
         client: selectedClient._id,
+
+        appointment: selectedAppointment?._id,
+
         items: cart.map((item) => ({
           service: item.service._id,
-          name: item.service.name,
           employee: item.employee!._id,
-          originalPrice: item.originalPrice,
           finalPrice: item.finalPrice,
-          duration: item.duration,
         })),
+
         paymentMethod,
       };
 
       await createTicket(payload);
 
-      setCart([]);
-      setSelectedClient(null);
-      setSearchClient("");
-    } catch (err) {
-      console.error("[POS checkout]", err);
+      newTicket();
+    } catch (error) {
+      console.error("[POS checkout]", error);
       setError("Erreur création ticket");
     } finally {
       setSaving(false);
@@ -199,12 +241,14 @@ const usePOS = () => {
     employees,
     waitingAppointments,
 
-    filteredServices,
+    selectedAppointment,
 
     selectedClient,
     setSelectedClient,
 
     cart,
+
+    filteredServices,
 
     searchService,
     setSearchService,
@@ -226,10 +270,11 @@ const usePOS = () => {
     updateEmployee,
     updatePrice,
 
-    loadAppointmentToCart,
     selectAppointment,
+    loadAppointmentToCart,
 
     checkout,
+    newTicket,
   };
 };
 

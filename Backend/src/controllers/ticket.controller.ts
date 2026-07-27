@@ -6,7 +6,7 @@ import {
   getTickets,
   getTicketById,
   cancelTicket,
-  completeAppointmentFromTicket,
+  createTicketFromAppointment,
 } from "../services/ticket.service";
 
 export const createTicketController = async (
@@ -97,7 +97,7 @@ export const createTicketFromAppointmentController = async (
   res: Response,
 ) => {
   try {
-    const ticket = await completeAppointmentFromTicket({
+    const ticket = await createTicketFromAppointment({
       ...req.body,
 
       appointment: req.params.id as string,
@@ -116,4 +116,4 @@ export const createTicketFromAppointmentController = async (
     });
   }
 };
-export { completeAppointmentFromTicket };
+export { createTicketFromAppointment };
