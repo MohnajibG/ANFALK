@@ -29,8 +29,9 @@ export default function Employees() {
     try {
       setLoading(true);
 
-      const data = await getEmployees(search);
-
+      const data = await getEmployees({
+        search,
+      });
       setEmployees(data);
     } catch (error) {
       console.error(error);
