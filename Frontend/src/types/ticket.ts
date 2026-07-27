@@ -1,5 +1,5 @@
 export type PaymentMethod = "cash" | "card" | "transfer";
-export type TicketStatus = "paid" | "cancelled";
+export type TicketStatus = "waiting_payment" | "paid" | "cancelled";
 
 export interface TicketUser {
   _id: string;

@@ -190,7 +190,9 @@ export default function Appointments() {
       console.error("Erreur suppression:", error);
     }
   };
-
+  console.log("loading :", loading);
+  console.log("appointments :", appointments);
+  console.log("filteredAppointments :", filteredAppointments);
   return (
     <section className="space-y-6">
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
