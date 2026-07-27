@@ -33,10 +33,7 @@ export const createTicketController = async (
 
 export const getTicketsController = async (req: AuthRequest, res: Response) => {
   try {
-    const tickets = await getTickets({
-      ...req.query,
-      user: req.user,
-    });
+    const tickets = await getTickets(req.query);
 
     return res.json({
       success: true,
