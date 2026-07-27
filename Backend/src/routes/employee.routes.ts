@@ -47,8 +47,7 @@ router.get("/", authorize("admin", "cashier"), getEmployeesController);
  *
  * Employee uniquement
  */
-router.get("/me", authorize("employee"), getMyEmployeeController);
-
+router.get("/me", getMyEmployeeController);
 /**
  * GET /api/employees/:id
  *
