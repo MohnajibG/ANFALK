@@ -1,6 +1,5 @@
 export type PaymentMethod = "cash" | "card" | "transfer";
-
-export type TicketStatus = "waiting_payment" | "paid" | "cancelled";
+export type TicketStatus = "paid" | "cancelled";
 
 export interface TicketUser {
   _id: string;
@@ -12,7 +11,6 @@ export interface TicketEmployee {
   _id: string;
   firstName: string;
   lastName: string;
-  speciality?: string;
 }
 
 export interface TicketClient {
@@ -24,16 +22,15 @@ export interface TicketClient {
 
 export interface TicketAppointment {
   _id: string;
-  date?: string;
-  startTime?: string;
-  endTime?: string;
-  status?: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  status: string;
 }
 
 export interface TicketItem {
-  service?: string;
+  service: string;
   name: string;
-  employee?: string | TicketEmployee;
   originalPrice: number;
   finalPrice: number;
   duration?: number;
@@ -43,9 +40,9 @@ export interface Ticket {
   _id: string;
   ticketNumber: string;
 
-  client: string | TicketClient;
-  employee?: string | TicketEmployee;
-  appointment?: string | TicketAppointment;
+  client: TicketClient;
+  employee: TicketEmployee;
+  appointment?: TicketAppointment;
 
   items: TicketItem[];
 
@@ -53,39 +50,41 @@ export interface Ticket {
   discount: number;
   total: number;
 
-  paymentMethod?: PaymentMethod;
+  paymentMethod: PaymentMethod;
   status: TicketStatus;
 
   notes?: string;
 
-  createdBy: string | TicketUser;
-  cancelledBy?: string | TicketUser;
+  createdBy: TicketUser;
+  cancelledBy?: TicketUser;
   cancelledAt?: string;
 
   createdAt: string;
   updatedAt: string;
 }
 
-export interface CreateTicketItem {
-  service?: string;
-  name: string;
-  employee?: string;
-  originalPrice: number;
+export interface CreateTicketService {
+  service: string;
   finalPrice: number;
-  duration?: number;
 }
 
 export interface CreateTicketPayload {
   client: string;
   appointment?: string;
-  items: CreateTicketItem[];
+
+  items: {
+    service: string;
+    employee: string;
+    finalPrice: number;
+  }[];
+
   discount?: number;
-  paymentMethod?: PaymentMethod;
   notes?: string;
+
+  paymentMethod: "cash" | "card" | "transfer";
 }
 
 export interface UpdateTicketPayload {
-  items?: CreateTicketItem[];
   discount?: number;
   notes?: string;
 }
