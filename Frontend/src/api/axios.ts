@@ -1,13 +1,28 @@
 import axios from "axios";
 
+const getBaseURL = () => {
+  // Priorité aux variables Vercel (.env frontend)
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+
+  // Développement local
+  if (window.location.hostname === "localhost") {
+    return "http://localhost:3000/api";
+  }
+
+  // Production
+  return "https://site--ankelk--dnxhn8mdblq5.code.run/api";
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: getBaseURL(),
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Attach JWT to every request
+// Ajout JWT automatique
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -21,7 +36,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-// Handle unauthorized responses
+// Gestion expiration token
 api.interceptors.response.use(
   (response) => response,
   (error) => {
