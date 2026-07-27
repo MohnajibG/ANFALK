@@ -1,41 +1,68 @@
 import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+
+import { getMyEmployeeProfile } from "../../api/employee.api";
+
+import type { Employee } from "../../types/employee";
 
 export default function EmployeeDashboard() {
+  const [employee, setEmployee] = useState<Employee | null>(null);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const data = await getMyEmployeeProfile();
+
+        setEmployee(data);
+      } catch (error) {
+        console.error("Erreur chargement profil employé", error);
+      }
+    };
+
+    loadProfile();
+  }, []);
+
+  if (!employee) {
+    return <div className="ak-card p-6">Chargement...</div>;
+  }
+
   return (
     <div className="w-full space-y-6">
       {/* HEADER */}
+
       <div className="ak-card px-5 py-7 text-center sm:px-8 lg:text-left">
-        <p className="ak-kicker">Employee Space</p>
+        <p className="ak-kicker">Espace employé</p>
 
         <h1 className="mt-3 font-[Cinzel] text-3xl font-bold text-[#0b0b0b]">
-          Welcome back, Sarah
+          Bonjour {employee.firstName}
         </h1>
 
-        <p className="ak-muted mt-2">Hair Stylist · Coiffure</p>
+        <p className="ak-muted mt-2">{employee.speciality ?? "Employé"}</p>
       </div>
 
-      {/* KPI CARDS */}
+      {/* KPI */}
+
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard title="Today's Revenue" value="320 €" />
+        <KpiCard title="Chiffre du jour" value="0 €" />
 
-        <KpiCard title="Services Completed" value="12" />
+        <KpiCard title="Prestations réalisées" value="0" />
 
-        <KpiCard title="Customers Served" value="10" />
+        <KpiCard title="Clients reçus" value="0" />
 
-        <KpiCard title="Monthly Revenue" value="4 250 €" />
+        <KpiCard title="Chiffre du mois" value="0 €" />
       </div>
 
-      {/* CONTENT GRID */}
+      {/* CONTENT */}
+
       <div className="grid gap-4 lg:grid-cols-3">
-        {/* PERFORMANCE */}
         <motion.div
           whileHover={{ scale: 1.01 }}
           className="ak-card p-5 sm:p-6 lg:col-span-2"
         >
-          <h2 className="mb-4 font-semibold text-[#0b0b0b]">My Performance</h2>
+          <h2 className="mb-4 font-semibold text-[#0b0b0b]">Performance</h2>
 
           <div className="flex h-64 w-full items-end gap-3 rounded-3xl border border-[#e8e2d8] bg-[#f7f4ee] p-5">
-            {[35, 50, 45, 70, 62, 85, 75].map((height, index) => (
+            {[30, 45, 40, 65, 55, 80, 70].map((height, index) => (
               <div
                 key={index}
                 className="flex-1 rounded-full bg-[#3E2C23]"
@@ -47,52 +74,38 @@ export default function EmployeeDashboard() {
           </div>
 
           <p className="ak-muted mt-4 text-sm">
-            Revenue evolution during the last 7 days
+            Évolution des prestations sur les 7 derniers jours
           </p>
         </motion.div>
 
-        {/* SPECIALITY */}
         <motion.div whileHover={{ scale: 1.01 }} className="ak-card p-5 sm:p-6">
-          <h2 className="mb-4 font-semibold text-[#0b0b0b]">My Speciality</h2>
+          <h2 className="mb-4 font-semibold text-[#0b0b0b]">Ma spécialité</h2>
 
           <div className="space-y-4">
-            <div>
-              <p className="ak-muted text-sm">Category</p>
+            <Info label="Spécialité" value={employee.speciality ?? "-"} />
 
-              <p className="font-semibold">Hair Styling</p>
-            </div>
+            <Info
+              label="Statut"
+              value={employee.isActive ? "Actif" : "Inactif"}
+            />
 
-            <div>
-              <p className="ak-muted text-sm">Total Services</p>
-
-              <p className="font-semibold">156 services</p>
-            </div>
-
-            <div>
-              <p className="ak-muted text-sm">Average Rating</p>
-
-              <p className="font-semibold">⭐ 4.9 / 5</p>
-            </div>
+            <Info
+              label="Nom complet"
+              value={`${employee.firstName} ${employee.lastName}`}
+            />
           </div>
         </motion.div>
 
-        {/* RECENT SERVICES */}
         <motion.div
           whileHover={{ scale: 1.01 }}
           className="ak-card p-5 sm:p-6 lg:col-span-3"
         >
-          <h2 className="mb-4 font-semibold text-[#0b0b0b]">Recent Services</h2>
+          <h2 className="mb-4 font-semibold text-[#0b0b0b]">
+            Dernières prestations
+          </h2>
 
-          <div className="grid gap-3 text-sm sm:grid-cols-3">
-            <ServiceItem
-              client="Emma D."
-              service="Hair Coloring"
-              price="70 €"
-            />
-
-            <ServiceItem client="Sarah M." service="Brushing" price="25 €" />
-
-            <ServiceItem client="Lina K." service="Hair Cut" price="40 €" />
+          <div className="rounded-2xl border border-[#e8e2d8] bg-[#f7f4ee] p-5 text-sm text-gray-500">
+            Aucune prestation récente
           </div>
         </motion.div>
       </div>
@@ -100,14 +113,9 @@ export default function EmployeeDashboard() {
   );
 }
 
-/* KPI COMPONENT */
-
 function KpiCard({ title, value }: { title: string; value: string }) {
   return (
-    <motion.div
-      whileHover={{ y: -4 }}
-      className="ak-card p-6 text-center sm:text-left"
-    >
+    <motion.div whileHover={{ y: -4 }} className="ak-card p-6">
       <p className="ak-muted text-sm font-semibold">{title}</p>
 
       <h3 className="mt-2 text-2xl font-bold text-[#0b0b0b]">{value}</h3>
@@ -115,24 +123,12 @@ function KpiCard({ title, value }: { title: string; value: string }) {
   );
 }
 
-/* SERVICE COMPONENT */
-
-function ServiceItem({
-  client,
-  service,
-  price,
-}: {
-  client: string;
-  service: string;
-  price: string;
-}) {
+function Info({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-[#e8e2d8] bg-[#f7f4ee] p-4">
-      <p className="font-semibold text-[#0b0b0b]">{client}</p>
+    <div>
+      <p className="ak-muted text-sm">{label}</p>
 
-      <p className="ak-muted">{service}</p>
-
-      <p className="mt-2 font-bold text-[#3E2C23]">{price}</p>
+      <p className="font-semibold">{value}</p>
     </div>
   );
 }

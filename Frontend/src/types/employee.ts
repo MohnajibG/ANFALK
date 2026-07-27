@@ -11,7 +11,7 @@ export interface Employee {
 
   email: string;
 
-  phone?: string;
+  phone: string;
 
   role: EmployeeRole;
 
@@ -37,7 +37,7 @@ export interface EmployeeForm {
 
   role: EmployeeRole;
 
-  speciality: Speciality | undefined;
+  speciality?: Speciality;
 }
 
 export interface CreateEmployeeResponse {
@@ -63,14 +63,17 @@ export interface CreateEmployeeResponse {
 }
 
 export interface EmployeeApiResponse {
-  message: string;
   success: boolean;
 
   employees: Employee[];
+
+  message?: string;
 }
 
 export interface EmployeeResponse {
   success: boolean;
+
   employee: Employee;
+
   message?: string;
 }

@@ -8,6 +8,8 @@ type Props = {
 };
 
 const WaitingAppointments = ({ appointments, selectAppointment }: Props) => {
+  console.log("Appointments :", appointments);
+
   if (!appointments.length) {
     return null;
   }

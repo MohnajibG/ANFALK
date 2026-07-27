@@ -51,7 +51,7 @@ const usePOS = () => {
             getEmployees(),
             getWaitingPaymentAppointments(),
           ]);
-
+        console.log("appointmentsData", appointmentsData);
         setServices(Array.isArray(servicesData) ? servicesData : []);
         setEmployees(
           Array.isArray(employeesData)

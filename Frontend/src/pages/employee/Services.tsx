@@ -1,118 +1,114 @@
 import { motion } from "framer-motion";
 import { Scissors, CalendarDays, User, Euro } from "lucide-react";
+import { useEffect, useState } from "react";
 
-const services = [
-  {
-    id: 1,
-    name: "Hair Coloring",
-    category: "Coloration",
-    client: "Emma Martin",
-    date: "10 March 2026",
-    price: "85 €",
-    status: "Completed",
-  },
+import { getMyEmployeeProfile } from "../../api/employee.api";
+import type { Employee } from "../../types/employee";
 
-  {
-    id: 2,
-    name: "Brushing",
-    category: "Hair Styling",
-    client: "Sophie Bernard",
-    date: "12 March 2026",
-    price: "35 €",
-    status: "Completed",
-  },
-
-  {
-    id: 3,
-    name: "Hair Cut",
-    category: "Haircut",
-    client: "Claire Dupont",
-    date: "15 March 2026",
-    price: "45 €",
-    status: "Completed",
-  },
-
-  {
-    id: 4,
-    name: "Hair Treatment",
-    category: "Care",
-    client: "Julie Morel",
-    date: "18 March 2026",
-    price: "60 €",
-    status: "Completed",
-  },
-];
+interface EmployeeService {
+  _id: string;
+  name: string;
+  category: string;
+  client: string;
+  date: string;
+  price: number;
+  status: string;
+}
 
 export default function Services() {
+  const [employee, setEmployee] = useState<Employee | null>(null);
+  const [services, setServices] = useState<EmployeeService[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const profile = await getMyEmployeeProfile();
+
+        setEmployee(profile);
+
+        // FUTUR API :
+        // const data = await getMyEmployeeServices();
+        // setServices(data);
+
+        setServices([]);
+      } catch (error) {
+        console.error("Erreur chargement services", error);
+      }
+    };
+
+    load();
+  }, []);
+
+  if (!employee) {
+    return <div className="ak-card p-6">Chargement...</div>;
+  }
+
   return (
     <div className="w-full space-y-6">
-      {/* HEADER */}
-
       <div className="ak-card px-5 py-7 sm:px-8">
-        <p className="ak-kicker">Employee Area</p>
+        <p className="ak-kicker">Espace employé</p>
 
-        <h1 className="mt-3 font-[Cinzel] text-3xl font-bold">My Services</h1>
+        <h1 className="mt-3 font-[Cinzel] text-3xl font-bold">
+          Mes prestations
+        </h1>
 
-        <p className="ak-muted mt-2">Sarah's completed services history</p>
+        <p className="ak-muted mt-2">Historique des prestations réalisées</p>
       </div>
 
-      {/* SERVICE LIST */}
+      {services.length === 0 ? (
+        <div className="ak-card p-6 text-center text-gray-500">
+          Aucune prestation disponible
+        </div>
+      ) : (
+        <div className="grid gap-5">
+          {services.map((service) => (
+            <motion.div
+              key={service._id}
+              whileHover={{ y: -3 }}
+              className="ak-card p-6"
+            >
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="rounded-2xl bg-[#FFF4D6] p-4">
+                    <Scissors size={25} className="text-[#3E2C23]" />
+                  </div>
 
-      <div className="grid gap-5">
-        {services.map((service) => (
-          <motion.div
-            key={service.id}
-            whileHover={{
-              y: -3,
-            }}
-            className="ak-card p-6"
-          >
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-              {/* LEFT */}
+                  <div>
+                    <h2 className="text-lg font-semibold">{service.name}</h2>
 
-              <div className="flex items-center gap-4">
-                <div className="rounded-2xl bg-[#FFF4D6] p-4">
-                  <Scissors size={25} className="text-[#3E2C23]" />
+                    <p className="ak-muted text-sm">{service.category}</p>
+                  </div>
                 </div>
 
-                <div>
-                  <h2 className="text-lg font-semibold">{service.name}</h2>
+                <div className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="flex items-center gap-2">
+                    <User size={16} />
+                    {service.client}
+                  </div>
 
-                  <p className="ak-muted text-sm">{service.category}</p>
-                </div>
-              </div>
+                  <div className="flex items-center gap-2">
+                    <CalendarDays size={16} />
 
-              {/* INFO */}
+                    {new Date(service.date).toLocaleDateString("fr-FR")}
+                  </div>
 
-              <div className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
-                <div className="flex items-center gap-2">
-                  <User size={16} />
+                  <div className="flex items-center gap-2">
+                    <Euro size={16} />
 
-                  <span>{service.client}</span>
-                </div>
+                    <span className="font-semibold">
+                      {service.price.toLocaleString("fr-FR")} €
+                    </span>
+                  </div>
 
-                <div className="flex items-center gap-2">
-                  <CalendarDays size={16} />
-
-                  <span>{service.date}</span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Euro size={16} />
-
-                  <span className="font-semibold">{service.price}</span>
-                </div>
-
-                <div>
                   <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
                     {service.status}
                   </span>
                 </div>
               </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

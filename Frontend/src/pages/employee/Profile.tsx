@@ -5,40 +5,38 @@ import {
   Mail,
   Scissors,
   CalendarDays,
-  Award,
   CheckCircle,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import { getMyEmployeeProfile } from "../../api/employee.api";
+
+import type { Employee } from "../../types/employee";
 
 export default function Profile() {
-  const employee = {
-    name: "Sarah Martin",
-    role: "Hair Stylist",
-    speciality: "Coiffure",
-    phone: "06 12 34 56 78",
-    email: "sarah@anfelk.com",
-    joined: "January 2025",
-    status: "Active",
-    experience: "5 years",
-  };
+  const [employee, setEmployee] = useState<Employee | null>(null);
 
-  const stats = [
-    {
-      title: "Services Completed",
-      value: "315",
-    },
-    {
-      title: "Monthly Revenue",
-      value: "5,100 €",
-    },
-    {
-      title: "Clients Served",
-      value: "248",
-    },
-  ];
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const data = await getMyEmployeeProfile();
+
+        setEmployee(data);
+      } catch (error) {
+        console.error("Erreur chargement profil", error);
+      }
+    };
+
+    loadProfile();
+  }, []);
+
+  if (!employee) {
+    return <div className="ak-card p-6">Chargement du profil...</div>;
+  }
 
   return (
     <div className="w-full space-y-6">
-      {/* HEADER PROFILE */}
+      {/* HEADER */}
 
       <motion.div
         initial={{
@@ -52,29 +50,29 @@ export default function Profile() {
         className="ak-card p-8"
       >
         <div className="flex flex-col gap-6 md:flex-row md:items-center">
-          {/* AVATAR */}
-
           <div className="flex h-32 w-32 items-center justify-center rounded-full bg-[#3E2C23] text-[#FFF4D6]">
             <User size={55} />
           </div>
 
-          {/* INFO */}
-
           <div>
-            <p className="ak-kicker">Employee Profile</p>
+            <p className="ak-kicker">Profil employé</p>
 
             <h1 className="mt-2 font-[Cinzel] text-3xl font-bold">
-              {employee.name}
+              {employee.firstName} {employee.lastName}
             </h1>
 
             <p className="ak-muted mt-2">
-              {employee.role} · {employee.speciality}
+              {employee.role === "employee" ? "Employé" : "Caissier"}
+
+              {" · "}
+
+              {employee.speciality ?? "-"}
             </p>
 
             <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-green-100 px-4 py-2 text-sm font-semibold text-green-700">
               <CheckCircle size={16} />
 
-              {employee.status}
+              {employee.isActive ? "Actif" : "Inactif"}
             </div>
           </div>
         </div>
@@ -83,22 +81,14 @@ export default function Profile() {
       {/* QUICK STATS */}
 
       <div className="grid gap-4 md:grid-cols-3">
-        {stats.map((stat) => (
-          <motion.div
-            key={stat.title}
-            whileHover={{
-              y: -4,
-            }}
-            className="ak-card p-6"
-          >
-            <p className="ak-muted text-sm">{stat.title}</p>
+        <StatCard title="Prestations réalisées" value="-" />
 
-            <h2 className="mt-2 text-3xl font-bold">{stat.value}</h2>
-          </motion.div>
-        ))}
+        <StatCard title="Chiffre du mois" value="-" />
+
+        <StatCard title="Clients reçus" value="-" />
       </div>
 
-      {/* PERSONAL INFORMATION */}
+      {/* INFORMATIONS */}
 
       <div className="grid gap-5 lg:grid-cols-2">
         <motion.div
@@ -107,7 +97,7 @@ export default function Profile() {
             scale: 1.01,
           }}
         >
-          <h2 className="mb-5 text-lg font-bold">Personal Information</h2>
+          <h2 className="mb-5 text-lg font-bold">Informations personnelles</h2>
 
           <div className="space-y-4 text-sm">
             <Info
@@ -118,19 +108,21 @@ export default function Profile() {
 
             <Info
               icon={<Phone size={18} />}
-              label="Phone"
-              value={employee.phone}
+              label="Téléphone"
+              value={employee.phone || "-"}
             />
 
             <Info
               icon={<CalendarDays size={18} />}
-              label="Joined"
-              value={employee.joined}
+              label="Création du compte"
+              value={
+                employee.createdAt
+                  ? new Date(employee.createdAt).toLocaleDateString("fr-FR")
+                  : "-"
+              }
             />
           </div>
         </motion.div>
-
-        {/* PROFESSIONAL INFO */}
 
         <motion.div
           className="ak-card p-6"
@@ -138,25 +130,21 @@ export default function Profile() {
             scale: 1.01,
           }}
         >
-          <h2 className="mb-5 text-lg font-bold">Professional Information</h2>
+          <h2 className="mb-5 text-lg font-bold">
+            Informations professionnelles
+          </h2>
 
           <div className="space-y-4 text-sm">
             <Info
               icon={<Scissors size={18} />}
-              label="Speciality"
-              value={employee.speciality}
-            />
-
-            <Info
-              icon={<Award size={18} />}
-              label="Experience"
-              value={employee.experience}
+              label="Spécialité"
+              value={employee.speciality ?? "-"}
             />
 
             <Info
               icon={<CheckCircle size={18} />}
-              label="Account Status"
-              value={employee.status}
+              label="Statut du compte"
+              value={employee.isActive ? "Actif" : "Inactif"}
             />
           </div>
         </motion.div>
@@ -166,10 +154,25 @@ export default function Profile() {
 
       <div className="ak-card p-6">
         <button className="rounded-xl bg-[#3E2C23] px-6 py-3 font-semibold text-[#FFF4D6] transition hover:scale-105">
-          Edit Profile
+          Modifier mon profil
         </button>
       </div>
     </div>
+  );
+}
+
+function StatCard({ title, value }: { title: string; value: string }) {
+  return (
+    <motion.div
+      whileHover={{
+        y: -4,
+      }}
+      className="ak-card p-6"
+    >
+      <p className="ak-muted text-sm">{title}</p>
+
+      <h2 className="mt-2 text-3xl font-bold">{value}</h2>
+    </motion.div>
   );
 }
 
