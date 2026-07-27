@@ -9,9 +9,18 @@ import type {
 
 const API_URL = "/employees";
 
-export const getEmployees = async (search = ""): Promise<Employee[]> => {
+interface GetEmployeesParams {
+  search?: string;
+  role?: string;
+  isActive?: boolean;
+  limit?: number;
+}
+
+export const getEmployees = async (
+  params?: GetEmployeesParams,
+): Promise<Employee[]> => {
   const { data } = await api.get<EmployeeApiResponse>(API_URL, {
-    params: search ? { search } : undefined,
+    params,
   });
 
   return data.employees ?? [];
