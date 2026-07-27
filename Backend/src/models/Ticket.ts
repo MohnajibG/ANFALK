@@ -14,12 +14,6 @@ const ticketSchema = new Schema(
       required: true,
     },
 
-    employee: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-
     appointment: {
       type: Schema.Types.ObjectId,
       ref: "Appointment",
@@ -30,6 +24,13 @@ const ticketSchema = new Schema(
         service: {
           type: Schema.Types.ObjectId,
           ref: "Service",
+          required: true,
+        },
+
+        employee: {
+          type: Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
         },
 
         name: {
@@ -49,6 +50,7 @@ const ticketSchema = new Schema(
 
         duration: {
           type: Number,
+          required: true,
         },
       },
     ],
@@ -70,17 +72,13 @@ const ticketSchema = new Schema(
 
     paymentMethod: {
       type: String,
-
       enum: ["cash", "card", "transfer"],
-
       required: true,
     },
 
     status: {
       type: String,
-
       enum: ["paid", "cancelled"],
-
       default: "paid",
     },
 
@@ -99,7 +97,6 @@ const ticketSchema = new Schema(
 
     cancelledAt: Date,
   },
-
   {
     timestamps: true,
   },

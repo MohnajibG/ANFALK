@@ -28,6 +28,7 @@ import CashierDashboard from "../pages/cashier/Dashboard";
 import POS from "../pages/cashier/POS";
 import Customers from "../pages/cashier/Customers";
 import CashierTickets from "../pages/cashier/Tickets";
+import CashierProfile from "../pages/cashier/Profile";
 
 // Employee pages
 import EmployeeDashboard from "../pages/employee/Dashboard";
@@ -96,7 +97,7 @@ const AppRouter = () => {
             <Route path="pos" element={<POS />} />
             <Route path="tickets" element={<CashierTickets />} />
             <Route path="appointments" element={<Appointments />} />
-            <Route path="profile" element={<EmployeeProfile />} />
+            <Route path="profile" element={<CashierProfile />} />
           </Route>
         </Route>
 

@@ -4,58 +4,34 @@ import Ticket from "../models/Ticket";
 import Client from "../models/Client";
 import User from "../models/User";
 import Service from "../models/Service";
-
 import Appointment from "../models/Appointment";
 
 interface CreateTicketData {
   client: string;
-
-  employee: string;
-
   appointment?: string;
-
-  services: {
+  items: {
     service: string;
+    employee: string;
     finalPrice: number;
   }[];
-
   discount?: number;
-
   paymentMethod: "cash" | "card" | "transfer";
-
   notes?: string;
-
   createdBy: string;
 }
 
-/**
- * Génération numéro ticket
- */
 const generateTicketNumber = async () => {
   const count = await Ticket.countDocuments();
-
   const number = (count + 1).toString().padStart(6, "0");
-
   const year = new Date().getFullYear();
 
   return `AK-${year}-${number}`;
 };
 
-/**
- * Création ticket caisse
- */
 export const createTicket = async (data: CreateTicketData) => {
-  /*
-==============================
-Vérification client
-==============================
-*/
-
   const client = await Client.findOne({
     _id: data.client,
-
     isDeleted: false,
-
     isActive: true,
   });
 
@@ -63,53 +39,43 @@ Vérification client
     throw new Error("Client introuvable");
   }
 
-  /*
-==============================
-Vérification employee
-==============================
-*/
+  const employeeIds = data.items.map((item) => item.employee);
 
-  const employee = await User.findOne({
-    _id: data.employee,
-
+  const employees = await User.find({
+    _id: {
+      $in: employeeIds,
+    },
     role: "employee",
-
     isActive: true,
   });
 
-  if (!employee) {
-    throw new Error("Employé introuvable");
+  if (employees.length !== employeeIds.length) {
+    throw new Error("Employé invalide");
   }
 
-  /*
-==============================
-Services snapshot
-==============================
-*/
-
-  const serviceIds = data.services.map((item) => item.service);
+  const serviceIds = data.items.map((item) => item.service);
 
   const services = await Service.find({
     _id: {
       $in: serviceIds,
     },
-
     isDeleted: false,
-
     isActive: true,
   });
 
-  if (services.length !== data.services.length) {
+  if (services.length !== serviceIds.length) {
     throw new Error("Service invalide");
   }
 
   const items = services.map((service) => {
-    const custom = data.services.find(
+    const custom = data.items.find(
       (item) => item.service.toString() === service._id.toString(),
     );
 
     return {
       service: service._id,
+
+      employee: custom?.employee,
 
       name: service.name,
 
@@ -121,36 +87,16 @@ Services snapshot
     };
   });
 
-  /*
-==============================
-Calcul montant
-==============================
-*/
+  const subtotal = items.reduce((sum, item) => sum + item.finalPrice, 0);
 
-  const subtotal = items.reduce(
-    (total, item) => total + item.finalPrice,
-
-    0,
-  );
-
-  const discount = data.discount || 0;
+  const discount = data.discount ?? 0;
 
   const total = Math.max(subtotal - discount, 0);
 
-  /*
-==============================
-Créer ticket
-==============================
-*/
-
-  const ticketNumber = await generateTicketNumber();
-
   const ticket = await Ticket.create({
-    ticketNumber,
+    ticketNumber: await generateTicketNumber(),
 
     client: data.client,
-
-    employee: data.employee,
 
     appointment: data.appointment,
 
@@ -171,64 +117,42 @@ Créer ticket
     createdBy: data.createdBy,
   });
 
-  /*
-==============================
-Mise à jour fidélité client
-==============================
-*/
-
-  const points = Math.floor(total / 100);
-
-  await Client.findByIdAndUpdate(
-    client._id,
-
-    {
-      $inc: {
-        loyaltyPoints: points,
-
-        totalSpent: total,
-
-        visitCount: 1,
-      },
-
-      lastVisit: new Date(),
+  await Client.findByIdAndUpdate(client._id, {
+    $inc: {
+      loyaltyPoints: Math.floor(total / 100),
+      totalSpent: total,
+      visitCount: 1,
     },
-  );
+    lastVisit: new Date(),
+  });
 
   return ticket;
 };
 
-/**
- * Liste tickets
- */
 export const getTickets = async (filter: any = {}) => {
   return Ticket.find(filter)
 
     .populate("client", "firstName lastName phone")
 
-    .populate("employee", "firstName lastName")
+    .populate("items.employee", "firstName lastName speciality")
+
+    .populate("items.service", "name price duration")
 
     .sort({
       createdAt: -1,
     });
 };
 
-/**
- * Ticket par ID
- */
 export const getTicketById = async (id: string) => {
   return Ticket.findById(id)
 
     .populate("client")
 
-    .populate("employee")
+    .populate("items.employee")
 
     .populate("items.service");
 };
 
-/**
- * Annuler ticket
- */
 export const cancelTicket = async (id: string, userId: string) => {
   const ticket = await Ticket.findById(id);
 
@@ -243,24 +167,19 @@ export const cancelTicket = async (id: string, userId: string) => {
   const client = await Client.findById(ticket.client);
 
   if (client) {
-    await Client.findByIdAndUpdate(
-      client._id,
-
-      {
-        $inc: {
-          totalSpent: -ticket.total,
-
-          visitCount: -1,
-
-          loyaltyPoints: -Math.floor(ticket.total / 100),
-        },
+    await Client.findByIdAndUpdate(client._id, {
+      $inc: {
+        totalSpent: -ticket.total,
+        visitCount: -1,
+        loyaltyPoints: -Math.floor(ticket.total / 100),
       },
-    );
+    });
   }
 
   ticket.status = "cancelled";
 
   ticket.cancelledBy = new mongoose.Types.ObjectId(userId);
+
   ticket.cancelledAt = new Date();
 
   await ticket.save();
@@ -268,20 +187,11 @@ export const cancelTicket = async (id: string, userId: string) => {
   return ticket;
 };
 
-/**
- * Créer un ticket depuis un rendez-vous terminé
- */
 export const completeAppointmentFromTicket = async (
   data: CreateTicketData & {
     appointment: string;
   },
 ) => {
-  /*
-==============================
-Vérifier appointment
-==============================
-*/
-
   const appointment = await Appointment.findById(data.appointment);
 
   if (!appointment) {
@@ -292,21 +202,9 @@ Vérifier appointment
     throw new Error("Impossible de facturer un rendez-vous annulé");
   }
 
-  /*
-==============================
-Créer ticket
-==============================
-*/
-
   const ticket = await createTicket(data);
 
-  /*
-==============================
-Mettre appointment terminé
-==============================
-*/
-
-  appointment.status = "completed";
+  appointment.status = "paid";
 
   await appointment.save();
 
