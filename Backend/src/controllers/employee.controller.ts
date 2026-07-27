@@ -6,6 +6,7 @@ import {
   createEmployee,
   getEmployees,
   getEmployeeById,
+  getMyEmployee,
   updateEmployee,
   updateEmployeeStatus,
   deleteEmployee,
@@ -211,6 +212,26 @@ export const deleteEmployeeController = async (
       success: false,
 
       message: getErrorMessage(error),
+    });
+  }
+};
+export const getMyEmployeeController = async (
+  req: AuthRequest,
+  res: Response,
+) => {
+  try {
+    const employee = await getMyEmployee(req.user!.id);
+
+    return res.status(200).json({
+      success: true,
+      employee,
+    });
+  } catch (error: any) {
+    console.error("GET MY EMPLOYEE ERROR", error);
+
+    return res.status(404).json({
+      success: false,
+      message: error.message,
     });
   }
 };

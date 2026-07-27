@@ -14,9 +14,6 @@ import {
 
 import Appointment from "../models/Appointment";
 
-/**
- * Création
- */
 export const createAppointmentController = async (
   req: AuthRequest,
   res: Response,
@@ -39,9 +36,6 @@ export const createAppointmentController = async (
   }
 };
 
-/**
- * Liste
- */
 export const getAppointmentsController = async (
   req: AuthRequest,
   res: Response,
@@ -61,9 +55,6 @@ export const getAppointmentsController = async (
   }
 };
 
-/**
- * Détail
- */
 export const getAppointmentByIdController = async (
   req: AuthRequest,
   res: Response,
@@ -90,9 +81,6 @@ export const getAppointmentByIdController = async (
   }
 };
 
-/**
- * Modification
- */
 export const updateAppointmentController = async (
   req: AuthRequest,
   res: Response,
@@ -103,13 +91,6 @@ export const updateAppointmentController = async (
       updatedBy: req.user!.id,
     });
 
-    if (!appointment) {
-      return res.status(404).json({
-        success: false,
-        message: "Rendez-vous introuvable",
-      });
-    }
-
     return res.json({
       success: true,
       appointment,
@@ -122,9 +103,6 @@ export const updateAppointmentController = async (
   }
 };
 
-/**
- * Annulation
- */
 export const cancelAppointmentController = async (
   req: AuthRequest,
   res: Response,
@@ -135,13 +113,6 @@ export const cancelAppointmentController = async (
       req.user!.id,
     );
 
-    if (!appointment) {
-      return res.status(404).json({
-        success: false,
-        message: "Rendez-vous introuvable",
-      });
-    }
-
     return res.json({
       success: true,
       appointment,
@@ -154,10 +125,6 @@ export const cancelAppointmentController = async (
   }
 };
 
-/**
- * Fin prestation
- * Passage caisse
- */
 export const completeAppointmentController = async (
   req: AuthRequest,
   res: Response,
@@ -180,9 +147,6 @@ export const completeAppointmentController = async (
   }
 };
 
-/**
- * Liste POS attente paiement
- */
 export const getWaitingPaymentAppointmentsController = async (
   req: AuthRequest,
   res: Response,
@@ -210,9 +174,6 @@ export const getWaitingPaymentAppointmentsController = async (
   }
 };
 
-/**
- * Paiement POS
- */
 export const payAppointmentController = async (
   req: AuthRequest,
   res: Response,

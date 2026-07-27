@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 import User, { UserRole, Speciality } from "../models/User";
-
 import { hashPassword } from "../utils/hash";
 
 interface CreateEmployeeData {
@@ -31,13 +30,11 @@ const allowedSpecialities = [
   "Reception",
 ] as const;
 
-const validateEmail = (email: string) => {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-};
+const validateEmail = (email: string) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-const generateTemporaryPassword = () => {
-  return Math.random().toString(36).slice(-8) + "!";
-};
+const generateTemporaryPassword = () =>
+  Math.random().toString(36).slice(-8) + "!";
 
 const validateEmployeeRole = (role: string) => {
   if (!allowedRoles.includes(role as any)) {
@@ -59,9 +56,6 @@ const validateSpeciality = (role: UserRole, speciality?: Speciality) => {
   }
 };
 
-/**
- * Création employee/cashier
- */
 export const createEmployee = async (
   data: CreateEmployeeData,
   adminId: string,
@@ -73,15 +67,14 @@ export const createEmployee = async (
   }
 
   validateEmployeeRole(data.role);
-
   validateSpeciality(data.role, data.speciality);
 
-  const existingUser = await User.findOne({
+  const exists = await User.findOne({
     email,
     isDeleted: false,
   });
 
-  if (existingUser) {
+  if (exists) {
     throw new Error("Email already exists");
   }
 
@@ -89,23 +82,14 @@ export const createEmployee = async (
 
   const employee = await User.create({
     firstName: data.firstName.trim(),
-
     lastName: data.lastName.trim(),
-
     email,
-
     phone: data.phone?.trim() ?? "",
-
     password: await hashPassword(temporaryPassword),
-
     role: data.role,
-
     speciality: data.role === "employee" ? data.speciality : undefined,
-
     mustChangePassword: true,
-
     isActive: true,
-
     createdBy: adminId,
   });
 
@@ -119,26 +103,14 @@ export const createEmployee = async (
       speciality: employee.speciality,
       mustChangePassword: employee.mustChangePassword,
     },
-
     temporaryPassword,
   };
 };
 
-/**
- * Liste employés
- *
- * Admin :
- * employee + cashier
- *
- * POS :
- * employee uniquement
- */
 export const getEmployees = async (search?: string) => {
   const query: any = {
     role: "employee",
-
     isDeleted: false,
-
     isActive: true,
   };
 
@@ -159,18 +131,11 @@ export const getEmployees = async (search?: string) => {
     ];
   }
 
-  return User.find(query)
-
-    .select("-password")
-
-    .sort({
-      firstName: 1,
-    });
+  return User.find(query).select("-password").sort({
+    firstName: 1,
+  });
 };
 
-/**
- * Détail employé
- */
 export const getEmployeeById = async (id: string) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new Error("Invalid employee id");
@@ -178,16 +143,11 @@ export const getEmployeeById = async (id: string) => {
 
   const employee = await User.findOne({
     _id: id,
-
     role: "employee",
-
     isDeleted: false,
-
     isActive: true,
   })
-
     .select("-password")
-
     .populate("createdBy", "firstName lastName email");
 
   if (!employee) {
@@ -197,9 +157,6 @@ export const getEmployeeById = async (id: string) => {
   return employee;
 };
 
-/**
- * Modifier employé
- */
 export const updateEmployee = async (id: string, data: UpdateEmployeeData) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new Error("Invalid employee id");
@@ -218,18 +175,17 @@ export const updateEmployee = async (id: string, data: UpdateEmployeeData) => {
     throw new Error("Cannot update admin");
   }
 
-  const newRole = data.role ?? employee.role;
+  const role = data.role ?? employee.role;
 
-  const newSpeciality = data.speciality ?? employee.speciality;
+  const speciality = data.speciality ?? employee.speciality;
 
-  validateEmployeeRole(newRole);
-
-  validateSpeciality(newRole, newSpeciality);
+  validateEmployeeRole(role);
+  validateSpeciality(role, speciality);
 
   Object.assign(employee, {
     ...data,
-    role: newRole,
-    speciality: newRole === "employee" ? newSpeciality : undefined,
+    role,
+    speciality: role === "employee" ? speciality : undefined,
   });
 
   await employee.save();
@@ -237,9 +193,6 @@ export const updateEmployee = async (id: string, data: UpdateEmployeeData) => {
   return employee;
 };
 
-/**
- * Activation
- */
 export const updateEmployeeStatus = async (id: string, isActive: boolean) => {
   const employee = await User.findOne({
     _id: id,
@@ -250,10 +203,6 @@ export const updateEmployeeStatus = async (id: string, isActive: boolean) => {
     throw new Error("Employee not found");
   }
 
-  if (employee.role === "admin") {
-    throw new Error("Cannot disable admin");
-  }
-
   employee.isActive = isActive;
 
   await employee.save();
@@ -261,9 +210,6 @@ export const updateEmployeeStatus = async (id: string, isActive: boolean) => {
   return employee;
 };
 
-/**
- * Suppression logique
- */
 export const deleteEmployee = async (id: string, adminId: string) => {
   const employee = await User.findOne({
     _id: id,
@@ -274,19 +220,31 @@ export const deleteEmployee = async (id: string, adminId: string) => {
     throw new Error("Employee not found");
   }
 
-  if (employee.role === "admin") {
-    throw new Error("Cannot delete admin");
-  }
-
   employee.isDeleted = true;
-
   employee.isActive = false;
-
   employee.deletedAt = new Date();
-
   employee.deletedBy = adminId as any;
 
   await employee.save();
+
+  return employee;
+};
+
+export const getMyEmployee = async (userId: string) => {
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    throw new Error("Invalid employee id");
+  }
+
+  const employee = await User.findOne({
+    _id: userId,
+    role: "employee",
+    isDeleted: false,
+    isActive: true,
+  }).select("-password");
+
+  if (!employee) {
+    throw new Error("Employee not found");
+  }
 
   return employee;
 };
