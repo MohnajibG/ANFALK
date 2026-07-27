@@ -5,6 +5,7 @@ import useTickets from "../../hooks/useTickets";
 import type { TicketStatus } from "../../types/ticket";
 
 const statusLabels: Record<TicketStatus, string> = {
+  waiting_payment: "En attente de paiement",
   paid: "Payé",
   cancelled: "Annulé",
 };
