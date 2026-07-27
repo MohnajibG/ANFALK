@@ -119,3 +119,4 @@ export const createTicketFromAppointmentController = async (
     });
   }
 };
+export { completeAppointmentFromTicket };
