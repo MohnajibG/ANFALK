@@ -8,21 +8,17 @@ import {
   cancelAppointmentController,
   completeAppointmentController,
   getWaitingPaymentAppointmentsController,
+  payAppointmentController,
 } from "../controllers/appointment.controller";
 
 import { authenticate } from "../middlewares/auth";
-
 import { authorize } from "../middlewares/authorize";
 
 const router = Router();
 
-/*
-=================================
-Création rendez-vous
-ADMIN + CASHIER
-=================================
-*/
-
+/**
+ * Création rendez-vous
+ */
 router.post(
   "/",
   authenticate,
@@ -30,13 +26,9 @@ router.post(
   createAppointmentController,
 );
 
-/*
-=================================
-Liste rendez-vous
-ADMIN + CASHIER
-=================================
-*/
-
+/**
+ * Liste rendez-vous
+ */
 router.get(
   "/",
   authenticate,
@@ -44,14 +36,9 @@ router.get(
   getAppointmentsController,
 );
 
-/*
-=================================
-Tickets prêts pour la caisse
-POS
-ADMIN + CASHIER
-=================================
-*/
-
+/**
+ * Rendez-vous en attente paiement POS
+ */
 router.get(
   "/waiting-payment",
   authenticate,
@@ -59,41 +46,19 @@ router.get(
   getWaitingPaymentAppointmentsController,
 );
 
-/*
-=================================
-Détail rendez-vous
-ADMIN + CASHIER + EMPLOYEE
-=================================
-*/
-
-router.get(
-  "/:id",
-  authenticate,
-  authorize("admin", "cashier", "employee"),
-  getAppointmentByIdController,
-);
-
-/*
-=================================
-Modification rendez-vous
-ADMIN + CASHIER
-=================================
-*/
-
+/**
+ * Paiement rendez-vous POS
+ */
 router.patch(
-  "/:id",
+  "/:id/pay",
   authenticate,
   authorize("admin", "cashier"),
-  updateAppointmentController,
+  payAppointmentController,
 );
 
-/*
-=================================
-Validation fin prestation
-EMPLOYEE
-=================================
-*/
-
+/**
+ * Fin prestation employé
+ */
 router.patch(
   "/:id/complete",
   authenticate,
@@ -101,18 +66,34 @@ router.patch(
   completeAppointmentController,
 );
 
-/*
-=================================
-Annulation
-ADMIN + CASHIER
-=================================
-*/
-
+/**
+ * Annulation
+ */
 router.patch(
   "/:id/cancel",
   authenticate,
   authorize("admin", "cashier"),
   cancelAppointmentController,
+);
+
+/**
+ * Modification
+ */
+router.patch(
+  "/:id",
+  authenticate,
+  authorize("admin", "cashier"),
+  updateAppointmentController,
+);
+
+/**
+ * Détail rendez-vous
+ */
+router.get(
+  "/:id",
+  authenticate,
+  authorize("admin", "cashier", "employee"),
+  getAppointmentByIdController,
 );
 
 export default router;

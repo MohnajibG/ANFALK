@@ -1,16 +1,21 @@
 import { Response } from "express";
+
 import { AuthRequest } from "../types/auth";
+
 import {
   createAppointment,
   getAppointments,
   getAppointmentById,
   updateAppointment,
   cancelAppointment,
+  completeAppointment,
+  payAppointment,
 } from "../services/appointment.service";
+
 import Appointment from "../models/Appointment";
 
 /**
- * Créer un rendez-vous
+ * Création
  */
 export const createAppointmentController = async (
   req: AuthRequest,
@@ -35,7 +40,7 @@ export const createAppointmentController = async (
 };
 
 /**
- * Liste des rendez-vous
+ * Liste
  */
 export const getAppointmentsController = async (
   req: AuthRequest,
@@ -57,7 +62,7 @@ export const getAppointmentsController = async (
 };
 
 /**
- * Récupérer un rendez-vous
+ * Détail
  */
 export const getAppointmentByIdController = async (
   req: AuthRequest,
@@ -86,7 +91,7 @@ export const getAppointmentByIdController = async (
 };
 
 /**
- * Modifier un rendez-vous
+ * Modification
  */
 export const updateAppointmentController = async (
   req: AuthRequest,
@@ -118,7 +123,7 @@ export const updateAppointmentController = async (
 };
 
 /**
- * Annuler un rendez-vous
+ * Annulation
  */
 export const cancelAppointmentController = async (
   req: AuthRequest,
@@ -150,26 +155,18 @@ export const cancelAppointmentController = async (
 };
 
 /**
- * Terminer un rendez-vous
+ * Fin prestation
+ * Passage caisse
  */
 export const completeAppointmentController = async (
   req: AuthRequest,
   res: Response,
 ) => {
   try {
-    const appointment = await Appointment.findById(req.params.id);
-
-    if (!appointment) {
-      return res.status(404).json({
-        success: false,
-        message: "Rendez-vous introuvable",
-      });
-    }
-
-    appointment.status = "completed";
-    appointment.updatedBy = req.user!.id as any;
-
-    await appointment.save();
+    const appointment = await completeAppointment(
+      req.params.id as string,
+      req.user!.id,
+    );
 
     return res.json({
       success: true,
@@ -184,7 +181,7 @@ export const completeAppointmentController = async (
 };
 
 /**
- * Rendez-vous en attente de paiement
+ * Liste POS attente paiement
  */
 export const getWaitingPaymentAppointmentsController = async (
   req: AuthRequest,
@@ -192,7 +189,7 @@ export const getWaitingPaymentAppointmentsController = async (
 ) => {
   try {
     const appointments = await Appointment.find({
-      status: "completed",
+      status: "waiting_payment",
     })
       .populate("client", "firstName lastName phone")
       .populate("services.employee", "firstName lastName speciality")
@@ -207,6 +204,31 @@ export const getWaitingPaymentAppointmentsController = async (
     });
   } catch (error: any) {
     return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+/**
+ * Paiement POS
+ */
+export const payAppointmentController = async (
+  req: AuthRequest,
+  res: Response,
+) => {
+  try {
+    const appointment = await payAppointment(
+      req.params.id as string,
+      req.user!.id,
+    );
+
+    return res.json({
+      success: true,
+      appointment,
+    });
+  } catch (error: any) {
+    return res.status(400).json({
       success: false,
       message: error.message,
     });

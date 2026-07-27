@@ -41,6 +41,16 @@ export const createAppointment = async (
     throw error;
   }
 };
+export const payAppointment = async (id: string): Promise<Appointment> => {
+  try {
+    const { data } = await api.patch(`${API_URL}/${id}/pay`);
+
+    return data.appointment;
+  } catch (error) {
+    console.error("[Appointments] payAppointment:", error);
+    throw error;
+  }
+};
 
 export const updateAppointment = async (
   id: string,
