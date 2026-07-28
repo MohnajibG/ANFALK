@@ -28,10 +28,18 @@ export const getDashboardController = async (
     let dashboard;
 
     switch (user.role) {
-      case "admin":
-        dashboard = await getAdminDashboard();
+      case "admin": {
+        const { period, date, startDate, endDate } = req.query;
+
+        dashboard = await getAdminDashboard({
+          period: typeof period === "string" ? period : undefined,
+          date: typeof date === "string" ? date : undefined,
+          startDate: typeof startDate === "string" ? startDate : undefined,
+          endDate: typeof endDate === "string" ? endDate : undefined,
+        });
 
         break;
+      }
 
       case "cashier":
         dashboard = await getCashierDashboard(user.id);
