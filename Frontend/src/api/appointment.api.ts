@@ -105,3 +105,12 @@ export const getWaitingPaymentAppointments = async (): Promise<
     throw error;
   }
 };
+export const getTodayAppointments = async (): Promise<Appointment[]> => {
+  try {
+    const { data } = await api.get(`${API_URL}/today`);
+    return data.appointments ?? [];
+  } catch (error) {
+    console.error("[Appointments] getTodayAppointments:", error);
+    throw error;
+  }
+};

@@ -1,14 +1,17 @@
-import { useEffect, useMemo, useState, type ComponentType } from "react";
-import { motion } from "framer-motion";
-import { CreditCard, HandCoins, Receipt, Search, Users } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { CreditCard, Euro, Receipt, Users } from "lucide-react";
 
 import { getTickets, cancelTicket } from "../../api/ticket.api";
-
 import type { Ticket, TicketStatus, PaymentMethod } from "../../types/ticket";
 
 import TicketTable from "../../components/tables/TicketTable";
 import ViewTicketModal from "../../components/ticket/ViewTicketModal";
 import CancelTicketModal from "../../components/ticket/CancelTicketModal";
+
+import PageHeader from "../../components/ui/PageHeader";
+import StatCard from "../../components/ui/StatCard";
+import SearchBar from "../../components/ui/SearchBar";
+import LoadingState from "../../components/ui/LoadingState";
 
 type ModalType = "view" | "cancel" | null;
 
@@ -16,30 +19,22 @@ const Tickets = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [modal, setModal] = useState<ModalType>(null);
-
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<"all" | TicketStatus>("all");
   const [payment, setPayment] = useState<"all" | PaymentMethod>("all");
-
   const [loading, setLoading] = useState(true);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     let active = true;
-
     const loadTickets = async () => {
       try {
         const data = await getTickets();
-
         if (!active) return;
-
         setTickets(Array.isArray(data) ? data : []);
       } catch (err) {
         if (!active) return;
-
-        console.error("[Tickets] load:", err);
-
         setError(
           err instanceof Error
             ? err.message
@@ -49,9 +44,7 @@ const Tickets = () => {
         if (active) setLoading(false);
       }
     };
-
     loadTickets();
-
     return () => {
       active = false;
     };
@@ -63,126 +56,116 @@ const Tickets = () => {
         typeof ticket.client === "object"
           ? `${ticket.client.firstName} ${ticket.client.lastName}`
           : "";
-
       const searchMatch =
         ticket.ticketNumber.toLowerCase().includes(search.toLowerCase()) ||
         clientName.toLowerCase().includes(search.toLowerCase());
-
       const statusMatch = status === "all" || ticket.status === status;
-
       const paymentMatch =
         payment === "all" || ticket.paymentMethod === payment;
-
       return searchMatch && statusMatch && paymentMatch;
     });
   }, [tickets, search, status, payment]);
 
-  const totalRevenue = useMemo(() => {
-    return tickets
-      .filter((ticket) => ticket.status === "paid")
-      .reduce((total, ticket) => total + ticket.total, 0);
-  }, [tickets]);
+  const totalRevenue = useMemo(
+    () =>
+      tickets
+        .filter((t) => t.status === "paid")
+        .reduce((total, t) => total + t.total, 0),
+    [tickets],
+  );
 
-  const totalClients = useMemo(() => {
-    return new Set(
-      tickets.map((ticket) =>
-        typeof ticket.client === "object" ? ticket.client._id : ticket.client,
-      ),
-    ).size;
-  }, [tickets]);
+  const totalClients = useMemo(
+    () =>
+      new Set(
+        tickets.map((t) =>
+          typeof t.client === "object" ? t.client._id : t.client,
+        ),
+      ).size,
+    [tickets],
+  );
 
   const handleCancel = async () => {
     if (!selectedTicket) return;
-
     try {
       setCancelLoading(true);
-
       const updated = await cancelTicket(selectedTicket._id);
-
       setTickets((current) =>
         current.map((item) => (item._id === updated._id ? updated : item)),
       );
-
       setSelectedTicket(null);
       setModal(null);
-    } catch (err) {
-      console.error("[Tickets] cancel:", err);
     } finally {
       setCancelLoading(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex min-h-100 items-center justify-center text-gray-500">
-        Chargement des tickets...
-      </div>
-    );
-  }
+  if (loading) return <LoadingState label="Chargement des tickets..." />;
 
   return (
     <div className="w-full space-y-6">
-      <section className="flex flex-col gap-5 rounded-3xl border border-[#eadfce] bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.4em] text-[#8b7560]">
-            Administration
-          </p>
-          <h1 className="mt-3 font-serif text-3xl font-bold text-[#111]">
-            Gestion des tickets
-          </h1>
-          <p className="mt-2 text-sm text-gray-500">
-            Suivez les ventes et paiements de l'institut.
-          </p>
-        </div>
-      </section>
+      <PageHeader
+        kicker="Administration"
+        title="Gestion des tickets"
+        description="Suivez les ventes et paiements de l'institut."
+        icon={<Receipt size={24} />}
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard icon={Receipt} title="Tickets" value={tickets.length} />
         <StatCard
-          icon={HandCoins}
-          title="Chiffre d'affaires"
-          value={`${totalRevenue} DA`}
+          icon={Receipt}
+          title="Tickets"
+          value={tickets.length}
+          accent="black"
         />
-        <StatCard icon={Users} title="Clients" value={totalClients} />
+        <StatCard
+          icon={Euro}
+          title="Chiffre d'affaires"
+          value={`${totalRevenue.toLocaleString("fr-FR")} DA`}
+          accent="gold"
+        />
+        <StatCard
+          icon={Users}
+          title="Clients"
+          value={totalClients}
+          accent="info"
+        />
         <StatCard
           icon={CreditCard}
           title="Payés"
-          value={tickets.filter((item) => item.status === "paid").length}
+          value={tickets.filter((t) => t.status === "paid").length}
+          accent="success"
         />
       </div>
-      <div className="flex flex-col gap-3 rounded-3xl border border-[#eadfce] bg-white p-5 md:flex-row">
-        <div className="flex flex-1 items-center gap-3">
-          <Search size={20} />
 
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Rechercher un ticket..."
-            className="w-full bg-transparent outline-none"
-          />
-        </div>
-
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value as "all" | TicketStatus)}
-          className="rounded-xl border border-[#eadfce] px-4 py-2"
-        >
-          <option value="all">Tous les statuts</option>
-          <option value="paid">Payé</option>
-          <option value="cancelled">Annulé</option>
-        </select>
-
-        <select
-          value={payment}
-          onChange={(e) => setPayment(e.target.value as "all" | PaymentMethod)}
-          className="rounded-xl border border-[#eadfce] px-4 py-2"
-        >
-          {/* <option value="all">Tous les paiements</option> */}
-          <option value="cash">Espèces</option>
-          {/* <option value="card">Carte</option>
-          <option value="transfer">Virement</option> */}
-        </select>
-      </div>
+      <SearchBar
+        value={search}
+        onChange={setSearch}
+        placeholder="Rechercher un ticket..."
+        right={
+          <>
+            <select
+              value={status}
+              onChange={(e) =>
+                setStatus(e.target.value as "all" | TicketStatus)
+              }
+              className="rounded-2xl border border-(--border) bg-white px-4 py-3 text-sm"
+            >
+              <option value="all">Tous les statuts</option>
+              <option value="paid">Payé</option>
+              <option value="cancelled">Annulé</option>
+            </select>
+            <select
+              value={payment}
+              onChange={(e) =>
+                setPayment(e.target.value as "all" | PaymentMethod)
+              }
+              className="rounded-2xl border border-(--border) bg-white px-4 py-3 text-sm"
+            >
+              <option value="cash">Espèces</option>
+            </select>
+          </>
+        }
+      />
 
       {error && (
         <div className="rounded-2xl bg-red-50 p-4 text-red-600">{error}</div>
@@ -190,12 +173,12 @@ const Tickets = () => {
 
       <TicketTable
         tickets={filteredTickets}
-        onView={(ticket) => {
-          setSelectedTicket(ticket);
+        onView={(t) => {
+          setSelectedTicket(t);
           setModal("view");
         }}
-        onCancel={(ticket) => {
-          setSelectedTicket(ticket);
+        onCancel={(t) => {
+          setSelectedTicket(t);
           setModal("cancel");
         }}
       />
@@ -206,7 +189,6 @@ const Tickets = () => {
           onClose={() => setModal(null)}
         />
       )}
-
       {modal === "cancel" && selectedTicket && (
         <CancelTicketModal
           ticket={selectedTicket}
@@ -216,30 +198,6 @@ const Tickets = () => {
         />
       )}
     </div>
-  );
-};
-
-const StatCard = ({
-  icon: Icon,
-  title,
-  value,
-}: {
-  icon: ComponentType<{ size?: number }>;
-  title: string;
-  value: string | number;
-}) => {
-  return (
-    <motion.div
-      whileHover={{ y: -4 }}
-      className="rounded-3xl border border-[#eadfce] bg-white p-6"
-    >
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500">{title}</p>
-        <Icon size={22} />
-      </div>
-
-      <h3 className="mt-4 text-3xl font-bold">{value}</h3>
-    </motion.div>
   );
 };
 

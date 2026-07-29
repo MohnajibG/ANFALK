@@ -1,23 +1,47 @@
+import { useState } from "react";
 import { Receipt } from "lucide-react";
 
 import usePOS from "../../hooks/usePOS";
+import useCashRegister from "../../hooks/useCashRegister";
 
 import ClientSelector from "../../components/POS/ClientSelector";
 import ServiceSelector from "../../components/POS/ServiceSelector";
 import TicketCart from "../../components/POS/TicketCart";
 import WaitingAppointments from "../../components/POS/WaitingAppointments";
+import TodayAppointments from "../../components/POS/TodayAppointments";
 import PaymentBox from "../../components/POS/PaymentBox";
+import OpenRegisterModal from "../../components/POS/OpenRegisterModal";
+import CloseRegisterModal from "../../components/POS/CloseRegisterModal";
+import RegisterStatusBar from "../../components/POS/RegisterStatusBar";
 
 const POS = () => {
   const pos = usePOS();
+  const cashRegister = useCashRegister();
 
-  if (pos.loading) {
+  const [showCloseModal, setShowCloseModal] = useState(false);
+
+  if (cashRegister.loading || pos.loading) {
     return (
       <div className="flex min-h-100 items-center justify-center text-gray-500">
         Chargement de la caisse...
       </div>
     );
   }
+
+  if (!cashRegister.isOpen || !cashRegister.register) {
+    return (
+      <OpenRegisterModal
+        onOpen={cashRegister.open}
+        loading={cashRegister.opening}
+        error={cashRegister.error}
+      />
+    );
+  }
+
+  const handleClose = async (amount: number, notes?: string) => {
+    await cashRegister.close(amount, notes);
+    setShowCloseModal(false);
+  };
 
   return (
     <div className="w-full space-y-6">
@@ -26,9 +50,7 @@ const POS = () => {
           <p className="text-xs uppercase tracking-[0.4em] text-[#D8B98A]">
             Cashier
           </p>
-
           <h1 className="mt-3 font-[Cinzel] text-3xl font-bold">ANFAL K POS</h1>
-
           <p className="mt-2 text-sm text-gray-500">
             Création d'un nouveau ticket
           </p>
@@ -43,9 +65,20 @@ const POS = () => {
         </div>
       </section>
 
+      <RegisterStatusBar
+        register={cashRegister.register}
+        onRequestClose={() => setShowCloseModal(true)}
+      />
+
       {pos.error && (
         <div className="rounded-2xl bg-red-50 p-4 text-red-600">
           {pos.error}
+        </div>
+      )}
+
+      {cashRegister.error && !showCloseModal && (
+        <div className="rounded-2xl bg-red-50 p-4 text-red-600">
+          {cashRegister.error}
         </div>
       )}
 
@@ -75,6 +108,8 @@ const POS = () => {
             appointments={pos.waitingAppointments}
             selectAppointment={pos.selectAppointment}
           />
+
+          <TodayAppointments onSelect={pos.selectAppointment} />
         </div>
 
         <div>
@@ -95,6 +130,16 @@ const POS = () => {
           />
         </div>
       </div>
+
+      {showCloseModal && (
+        <CloseRegisterModal
+          register={cashRegister.register}
+          onClose={handleClose}
+          onCancel={() => setShowCloseModal(false)}
+          loading={cashRegister.closing}
+          error={cashRegister.error}
+        />
+      )}
     </div>
   );
 };

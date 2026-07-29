@@ -1,13 +1,19 @@
 import { useEffect, useState } from "react";
 import { Edit2, Layers, Plus, Trash2 } from "lucide-react";
+import { motion } from "framer-motion";
 
 import { deleteCategory, getCategories } from "../../api/category.api";
-
 import type { Category } from "../../types/category";
 
 import AddCategoryModal from "../../components/category/AddCategoryModal";
 import EditCategoryModal from "../../components/category/EditCategoryModal";
 import DeleteCategoryModal from "../../components/category/DeleteCategoryModal";
+
+import PageHeader from "../../components/ui/PageHeader";
+import StatCard from "../../components/ui/StatCard";
+import Badge from "../../components/ui/Badge";
+import EmptyState from "../../components/ui/EmptyState";
+import LoadingState from "../../components/ui/LoadingState";
 
 type ModalType = "add" | "edit" | "delete" | null;
 
@@ -16,100 +22,102 @@ const Categories = () => {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null,
   );
-
   const [loading, setLoading] = useState(true);
   const [deleteLoading, setDeleteLoading] = useState(false);
-
   const [modal, setModal] = useState<ModalType>(null);
 
   useEffect(() => {
-    const loadCategories = async () => {
+    const load = async () => {
       try {
         setLoading(true);
-
-        const data = await getCategories();
-
-        setCategories(data);
+        setCategories(await getCategories());
       } catch (error) {
         console.error("Load categories error:", error);
       } finally {
         setLoading(false);
       }
     };
-
-    loadCategories();
+    load();
   }, []);
 
   const handleDelete = async () => {
     if (!selectedCategory) return;
-
     try {
       setDeleteLoading(true);
-
       await deleteCategory(selectedCategory._id);
-
       setCategories((prev) =>
-        prev.filter((category) => category._id !== selectedCategory._id),
+        prev.filter((c) => c._id !== selectedCategory._id),
       );
-
       setSelectedCategory(null);
       setModal(null);
-    } catch (error) {
-      console.error("Delete category error:", error);
     } finally {
       setDeleteLoading(false);
     }
   };
 
+  const activeCount = categories.filter((c) => c.isActive).length;
+
   return (
-    <div className="space-y-6">
-      <header className="flex items-center justify-between">
-        <div>
-          <h1 className="font-serif text-3xl font-bold">Categories</h1>
+    <div className="w-full space-y-6">
+      <PageHeader
+        kicker="Administration"
+        title="Catégories"
+        description="Organisez vos prestations par catégorie."
+        icon={<Layers size={24} />}
+        action={
+          <button
+            onClick={() => setModal("add")}
+            className="flex items-center gap-2 rounded-2xl bg-(--black) px-5 py-3 text-(--cream) transition hover:bg-(--brown-dark)"
+          >
+            <Plus size={18} />
+            Ajouter une catégorie
+          </button>
+        }
+      />
 
-          <p className="text-gray-500">Manage service categories</p>
-        </div>
+      <section className="grid gap-4 sm:grid-cols-2">
+        <StatCard
+          icon={Layers}
+          title="Total catégories"
+          value={categories.length}
+          accent="black"
+        />
+        <StatCard
+          icon={Layers}
+          title="Catégories actives"
+          value={activeCount}
+          accent="success"
+        />
+      </section>
 
-        <button
-          onClick={() => setModal("add")}
-          className="flex items-center gap-2 rounded-xl bg-[#111] px-5 py-3 text-white transition hover:bg-[#3E2C23]"
-        >
-          <Plus size={18} />
-          Add Category
-        </button>
-      </header>
-
-      <section className="rounded-3xl bg-white p-6 shadow">
+      <section className="rounded-3xl border border-(--border) bg-white p-6">
         {loading ? (
-          <div className="py-12 text-center text-gray-500">Loading...</div>
+          <LoadingState label="Chargement des catégories..." />
         ) : categories.length === 0 ? (
-          <div className="flex flex-col items-center py-12 text-gray-500">
-            <Layers size={40} />
-            <p className="mt-3">No categories found.</p>
-          </div>
+          <EmptyState
+            icon={Layers}
+            title="Aucune catégorie"
+            description="Créez votre première catégorie de services."
+          />
         ) : (
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {categories.map((category) => (
-              <article
+              <motion.article
                 key={category._id}
-                className="rounded-2xl border p-5 transition hover:shadow-md"
+                whileHover={{ y: -4 }}
+                className="rounded-2xl border border-(--border) p-5 transition hover:shadow-(--shadow-sm)"
               >
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">{category.name}</h3>
-
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                      category.isActive
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
+                  <h3 className="text-lg font-semibold text-(--black)">
+                    {category.name}
+                  </h3>
+                  <Badge variant={category.isActive ? "success" : "danger"}>
                     {category.isActive ? "Active" : "Inactive"}
-                  </span>
+                  </Badge>
                 </div>
 
-                <p className="mt-3 text-sm text-gray-500">
-                  {category.description || "No description"}
+                <p className="mt-3 text-sm text-(--muted)">
+                  {category.description || "Aucune description"}
                 </p>
 
                 <div className="mt-5 flex gap-2">
@@ -118,12 +126,11 @@ const Categories = () => {
                       setSelectedCategory(category);
                       setModal("edit");
                     }}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border py-2 hover:bg-gray-50"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-(--border) py-2 hover:bg-(--surface)"
                   >
                     <Edit2 size={16} />
-                    Edit
+                    Modifier
                   </button>
-
                   <button
                     onClick={() => {
                       setSelectedCategory(category);
@@ -132,10 +139,10 @@ const Categories = () => {
                     className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-50 py-2 text-red-600 hover:bg-red-100"
                   >
                     <Trash2 size={16} />
-                    Delete
+                    Supprimer
                   </button>
                 </div>
-              </article>
+              </motion.article>
             ))}
           </div>
         )}
@@ -143,9 +150,7 @@ const Categories = () => {
 
       {modal === "add" && (
         <AddCategoryModal
-          onCreated={(category) => {
-            setCategories((prev) => [...prev, category]);
-          }}
+          onCreated={(c) => setCategories((prev) => [...prev, c])}
           onClose={() => setModal(null)}
         />
       )}
@@ -153,11 +158,10 @@ const Categories = () => {
       {modal === "edit" && selectedCategory && (
         <EditCategoryModal
           category={selectedCategory}
-          onUpdated={(category) => {
+          onUpdated={(c) => {
             setCategories((prev) =>
-              prev.map((item) => (item._id === category._id ? category : item)),
+              prev.map((item) => (item._id === c._id ? c : item)),
             );
-
             setModal(null);
           }}
           onClose={() => setModal(null)}

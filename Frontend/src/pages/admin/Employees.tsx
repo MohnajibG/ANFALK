@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Plus, Search } from "lucide-react";
+import { Plus, UserCog } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import {
@@ -7,31 +7,28 @@ import {
   updateEmployeeStatus,
   deleteEmployee,
 } from "../../api/employee.api";
-
 import type { Employee } from "../../types/employee";
 
 import EmployeeCard from "../../components/employees/EmployeeCard";
 import EmployeeModal from "../../components/employees/EmployeeModal";
 import EmployeeStats from "../../components/employees/EmployeeStats";
 
+import PageHeader from "../../components/ui/PageHeader";
+import SearchBar from "../../components/ui/SearchBar";
+import EmptyState from "../../components/ui/EmptyState";
+import LoadingState from "../../components/ui/LoadingState";
+
 export default function Employees() {
   const navigate = useNavigate();
-
   const [employees, setEmployees] = useState<Employee[]>([]);
-
   const [search, setSearch] = useState("");
-
   const [loading, setLoading] = useState(false);
-
   const [showModal, setShowModal] = useState(false);
 
   const loadEmployees = useCallback(async () => {
     try {
       setLoading(true);
-
-      const data = await getEmployees({
-        search,
-      });
+      const data = await getEmployees({ search });
       setEmployees(data);
     } catch (error) {
       console.error(error);
@@ -41,90 +38,57 @@ export default function Employees() {
   }, [search]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      loadEmployees();
-    }, 400);
-
-    return () => {
-      clearTimeout(timer);
-    };
+    const timer = setTimeout(loadEmployees, 400);
+    return () => clearTimeout(timer);
   }, [loadEmployees]);
 
   const handleStatus = async (id: string, isActive: boolean) => {
-    try {
-      await updateEmployeeStatus(id, isActive);
-
-      await loadEmployees();
-    } catch (error) {
-      console.error(error);
-    }
+    await updateEmployeeStatus(id, isActive);
+    await loadEmployees();
   };
 
   const handleDelete = async (id: string) => {
-    const confirmDelete = window.confirm("Supprimer cet employé ?");
-
-    if (!confirmDelete) return;
-
-    try {
-      await deleteEmployee(id);
-
-      await loadEmployees();
-    } catch (error) {
-      console.error(error);
-    }
+    if (!window.confirm("Supprimer cet employé ?")) return;
+    await deleteEmployee(id);
+    await loadEmployees();
   };
 
   return (
     <div className="w-full space-y-6">
-      {/* HEADER */}
+      <PageHeader
+        kicker="Administration"
+        title="Gestion des employés"
+        description="Gérez votre équipe et les accès utilisateurs."
+        icon={<UserCog size={24} />}
+        action={
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center justify-center gap-2 rounded-2xl bg-(--black) px-5 py-3 text-(--cream) transition hover:bg-(--brown-dark)"
+          >
+            <Plus size={18} />
+            Ajouter un employé
+          </button>
+        }
+      />
 
-      <section className="flex flex-col gap-5 rounded-3xl border border-(--border) bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.35em] text-(--brown)">
-            Administration
-          </p>
-
-          <h1 className="mt-2 font-title text-3xl font-bold text-(--black)">
-            Gestion des employés
-          </h1>
-
-          <p className="mt-2 text-sm text-(--muted)">
-            Gérez votre équipe et les accès utilisateurs.
-          </p>
-        </div>
-
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center justify-center gap-2 rounded-2xl bg-(--black) px-5 py-3 text-(--cream)"
-        >
-          <Plus size={18} />
-          Ajouter un employé
-        </button>
-      </section>
-
-      {/* SEARCH */}
-
-      <section className="flex items-center gap-3 rounded-2xl border border-(--border) bg-white p-4">
-        <Search size={20} className="text-(--brown)" />
-
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Rechercher un employé..."
-          className="w-full bg-transparent outline-none"
-        />
-      </section>
+      <SearchBar
+        value={search}
+        onChange={setSearch}
+        placeholder="Rechercher un employé..."
+      />
 
       <EmployeeStats employees={employees} />
 
-      {/* LISTE */}
-
       <section className="overflow-hidden rounded-3xl border border-(--border) bg-white">
         {loading ? (
-          <div className="p-10 text-center text-(--brown)">Chargement...</div>
+          <LoadingState label="Chargement des employés..." />
         ) : employees.length === 0 ? (
-          <div className="p-10 text-center text-(--muted)">
-            Aucun employé trouvé.
+          <div className="p-2">
+            <EmptyState
+              icon={UserCog}
+              title="Aucun employé trouvé"
+              description="Ajoutez un premier employé pour commencer."
+            />
           </div>
         ) : (
           employees.map((employee) => (

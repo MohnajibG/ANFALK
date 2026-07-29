@@ -1,12 +1,22 @@
-// src/pages/admin/Clients.tsx
-
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Search, Plus, User, Wallet, Eye, Pencil } from "lucide-react";
+import {
+  CalendarDays,
+  Eye,
+  Pencil,
+  UserPlus,
+  Users,
+  Wallet,
+} from "lucide-react";
 
 import { getClients } from "../../api/client.api";
-
 import AddClientModal from "../../components/admin/AddClientModal";
+
+import PageHeader from "../../components/ui/PageHeader";
+import StatCard from "../../components/ui/StatCard";
+import SearchBar from "../../components/ui/SearchBar";
+import EmptyState from "../../components/ui/EmptyState";
+import LoadingState from "../../components/ui/LoadingState";
 
 interface Client {
   _id: string;
@@ -30,17 +40,9 @@ export default function Clients() {
     try {
       setLoading(true);
       setError("");
-
-      const data = await getClients({
-        search,
-        page: 1,
-        limit: 20,
-      });
-
+      const data = await getClients({ search, page: 1, limit: 20 });
       setClients(data.clients ?? []);
-    } catch (err) {
-      console.error("Erreur chargement clients", err);
-
+    } catch {
       setError("Impossible de charger les clientes.");
     } finally {
       setLoading(false);
@@ -48,55 +50,60 @@ export default function Clients() {
   }, [search]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      loadClients();
-    }, 400);
-
+    const timer = setTimeout(loadClients, 400);
     return () => clearTimeout(timer);
   }, [loadClients]);
 
+  const totalSpent = useMemo(
+    () => clients.reduce((s, c) => s + c.totalSpent, 0),
+    [clients],
+  );
+  const avgSpent = clients.length ? Math.round(totalSpent / clients.length) : 0;
+
   return (
     <div className="w-full space-y-6">
-      {/* HEADER */}
+      <PageHeader
+        kicker="Administration"
+        title="Gestion des clientes"
+        description="Consultez les profils clients et leur historique."
+        icon={<Users size={24} />}
+        action={
+          <button
+            onClick={() => setOpenModal(true)}
+            className="flex items-center justify-center gap-2 rounded-2xl bg-(--black) px-5 py-3 text-(--cream) transition hover:bg-(--brown-dark)"
+          >
+            <UserPlus size={18} />
+            Ajouter une cliente
+          </button>
+        }
+      />
 
-      <section className="flex flex-col gap-5 rounded-3xl border border-(--border) bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.35em] text-(--brown)">
-            Administration
-          </p>
-
-          <h1 className="mt-2 font-title text-3xl font-bold text-(--black)">
-            Gestion des clientes
-          </h1>
-
-          <p className="mt-2 text-sm text-(--muted)">
-            Consultez les profils clients et leur historique.
-          </p>
-        </div>
-
-        <button
-          onClick={() => setOpenModal(true)}
-          className="flex items-center justify-center gap-2 rounded-2xl bg-(--black) px-5 py-3 text-(--cream) transition hover:opacity-90"
-        >
-          <Plus size={18} />
-          Ajouter une cliente
-        </button>
-      </section>
-
-      {/* SEARCH */}
-
-      <section className="flex items-center gap-3 rounded-2xl border border-(--border) bg-white p-4">
-        <Search size={20} className="text-(--brown)" />
-
-        <input
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Rechercher une cliente..."
-          className="h-10 w-full bg-transparent text-sm outline-none"
+      <section className="grid gap-4 sm:grid-cols-3">
+        <StatCard
+          icon={Users}
+          title="Total clientes"
+          value={clients.length}
+          accent="black"
+        />
+        <StatCard
+          icon={Wallet}
+          title="Chiffre cumulé"
+          value={`${totalSpent.toLocaleString("fr-FR")} DA`}
+          accent="gold"
+        />
+        <StatCard
+          icon={CalendarDays}
+          title="Panier moyen"
+          value={`${avgSpent.toLocaleString("fr-FR")} DA`}
+          accent="info"
         />
       </section>
 
-      {/* ERROR */}
+      <SearchBar
+        value={search}
+        onChange={setSearch}
+        placeholder="Rechercher une cliente..."
+      />
 
       {error && (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
@@ -104,82 +111,70 @@ export default function Clients() {
         </div>
       )}
 
-      {/* LIST */}
-
       <section className="overflow-hidden rounded-3xl border border-(--border) bg-white">
         {loading ? (
-          <div className="p-10 text-center text-(--brown)">
-            Chargement des clientes...
-          </div>
+          <LoadingState label="Chargement des clientes..." />
         ) : clients.length === 0 ? (
-          <div className="p-10 text-center text-(--brown)">
-            Aucune cliente trouvée.
+          <div className="p-2">
+            <EmptyState
+              icon={Users}
+              title="Aucune cliente trouvée"
+              description="Ajustez votre recherche ou ajoutez une nouvelle cliente."
+            />
           </div>
         ) : (
           <div className="flex flex-col">
             {clients.map((client) => (
               <motion.div
                 key={client._id}
-                whileHover={{ scale: 1.01 }}
+                whileHover={{ backgroundColor: "var(--surface)" }}
                 className="flex flex-col gap-5 border-b border-(--border) p-5 transition last:border-none lg:flex-row lg:items-center lg:justify-between"
               >
-                {/* CLIENT */}
-
-                <div className="flex items-center gap-3 min-w-57.5">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-(--cream) text-(--brown)">
-                    <User size={20} />
+                <div className="flex min-w-57.5 items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-(--black) text-sm font-bold text-(--champagne)">
+                    {client.firstName?.charAt(0)}
+                    {client.lastName?.charAt(0)}
                   </div>
-
                   <div>
                     <p className="font-semibold text-(--black)">
                       {client.firstName} {client.lastName}
                     </p>
-
                     <p className="text-sm text-(--muted)">
                       {client.email || "Email non renseigné"}
                     </p>
                   </div>
                 </div>
 
-                {/* PHONE */}
-
                 <div className="text-sm">
                   <p className="text-(--muted)">Téléphone</p>
-
                   <p className="font-medium">{client.phone}</p>
                 </div>
 
-                {/* VISITS */}
-
                 <div className="text-sm">
                   <p className="text-(--muted)">Visites</p>
-
                   <p className="font-semibold">{client.visitCount}</p>
                 </div>
 
-                {/* MONEY */}
-
                 <div className="flex items-center gap-2 text-sm">
                   <Wallet size={17} className="text-(--brown)" />
-
-                  <span className="font-semibold">{client.totalSpent} DA</span>
+                  <span className="font-semibold">
+                    {client.totalSpent.toLocaleString("fr-FR")} DA
+                  </span>
                 </div>
-
-                {/* LAST VISIT */}
 
                 <div className="text-sm">
                   <p className="text-(--muted)">Dernière visite</p>
-
-                  <p>{client.lastVisit || "-"}</p>
+                  <p>
+                    {client.lastVisit
+                      ? new Date(client.lastVisit).toLocaleDateString("fr-FR")
+                      : "-"}
+                  </p>
                 </div>
-
-                {/* ACTIONS */}
 
                 <div className="flex gap-2">
                   <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-(--cream) text-(--brown) transition hover:scale-105">
                     <Eye size={17} />
                   </button>
-
                   <button className="flex h-10 w-10 items-center justify-center rounded-xl bg-(--black) text-white transition hover:scale-105">
                     <Pencil size={17} />
                   </button>
@@ -190,34 +185,11 @@ export default function Clients() {
         )}
       </section>
 
-      {/* STATS */}
-
-      <div className="flex flex-col gap-4 sm:flex-row">
-        <StatCard title="Total clientes" value={`${clients.length}`} />
-
-        <StatCard title="Clientes actives" value={`${clients.length}`} />
-
-        <StatCard title="Chiffre moyen" value="0 DA" />
-      </div>
-
       <AddClientModal
         open={openModal}
         onClose={() => setOpenModal(false)}
         onSuccess={loadClients}
       />
     </div>
-  );
-}
-
-function StatCard({ title, value }: { title: string; value: string }) {
-  return (
-    <motion.div
-      whileHover={{ y: -4 }}
-      className="flex-1 rounded-3xl border border-(--border) bg-white p-6"
-    >
-      <p className="text-sm text-(--muted)">{title}</p>
-
-      <h2 className="mt-2 text-3xl font-bold text-(--black)">{value}</h2>
-    </motion.div>
   );
 }

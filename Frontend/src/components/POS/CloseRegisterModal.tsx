@@ -1,0 +1,168 @@
+import { useState } from "react";
+import { Loader2, Lock, TrendingDown, TrendingUp, X } from "lucide-react";
+
+import type { CashRegister } from "../../types/cashRegister";
+
+type Props = {
+  register: CashRegister;
+  onClose: (amount: number, notes?: string) => Promise<unknown>;
+  onCancel: () => void;
+  loading: boolean;
+  error: string;
+};
+
+const CloseRegisterModal = ({
+  register,
+  onClose,
+  onCancel,
+  loading,
+  error,
+}: Props) => {
+  const [amount, setAmount] = useState("");
+  const [notes, setNotes] = useState("");
+
+  const expected = register.openingAmount + register.totals.cash;
+  const numericAmount = Number(amount);
+  const difference =
+    amount === "" || Number.isNaN(numericAmount)
+      ? null
+      : numericAmount - expected;
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (amount === "" || Number.isNaN(numericAmount)) return;
+    await onClose(numericAmount, notes).catch(() => {});
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-lg rounded-3xl bg-white p-8 shadow-2xl">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-600">
+              <Lock size={22} />
+            </div>
+            <div>
+              <h2 className="font-[Cinzel] text-2xl font-bold">
+                Fermeture de caisse
+              </h2>
+              <p className="text-sm text-gray-500">
+                Résumé de la journée du {register.date}
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={onCancel}
+            className="rounded-xl border border-[#eadfce] p-2 hover:bg-[#fff4d6]"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="mt-6 grid grid-cols-2 gap-3 rounded-2xl bg-[#FFFDF8] p-4 text-sm">
+          <div>
+            <p className="text-gray-500">Fond de départ</p>
+            <p className="font-semibold">{register.openingAmount} DA</p>
+          </div>
+          <div>
+            <p className="text-gray-500">Tickets encaissés</p>
+            <p className="font-semibold">{register.totals.ticketsCount}</p>
+          </div>
+          <div>
+            <p className="text-gray-500">Espèces encaissées</p>
+            <p className="font-semibold">{register.totals.cash} DA</p>
+          </div>
+          <div>
+            <p className="text-gray-500">Carte / Virement</p>
+            <p className="font-semibold">
+              {register.totals.card + register.totals.transfer} DA
+            </p>
+          </div>
+          <div className="col-span-2 border-t border-[#eadfce] pt-3">
+            <p className="text-gray-500">Montant attendu en caisse (espèces)</p>
+            <p className="text-lg font-bold">{expected} DA</p>
+          </div>
+        </div>
+
+        <form onSubmit={submit} className="mt-6 flex flex-col gap-4">
+          <div>
+            <label className="text-sm font-medium">Comptage réel (DA)</label>
+            <input
+              autoFocus
+              type="number"
+              step="1"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="Montant compté en caisse"
+              className="mt-2 w-full rounded-2xl border border-[#eadfce] p-3 text-lg font-semibold outline-none"
+            />
+          </div>
+
+          {difference !== null && (
+            <div
+              className={`flex items-center gap-2 rounded-xl p-3 text-sm font-semibold ${
+                difference === 0
+                  ? "bg-green-50 text-green-700"
+                  : difference > 0
+                    ? "bg-blue-50 text-blue-700"
+                    : "bg-red-50 text-red-700"
+              }`}
+            >
+              {difference >= 0 ? (
+                <TrendingUp size={18} />
+              ) : (
+                <TrendingDown size={18} />
+              )}
+              {difference === 0
+                ? "Caisse juste, aucun écart"
+                : difference > 0
+                  ? `Excédent de ${difference} DA`
+                  : `Manque de ${Math.abs(difference)} DA`}
+            </div>
+          )}
+
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Remarque (optionnel)..."
+            rows={2}
+            className="rounded-2xl border border-[#eadfce] p-3 outline-none"
+          />
+
+          {error && (
+            <div className="rounded-xl bg-red-50 p-3 text-sm text-red-600">
+              {error}
+            </div>
+          )}
+
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="flex-1 rounded-2xl border border-[#eadfce] py-3"
+            >
+              Annuler
+            </button>
+
+            <button
+              disabled={loading || amount === ""}
+              className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-red-600 py-3 font-semibold text-white transition hover:bg-red-700 disabled:opacity-50"
+            >
+              {loading ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  Fermeture...
+                </>
+              ) : (
+                "Clôturer la caisse"
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default CloseRegisterModal;
