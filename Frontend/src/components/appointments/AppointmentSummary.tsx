@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Clock, Euro, Scissors } from "lucide-react";
+import { Clock, HandCoins, Scissors } from "lucide-react";
 
 import type { AppointmentService } from "../../types/appointment";
 
@@ -230,7 +230,7 @@ const AppointmentSummary = ({
             relative
             "
           >
-            <Euro
+            <HandCoins
               size={17}
               className="
               absolute

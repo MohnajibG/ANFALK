@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Euro, Scissors, Users, TrendingUp } from "lucide-react";
+import { HandCoins, Scissors, Users, TrendingUp } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 
@@ -49,7 +49,7 @@ export default function MyStatistics() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard title="Chiffre d'affaires" value="0 €" icon={Euro} />
+        <KpiCard title="Chiffre d'affaires" value="0 €" icon={HandCoins} />
 
         <KpiCard title="Prestations réalisées" value="0" icon={Scissors} />
 

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ComponentType } from "react";
 import { motion } from "framer-motion";
-import { Clock, Euro, Layers, Plus, Scissors, Search } from "lucide-react";
+import { Clock, HandCoins, Layers, Plus, Scissors, Search } from "lucide-react";
 
 import {
   deleteService,
@@ -160,7 +160,7 @@ const Services = () => {
         <StatCard icon={Scissors} title="Services" value={services.length} />
         <StatCard icon={Layers} title="Catégories" value={categories.length} />
         <StatCard
-          icon={Euro}
+          icon={HandCoins}
           title="Valeur totale"
           value={`${totalPrice} DA`}
         />

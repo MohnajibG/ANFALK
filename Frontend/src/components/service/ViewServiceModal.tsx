@@ -1,4 +1,4 @@
-import { Clock, Euro, Layers, Scissors, Sparkles, X } from "lucide-react";
+import { Clock, HandCoins, Layers, Scissors, Sparkles, X } from "lucide-react";
 
 import type { Service } from "../../types/service";
 
@@ -56,7 +56,7 @@ const ViewServiceModal = ({ service, onClose }: Props) => {
           />
 
           <InfoItem
-            icon={<Euro size={20} />}
+            icon={<HandCoins size={20} />}
             label="Price"
             value={`${service.price} DA`}
           />

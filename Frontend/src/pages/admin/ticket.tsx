@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ComponentType } from "react";
 import { motion } from "framer-motion";
-import { CreditCard, Euro, Receipt, Search, Users } from "lucide-react";
+import { CreditCard, HandCoins, Receipt, Search, Users } from "lucide-react";
 
 import { getTickets, cancelTicket } from "../../api/ticket.api";
 
@@ -139,7 +139,7 @@ const Tickets = () => {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard icon={Receipt} title="Tickets" value={tickets.length} />
         <StatCard
-          icon={Euro}
+          icon={HandCoins}
           title="Chiffre d'affaires"
           value={`${totalRevenue} DA`}
         />

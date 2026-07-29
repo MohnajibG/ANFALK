@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Clock, Euro, Eye, Pencil, Power, Trash2 } from "lucide-react";
+import { Clock, HandCoins, Eye, Pencil, Power, Trash2 } from "lucide-react";
 import type { Service } from "../../types/service";
 
 interface Props {
@@ -102,7 +102,7 @@ const ServiceTable = ({
             <span>{service.category.name}</span>
 
             <span className="flex items-center gap-1 font-semibold">
-              <Euro size={14} />
+              <HandCoins size={14} />
               {service.price}
             </span>
 

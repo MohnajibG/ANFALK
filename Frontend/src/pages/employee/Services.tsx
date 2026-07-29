@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Scissors, CalendarDays, User, Euro } from "lucide-react";
+import { Scissors, CalendarDays, User, HandCoins } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { getMyEmployeeProfile } from "../../api/employee.api";
@@ -93,7 +93,7 @@ export default function Services() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <Euro size={16} />
+                    <HandCoins size={16} />
 
                     <span className="font-semibold">
                       {service.price.toLocaleString("fr-FR")} €
