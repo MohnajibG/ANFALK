@@ -10,6 +10,7 @@ import clientRoutes from "./routes/client.routes";
 import appointmentRoutes from "./routes/appointment.routes";
 import ticketRoutes from "./routes/ticket.routes";
 import publicRoutes from "./routes/public.routes";
+import cashRegisterRoutes from "./routes/cashRegister.routes";
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use("/api/clients", clientRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/public", publicRoutes);
+app.use("/api/cash-register", cashRegisterRoutes);
 
 /* Test Route */
 
