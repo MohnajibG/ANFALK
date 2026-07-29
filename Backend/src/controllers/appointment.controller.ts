@@ -11,6 +11,7 @@ import {
   cancelAppointment,
   completeAppointment,
   payAppointment,
+  getTodayAppointments,
 } from "../services/appointment.service";
 
 import Appointment from "../models/Appointment";
@@ -261,5 +262,17 @@ export const getMyEmployeeController = async (
       success: false,
       message: "Erreur serveur",
     });
+  }
+};
+
+export const getTodayAppointmentsController = async (
+  req: AuthRequest,
+  res: Response,
+) => {
+  try {
+    const appointments = await getTodayAppointments();
+    return res.json({ success: true, appointments });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, message: error.message });
   }
 };

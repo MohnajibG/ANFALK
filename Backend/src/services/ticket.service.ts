@@ -5,6 +5,7 @@ import Client from "../models/Client";
 import User from "../models/User";
 import Service from "../models/Service";
 import Appointment from "../models/Appointment";
+import { getCurrentCashRegister } from "./cashRegister.service";
 
 interface CreateTicketData {
   client: string;
@@ -29,6 +30,13 @@ const generateTicketNumber = async () => {
 };
 
 export const createTicket = async (data: CreateTicketData) => {
+  const cashRegister = await getCurrentCashRegister(data.createdBy);
+
+  if (!cashRegister) {
+    throw new Error(
+      "Aucune caisse ouverte. Veuillez ouvrir votre caisse avant d'encaisser.",
+    );
+  }
   const client = await Client.findOne({
     _id: data.client,
     isDeleted: false,
@@ -95,25 +103,16 @@ export const createTicket = async (data: CreateTicketData) => {
 
   const ticket = await Ticket.create({
     ticketNumber: await generateTicketNumber(),
-
     client: data.client,
-
     appointment: data.appointment,
-
+    cashRegister: cashRegister._id,
     items,
-
     subtotal,
-
     discount,
-
     total,
-
     paymentMethod: data.paymentMethod,
-
     notes: data.notes,
-
     status: "paid",
-
     createdBy: data.createdBy,
   });
 

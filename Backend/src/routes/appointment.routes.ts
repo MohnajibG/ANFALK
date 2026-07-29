@@ -9,6 +9,7 @@ import {
   completeAppointmentController,
   getWaitingPaymentAppointmentsController,
   payAppointmentController,
+  getTodayAppointmentsController,
 } from "../controllers/appointment.controller";
 
 import { authenticate } from "../middlewares/auth";
@@ -55,7 +56,15 @@ router.patch(
   authorize("admin", "cashier"),
   payAppointmentController,
 );
-
+/**
+ * Recup les rdvs du jour
+ */
+router.get(
+  "/today",
+  authenticate,
+  authorize("admin", "cashier"),
+  getTodayAppointmentsController,
+);
 /**
  * Fin prestation employé
  */
