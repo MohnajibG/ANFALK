@@ -40,7 +40,7 @@ const CashierTickets = () => {
 
   return (
     <div className="w-full space-y-6">
-      <section className="ak-card flex flex-col gap-3 p-6">
+      <section className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] flex flex-col gap-3 p-6">
         <p className="ak-kicker">Cashier</p>
 
         <h1 className="font-[Cinzel] text-3xl font-bold">Historique Tickets</h1>
@@ -52,7 +52,7 @@ const CashierTickets = () => {
         <div className="rounded-2xl bg-red-50 p-4 text-red-600">{error}</div>
       )}
 
-      <section className="ak-card flex flex-col gap-4 p-5 md:flex-row">
+      <section className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] flex flex-col gap-4 p-5 md:flex-row">
         <div className="flex flex-1 items-center gap-3 rounded-xl border border-[#D8B98A]/30 bg-[#FFFDF8] p-3">
           <Search size={18} className="text-[#D8B98A]" />
 
@@ -77,7 +77,7 @@ const CashierTickets = () => {
         </select>
       </section>
 
-      <section className="ak-card p-5">
+      <section className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-5">
         {!filteredTickets.length && (
           <p className="text-center text-gray-400">Aucun ticket trouvé</p>
         )}

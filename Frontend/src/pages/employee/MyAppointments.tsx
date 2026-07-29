@@ -3,7 +3,19 @@ import { CalendarDays, Clock, User, Scissors } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { getMyEmployeeProfile } from "../../api/employee.api";
+import { getAppointments } from "../../api/appointment.api";
 import type { Employee } from "../../types/employee";
+
+const STATUS_LABELS: Record<string, string> = {
+  pending: "En attente",
+  confirmed: "Confirmé",
+  in_progress: "En cours",
+  completed: "Terminé",
+  waiting_payment: "Paiement attendu",
+  paid: "Payé",
+  cancelled: "Annulé",
+  no_show: "Client absent",
+};
 
 interface EmployeeAppointment {
   _id: string;
@@ -25,11 +37,27 @@ export default function MyAppointments() {
 
         setEmployee(profile);
 
-        // FUTUR API :
-        // const data = await getMyEmployeeAppointments();
-        // setAppointments(data);
+        const today = new Date().toISOString().slice(0, 10);
 
-        setAppointments([]);
+        const data = await getAppointments({
+          employeeId: profile._id,
+          dateFrom: today,
+          dateTo: today,
+        });
+
+        setAppointments(
+          data.map((appointment) => ({
+            _id: appointment._id,
+            time: appointment.startTime,
+            client:
+              typeof appointment.client === "string"
+                ? ""
+                : `${appointment.client.firstName} ${appointment.client.lastName}`,
+            service: appointment.services.map((s) => s.name).join(", "),
+            duration: `${appointment.totalDuration} min`,
+            status: STATUS_LABELS[appointment.status] ?? appointment.status,
+          })),
+        );
       } catch (error) {
         console.error("Erreur chargement rendez-vous", error);
       }
@@ -39,7 +67,11 @@ export default function MyAppointments() {
   }, []);
 
   if (!employee) {
-    return <div className="ak-card p-6">Chargement...</div>;
+    return (
+      <div className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6">
+        Chargement...
+      </div>
+    );
   }
 
   const todayAppointments = appointments.length;
@@ -48,7 +80,7 @@ export default function MyAppointments() {
 
   return (
     <div className="flex w-full flex-col gap-6">
-      <div className="ak-card p-6 sm:p-8">
+      <div className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6 sm:p-8">
         <p className="ak-kicker">Espace employé</p>
 
         <h1 className="mt-3 font-[Cinzel] text-3xl font-bold">
@@ -80,7 +112,7 @@ export default function MyAppointments() {
         />
       </div>
 
-      <div className="ak-card p-5 sm:p-6">
+      <div className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-5 sm:p-6">
         <h2 className="mb-5 font-semibold">Planning du jour</h2>
 
         {appointments.length === 0 ? (

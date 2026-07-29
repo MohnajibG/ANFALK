@@ -27,14 +27,18 @@ export default function MyStatistics() {
   }, []);
 
   if (!employee) {
-    return <div className="ak-card p-6">Chargement...</div>;
+    return (
+      <div className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6">
+        Chargement...
+      </div>
+    );
   }
 
   const currentMonth = month ?? new Date().toISOString().slice(0, 7);
 
   return (
     <div className="w-full space-y-6">
-      <div className="ak-card px-5 py-7 sm:px-8">
+      <div className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] px-5 py-7 sm:px-8">
         <p className="ak-kicker">Statistiques employé</p>
 
         <h1 className="mt-3 font-[Cinzel] text-3xl font-bold">
@@ -61,7 +65,7 @@ export default function MyStatistics() {
       <div className="grid gap-4 lg:grid-cols-3">
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="ak-card p-6 lg:col-span-2"
+          className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6 lg:col-span-2"
         >
           <h2 className="mb-5 font-semibold">
             Évolution du chiffre d'affaires
@@ -84,7 +88,10 @@ export default function MyStatistics() {
           </p>
         </motion.div>
 
-        <motion.div whileHover={{ scale: 1.01 }} className="ak-card p-6">
+        <motion.div
+          whileHover={{ scale: 1.01 }}
+          className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6"
+        >
           <h2 className="mb-5 font-semibold">Résumé mensuel</h2>
 
           <div className="space-y-4 text-sm">
@@ -102,7 +109,7 @@ export default function MyStatistics() {
           </div>
         </motion.div>
 
-        <motion.div className="ak-card p-6 lg:col-span-3">
+        <motion.div className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6 lg:col-span-3">
           <h2 className="mb-5 font-semibold">Prestations réalisées</h2>
 
           <div className="rounded-2xl bg-[#f7f4ee] p-5 text-sm text-gray-500">
@@ -124,7 +131,10 @@ function KpiCard({
   icon: React.ElementType;
 }) {
   return (
-    <motion.div whileHover={{ y: -4 }} className="ak-card p-6">
+    <motion.div
+      whileHover={{ y: -4 }}
+      className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6"
+    >
       <div className="flex justify-between">
         <div>
           <p className="ak-muted text-sm">{title}</p>

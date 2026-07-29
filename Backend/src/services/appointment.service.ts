@@ -1,8 +1,10 @@
-import Appointment from "../models/Appointment";
+import Appointment, { AppointmentStatus } from "../models/Appointment";
 import Client from "../models/Client";
 import User from "../models/User";
 import Service from "../models/Service";
 import Ticket from "../models/Ticket";
+import { timeToMinutes, minutesToTime } from "../utils/time";
+import { assertEmployeeAvailable } from "./availability.service";
 
 interface CreateAppointmentData {
   client: string;
@@ -17,24 +19,31 @@ interface CreateAppointmentData {
   createdBy: string;
 }
 
-const timeToMinutes = (time: string) => {
-  const [hours, minutes] = time.split(":").map(Number);
-  return hours * 60 + minutes;
-};
+export interface AppointmentFilter {
+  status?: AppointmentStatus;
+  employeeId?: string;
+  clientId?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
+}
 
-const minutesToTime = (minutes: number) => {
-  const hours = Math.floor(minutes / 60);
-  const mins = minutes % 60;
-
-  return `${hours.toString().padStart(2, "0")}:${mins
-    .toString()
-    .padStart(2, "0")}`;
-};
+interface UpdateAppointmentData {
+  date?: Date;
+  startTime?: string;
+  services?: { service: string; employee: string }[];
+  status?: AppointmentStatus;
+  notes?: string;
+  updatedBy: string;
+}
 
 /**
- * Création rendez-vous
+ * Valide client/services/employés et construit le snapshot des services
+ * (réutilisé par la création simple et par la récurrence)
  */
-export const createAppointment = async (data: CreateAppointmentData) => {
+export const buildAppointmentSnapshot = async (data: {
+  client: string;
+  services: { service: string; employee: string }[];
+}) => {
   const client = await Client.findOne({
     _id: data.client,
     isDeleted: false,
@@ -48,9 +57,7 @@ export const createAppointment = async (data: CreateAppointmentData) => {
   const serviceIds = data.services.map((item) => item.service);
 
   const services = await Service.find({
-    _id: {
-      $in: serviceIds,
-    },
+    _id: { $in: serviceIds },
     isDeleted: false,
     isActive: true,
   });
@@ -62,9 +69,7 @@ export const createAppointment = async (data: CreateAppointmentData) => {
   const employeeIds = data.services.map((item) => item.employee);
 
   const employees = await User.find({
-    _id: {
-      $in: employeeIds,
-    },
+    _id: { $in: employeeIds },
     role: "employee",
     isActive: true,
   });
@@ -99,30 +104,28 @@ export const createAppointment = async (data: CreateAppointmentData) => {
     0,
   );
 
+  return { client, serviceSnapshot, totalDuration, estimatedPrice };
+};
+
+/**
+ * Création rendez-vous
+ */
+export const createAppointment = async (data: CreateAppointmentData) => {
+  const { serviceSnapshot, totalDuration, estimatedPrice } =
+    await buildAppointmentSnapshot({
+      client: data.client,
+      services: data.services,
+    });
+
   const endTime = minutesToTime(timeToMinutes(data.startTime) + totalDuration);
 
   for (const item of serviceSnapshot) {
-    const conflict = await Appointment.findOne({
-      "services.employee": item.employee,
-
-      date: data.date,
-
-      status: {
-        $in: ["pending", "confirmed", "in_progress"],
-      },
-
-      startTime: {
-        $lt: endTime,
-      },
-
-      endTime: {
-        $gt: data.startTime,
-      },
-    });
-
-    if (conflict) {
-      throw new Error("Employé déjà occupé sur ce créneau");
-    }
+    await assertEmployeeAvailable(
+      item.employee.toString(),
+      data.date,
+      data.startTime,
+      endTime,
+    );
   }
 
   return Appointment.create({
@@ -153,8 +156,21 @@ export const createAppointment = async (data: CreateAppointmentData) => {
 /**
  * Liste rendez-vous
  */
-export const getAppointments = async (filter: any = {}) => {
-  return Appointment.find(filter)
+export const getAppointments = async (filter: AppointmentFilter = {}) => {
+  const query: Record<string, unknown> = {};
+
+  if (filter.status) query.status = filter.status;
+  if (filter.employeeId) query["services.employee"] = filter.employeeId;
+  if (filter.clientId) query.client = filter.clientId;
+
+  if (filter.dateFrom || filter.dateTo) {
+    query.date = {
+      ...(filter.dateFrom && { $gte: filter.dateFrom }),
+      ...(filter.dateTo && { $lte: filter.dateTo }),
+    };
+  }
+
+  return Appointment.find(query)
     .populate("client", "firstName lastName phone")
     .populate("services.employee", "firstName lastName speciality")
     .sort({
@@ -173,12 +189,105 @@ export const getAppointmentById = async (id: string) => {
 };
 
 /**
- * Modification
+ * Modification (revalide horaires/conflit si le créneau change)
  */
-export const updateAppointment = async (id: string, data: any) => {
-  return Appointment.findByIdAndUpdate(id, data, {
-    new: true,
+export const updateAppointment = async (
+  id: string,
+  data: UpdateAppointmentData,
+) => {
+  const appointment = await Appointment.findById(id);
+
+  if (!appointment) {
+    return null;
+  }
+
+  const scheduleChanged = Boolean(
+    data.date || data.startTime || data.services,
+  );
+
+  let serviceSnapshot = appointment.services;
+  let totalDuration = appointment.totalDuration;
+  let estimatedPrice = appointment.estimatedPrice;
+
+  if (data.services) {
+    const snapshot = await buildAppointmentSnapshot({
+      client: appointment.client.toString(),
+      services: data.services,
+    });
+
+    serviceSnapshot = snapshot.serviceSnapshot as unknown as typeof appointment.services;
+    totalDuration = snapshot.totalDuration;
+    estimatedPrice = snapshot.estimatedPrice;
+  }
+
+  const date = data.date ?? appointment.date;
+  const startTime = data.startTime ?? appointment.startTime;
+  const endTime = minutesToTime(timeToMinutes(startTime) + totalDuration);
+
+  if (scheduleChanged) {
+    for (const item of serviceSnapshot) {
+      await assertEmployeeAvailable(
+        item.employee.toString(),
+        date,
+        startTime,
+        endTime,
+        id,
+      );
+    }
+  }
+
+  appointment.date = date;
+  appointment.startTime = startTime;
+  appointment.endTime = endTime;
+  appointment.totalDuration = totalDuration;
+  appointment.estimatedPrice = estimatedPrice;
+  appointment.services = serviceSnapshot;
+  appointment.updatedBy = data.updatedBy as any;
+
+  if (data.notes !== undefined) appointment.notes = data.notes;
+  if (data.status) appointment.status = data.status;
+
+  await appointment.save();
+
+  return appointment;
+};
+
+/**
+ * Déplacement rapide (drag-and-drop calendrier) : ne change que date/heure
+ */
+export const rescheduleAppointment = async (
+  id: string,
+  data: { date: Date; startTime: string },
+  userId: string,
+) => {
+  return updateAppointment(id, {
+    date: data.date,
+    startTime: data.startTime,
+    updatedBy: userId,
   });
+};
+
+/**
+ * Suppression définitive (bloquée si déjà facturé/terminé)
+ */
+export const deleteAppointment = async (id: string) => {
+  const appointment = await Appointment.findById(id);
+
+  if (!appointment) {
+    throw new Error("Rendez-vous introuvable");
+  }
+
+  if (
+    ["waiting_payment", "paid", "completed"].includes(appointment.status)
+  ) {
+    throw new Error(
+      "Impossible de supprimer un rendez-vous facturé ou terminé, annulez-le plutôt",
+    );
+  }
+
+  await appointment.deleteOne();
+
+  return appointment;
 };
 
 /**
@@ -266,6 +375,7 @@ export const payAppointment = async (id: string, userId: string) => {
 
   return appointment;
 };
+
 export const getTodayAppointments = async () => {
   const start = new Date();
   start.setHours(0, 0, 0, 0);

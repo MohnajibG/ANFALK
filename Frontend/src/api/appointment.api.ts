@@ -3,6 +3,8 @@ import api from "./axios";
 import type {
   Appointment,
   CreateAppointmentPayload,
+  CreateRecurringAppointmentPayload,
+  CreateRecurringAppointmentResult,
   UpdateAppointmentPayload,
 } from "../types/appointment";
 
@@ -111,6 +113,55 @@ export const getTodayAppointments = async (): Promise<Appointment[]> => {
     return data.appointments ?? [];
   } catch (error) {
     console.error("[Appointments] getTodayAppointments:", error);
+    throw error;
+  }
+};
+
+export const rescheduleAppointment = async (
+  id: string,
+  payload: { date: string; startTime: string },
+): Promise<Appointment> => {
+  try {
+    const { data } = await api.patch(`${API_URL}/${id}/reschedule`, payload);
+    return data.appointment;
+  } catch (error) {
+    console.error("[Appointments] rescheduleAppointment:", error);
+    throw error;
+  }
+};
+
+export const createRecurringAppointment = async (
+  payload: CreateRecurringAppointmentPayload,
+): Promise<CreateRecurringAppointmentResult> => {
+  try {
+    const { data } = await api.post(`${API_URL}/recurring`, payload);
+    return data;
+  } catch (error) {
+    console.error("[Appointments] createRecurringAppointment:", error);
+    throw error;
+  }
+};
+
+export const getRecurrenceOccurrences = async (
+  groupId: string,
+): Promise<Appointment[]> => {
+  try {
+    const { data } = await api.get(`${API_URL}/recurring/${groupId}`);
+    return data.appointments ?? [];
+  } catch (error) {
+    console.error("[Appointments] getRecurrenceOccurrences:", error);
+    throw error;
+  }
+};
+
+export const cancelRecurrenceSeries = async (
+  groupId: string,
+): Promise<Appointment[]> => {
+  try {
+    const { data } = await api.patch(`${API_URL}/recurring/${groupId}/cancel`);
+    return data.cancelled ?? [];
+  } catch (error) {
+    console.error("[Appointments] cancelRecurrenceSeries:", error);
     throw error;
   }
 };

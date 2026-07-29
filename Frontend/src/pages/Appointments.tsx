@@ -11,19 +11,26 @@ import {
   Scissors,
   Plus,
   Trash2,
+  Repeat,
+  List,
+  CalendarRange,
 } from "lucide-react";
+import toast from "react-hot-toast";
 
 import {
   getAppointments,
   updateAppointment,
   cancelAppointment,
   deleteAppointment,
+  cancelRecurrenceSeries,
 } from "../api/appointment.api";
+import { getWaitlistMatches } from "../api/waitlist.api";
 
 import { useAuth } from "../hooks/useAuth";
 import type { Appointment, AppointmentStatus } from "../types/appointment";
 
 import AppointmentForm from "../components/appointments/AppointmentForm";
+import CalendarView from "../components/calendar/CalendarView";
 
 import { getServices } from "../api/service.api";
 import { getEmployees } from "../api/employee.api";
@@ -69,6 +76,8 @@ export default function Appointments() {
   const [statusFilter, setStatusFilter] = useState<AppointmentStatus | "all">(
     "all",
   );
+
+  const [displayMode, setDisplayMode] = useState<"list" | "calendar">("list");
 
   const userId = user?._id;
   const isEmployee = user?.role === "employee";
@@ -159,6 +168,8 @@ export default function Appointments() {
   const handleCancel = async (id: string) => {
     if (!confirm("Annuler ce rendez-vous ?")) return;
 
+    const target = appointments.find((appointment) => appointment._id === id);
+
     try {
       await cancelAppointment(id);
 
@@ -172,8 +183,59 @@ export default function Appointments() {
             : appointment,
         ),
       );
+
+      if (target) {
+        try {
+          const serviceIds = target.services.map((service) => service.service);
+
+          const firstEmployee = target.services[0]?.employee;
+
+          const employeeId =
+            typeof firstEmployee === "string"
+              ? firstEmployee
+              : firstEmployee?._id;
+
+          const matches = await getWaitlistMatches({
+            date: target.date,
+            employee: employeeId,
+            services: serviceIds,
+          });
+
+          if (matches.length > 0) {
+            toast(
+              `${matches.length} client(s) en liste d'attente pour ce créneau`,
+              { icon: "⏳" },
+            );
+          }
+        } catch (matchError) {
+          console.error("Erreur recherche liste d'attente:", matchError);
+        }
+      }
     } catch (error) {
       console.error("Erreur annulation:", error);
+    }
+  };
+
+  const handleCancelSeries = async (recurrenceGroupId: string) => {
+    if (!confirm("Annuler toutes les prochaines occurrences de cette série ?"))
+      return;
+
+    try {
+      const cancelled = await cancelRecurrenceSeries(recurrenceGroupId);
+      const cancelledIds = new Set(cancelled.map((a) => a._id));
+
+      setAppointments((current) =>
+        current.map((appointment) =>
+          cancelledIds.has(appointment._id)
+            ? { ...appointment, status: "cancelled" }
+            : appointment,
+        ),
+      );
+
+      toast.success(`${cancelled.length} rendez-vous de la série annulés`);
+    } catch (error) {
+      console.error("Erreur annulation série:", error);
+      toast.error("Erreur lors de l'annulation de la série");
     }
   };
 
@@ -204,17 +266,51 @@ export default function Appointments() {
           </p>
         </div>
 
-        <button
-          onClick={async () => {
-            await loadFormData();
-            setShowForm(true);
-          }}
-          className="flex items-center justify-center gap-2 rounded-xl bg-(--black) px-5 py-3 text-(--cream)"
-        >
-          <Plus size={18} />
-          Nouveau
-        </button>
+        <div className="flex items-center gap-3">
+          <div className="flex rounded-xl border border-(--border) bg-white p-1">
+            <button
+              type="button"
+              onClick={() => setDisplayMode("list")}
+              className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${
+                displayMode === "list"
+                  ? "bg-(--black) text-(--cream)"
+                  : "text-stone-600"
+              }`}
+            >
+              <List size={16} />
+              Liste
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setDisplayMode("calendar")}
+              className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm ${
+                displayMode === "calendar"
+                  ? "bg-(--black) text-(--cream)"
+                  : "text-stone-600"
+              }`}
+            >
+              <CalendarRange size={16} />
+              Calendrier
+            </button>
+          </div>
+
+          <button
+            onClick={async () => {
+              await loadFormData();
+              setShowForm(true);
+            }}
+            className="flex items-center justify-center gap-2 rounded-xl bg-(--black) px-5 py-3 text-(--cream)"
+          >
+            <Plus size={18} />
+            Nouveau
+          </button>
+        </div>
       </header>
+
+      {displayMode === "calendar" && (
+        <CalendarView canEdit={!isEmployee} />
+      )}
 
       {showForm && (
         <AppointmentForm
@@ -228,6 +324,8 @@ export default function Appointments() {
         />
       )}
 
+      {displayMode === "list" && (
+      <>
       <div className="flex flex-col gap-3 rounded-3xl border border-(--border) bg-white p-5 md:flex-row">
         <div className="flex flex-1 items-center gap-3 rounded-2xl bg-(--cream) px-4">
           <Search size={18} />
@@ -291,11 +389,23 @@ export default function Appointments() {
                   </div>
                 </div>
 
-                <span
-                  className={`rounded-full px-4 py-2  lg:text-xl text-xs font-semibold ${statusStyle[appointment.status]}`}
-                >
-                  {statusLabels[appointment.status]}
-                </span>
+                <div className="flex items-center gap-2">
+                  {appointment.recurrenceGroupId && (
+                    <span
+                      title="Fait partie d'une série récurrente"
+                      className="flex items-center gap-1 rounded-full bg-stone-100 px-3 py-2 text-xs font-semibold text-stone-600"
+                    >
+                      <Repeat size={14} />
+                      Série
+                    </span>
+                  )}
+
+                  <span
+                    className={`rounded-full px-4 py-2  lg:text-xl text-xs font-semibold ${statusStyle[appointment.status]}`}
+                  >
+                    {statusLabels[appointment.status]}
+                  </span>
+                </div>
               </div>
 
               <div className="mt-5 flex flex-col gap-3 text-sm md:flex-row">
@@ -344,6 +454,18 @@ export default function Appointments() {
                   Annuler
                 </button>
 
+                {appointment.recurrenceGroupId && (
+                  <button
+                    onClick={() =>
+                      handleCancelSeries(appointment.recurrenceGroupId!)
+                    }
+                    className="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2 text-red-700"
+                  >
+                    <Repeat size={16} />
+                    Annuler la série
+                  </button>
+                )}
+
                 {canDelete && (
                   <button
                     onClick={() => handleDelete(appointment._id)}
@@ -357,6 +479,8 @@ export default function Appointments() {
             </article>
           ))}
         </div>
+      )}
+      </>
       )}
     </section>
   );

@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
-import type { ComponentType } from "react";
-import { DollarSign, Receipt, Users, ShoppingBag, Clock } from "lucide-react";
+import { Clock, DollarSign, Receipt, ShoppingBag, Users } from "lucide-react";
 
 import { getTickets } from "../../api/ticket.api";
 import { getClients } from "../../api/client.api";
@@ -11,30 +10,40 @@ import type { Ticket } from "../../types/ticket";
 import type { Client } from "../../types/client";
 import type { Service } from "../../types/service";
 
+import PageHeader from "../../components/ui/PageHeader";
+import StatCard from "../../components/ui/StatCard";
+import LoadingState from "../../components/ui/LoadingState";
+import Badge from "../../components/ui/Badge";
+
 const CashierDashboard = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const load = async () => {
       try {
+        setLoading(true);
+        setError("");
+
         const [ticketsData, clientsData, servicesData] = await Promise.all([
           getTickets(),
           getClients(),
           getServices(),
         ]);
-        setTickets(Array.isArray(ticketsData) ? ticketsData : []);
 
+        setTickets(Array.isArray(ticketsData) ? ticketsData : []);
         setClients(
           Array.isArray(clientsData)
             ? clientsData
             : (clientsData.clients ?? []),
         );
         setServices(Array.isArray(servicesData) ? servicesData : []);
-      } catch (error) {
-        console.error("[CashierDashboard]", error);
+      } catch (err) {
+        console.error("[CashierDashboard]", err);
+        setError("Impossible de charger le dashboard");
       } finally {
         setLoading(false);
       }
@@ -73,92 +82,90 @@ const CashierDashboard = () => {
       .slice(0, 3);
   }, [todayTickets]);
 
-  if (loading)
+  if (loading) return <LoadingState label="Chargement du dashboard..." />;
+
+  if (error) {
     return (
-      <div className="flex min-h-100 items-center justify-center text-gray-500">
-        Chargement dashboard...
-      </div>
+      <div className="rounded-2xl bg-red-50 p-5 text-red-600">{error}</div>
     );
+  }
 
   return (
     <div className="w-full space-y-6">
-      <section className="ak-card flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="ak-kicker">Cashier</p>
+      <PageHeader
+        kicker="Cashier"
+        title="ANFEL K POS"
+        description="Gestion des ventes et tickets du jour"
+        icon={<Receipt size={24} />}
+        action={<Badge variant="success">Réception active</Badge>}
+      />
 
-          <h1 className="mt-3 font-[Cinzel] text-3xl font-bold">ANFEL K POS</h1>
-
-          <p className="ak-muted mt-2">Gestion des ventes et tickets du jour</p>
-        </div>
-
-        <div className="rounded-xl bg-[#F7F2EA] px-5 py-3 text-sm font-semibold">
-          Réception active
-        </div>
-      </section>
-
-      <section className="flex flex-wrap gap-5">
-        <KpiCard
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          icon={DollarSign}
           title="Chiffre du jour"
           value={`${totalToday.toLocaleString("fr-FR")} DA`}
-          icon={DollarSign}
+          accent="black"
         />
-
-        <KpiCard
-          title="Tickets"
-          value={String(todayTickets.length)}
+        <StatCard
           icon={Receipt}
+          title="Tickets"
+          value={todayTickets.length}
+          accent="gold"
         />
-
-        <KpiCard title="Clients" value={String(clients.length)} icon={Users} />
-
-        <KpiCard
-          title="Services"
-          value={String(services.length)}
+        <StatCard
+          icon={Users}
+          title="Clients"
+          value={clients.length}
+          accent="info"
+        />
+        <StatCard
           icon={ShoppingBag}
+          title="Services"
+          value={services.length}
+          accent="success"
         />
       </section>
 
-      <section className="flex flex-wrap gap-6">
+      <section className="grid gap-6 xl:grid-cols-3">
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="ak-card w-full p-6 xl:w-[calc(66.666%-12px)]"
+          className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6 xl:col-span-2"
         >
           <div className="mb-5 flex items-center justify-between">
-            <h2 className="font-semibold">Tickets du jour</h2>
-
-            <Receipt size={20} />
+            <h2 className="font-semibold text-(--black)">Tickets du jour</h2>
+            <Receipt size={20} className="text-(--brown)" />
           </div>
 
           <div className="space-y-3">
             {todayTickets.length === 0 && (
-              <p className="text-sm text-gray-400">Aucun ticket aujourd'hui</p>
+              <p className="text-sm text-(--muted)">Aucun ticket aujourd'hui</p>
             )}
 
             {todayTickets.map((ticket) => (
               <div
                 key={ticket._id}
-                className="flex flex-col gap-3 rounded-2xl bg-[#F7F2EA] p-4 sm:flex-row sm:items-center sm:justify-between"
+                className="flex flex-col gap-3 rounded-2xl bg-(--surface) p-4 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
-                  <p className="font-bold">
+                  <p className="font-bold text-(--black)">
                     {typeof ticket.client === "object"
                       ? `${ticket.client.firstName} ${ticket.client.lastName}`
                       : "Client inconnu"}
                   </p>
 
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-(--muted)">
                     {ticket.items.map((i) => i.name).join(", ")}
                   </p>
                 </div>
 
                 <div className="sm:text-right">
-                  <p className="font-bold text-[#3E2C23]">
+                  <p className="font-bold text-(--brown-dark)">
                     {ticket.total.toLocaleString("fr-FR")} DA
                   </p>
 
-                  <p className="flex items-center gap-1 text-xs text-gray-400 sm:justify-end">
+                  <p className="flex items-center gap-1 text-xs text-(--muted) sm:justify-end">
                     <Clock size={12} />
-
                     {new Date(ticket.createdAt).toLocaleTimeString("fr-FR")}
                   </p>
                 </div>
@@ -169,25 +176,26 @@ const CashierDashboard = () => {
 
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="ak-card w-full p-6 xl:w-[calc(33.333%-16px)]"
+          className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6"
         >
-          <h2 className="mb-5 font-semibold">Services populaires</h2>
+          <h2 className="mb-5 font-semibold text-(--black)">
+            Services populaires
+          </h2>
 
           <div className="space-y-4">
             {popularServices.length === 0 && (
-              <p className="text-sm text-gray-400">Aucune donnée</p>
+              <p className="text-sm text-(--muted)">Aucune donnée</p>
             )}
 
             {popularServices.map((service, index) => (
               <div
                 key={service.name}
-                className="flex items-center justify-between"
+                className="flex items-center justify-between text-sm"
               >
-                <span>
+                <span className="text-(--black)">
                   #{index + 1} {service.name}
                 </span>
-
-                <strong>{service.count}</strong>
+                <strong className="text-(--black)">{service.count}</strong>
               </div>
             ))}
           </div>
@@ -196,29 +204,5 @@ const CashierDashboard = () => {
     </div>
   );
 };
-
-const KpiCard = ({
-  title,
-  value,
-  icon: Icon,
-}: {
-  title: string;
-  value: string;
-  icon: ComponentType<{ size?: number }>;
-}) => (
-  <motion.div whileHover={{ y: -5 }} className="ak-card flex-1 min-w-60 p-6">
-    <div className="flex items-center justify-between">
-      <div>
-        <p className="text-sm text-gray-500">{title}</p>
-
-        <h3 className="mt-2 text-2xl font-bold">{value}</h3>
-      </div>
-
-      <div className="rounded-full bg-[#F7F2EA] p-4">
-        <Icon size={22} />
-      </div>
-    </div>
-  </motion.div>
-);
 
 export default CashierDashboard;

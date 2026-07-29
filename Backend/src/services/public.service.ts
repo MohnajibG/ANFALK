@@ -2,6 +2,9 @@ import Service from "../models/Service";
 import User from "../models/User";
 import Appointment from "../models/Appointment";
 import Client from "../models/Client";
+import { timeToMinutes, minutesToTime } from "../utils/time";
+import { getEffectiveHours } from "./employeeSchedule.service";
+import { assertEmployeeAvailable } from "./availability.service";
 
 interface CreateOnlineAppointmentData {
   client: {
@@ -50,31 +53,15 @@ export const getPublicEmployees = async () => {
 };
 
 /**
- * Conversion heure -> minutes
- */
-const timeToMinutes = (time: string) => {
-  const [hours, minutes] = time.split(":").map(Number);
-
-  return hours * 60 + minutes;
-};
-
-/**
- * Conversion minutes -> heure
- */
-const minutesToTime = (minutes: number) => {
-  const hours = Math.floor(minutes / 60);
-
-  const mins = minutes % 60;
-
-  return `${hours.toString().padStart(2, "0")}:${mins
-    .toString()
-    .padStart(2, "0")}`;
-};
-
-/**
  * Disponibilité employé
  */
 export const getAvailability = async (employeeId: string, date: Date) => {
+  const hours = await getEffectiveHours(employeeId, date);
+
+  if (!hours.isOpen || !hours.start || !hours.end) {
+    return [];
+  }
+
   const appointments = await Appointment.find({
     "services.employee": employeeId,
 
@@ -87,7 +74,10 @@ export const getAvailability = async (employeeId: string, date: Date) => {
 
   const workingSlots: string[] = [];
 
-  for (let minutes = 540; minutes <= 1080; minutes += 30) {
+  const startMinutes = timeToMinutes(hours.start);
+  const endMinutes = timeToMinutes(hours.end);
+
+  for (let minutes = startMinutes; minutes <= endMinutes; minutes += 30) {
     const time = minutesToTime(minutes);
 
     const occupied = appointments.some((appointment) => {
@@ -177,6 +167,8 @@ export const createOnlineAppointment = async (
   const endMinutes = timeToMinutes(data.startTime) + totalDuration;
 
   const endTime = minutesToTime(endMinutes);
+
+  await assertEmployeeAvailable(data.employee, data.date, data.startTime, endTime);
 
   const appointment = await Appointment.create({
     client: client._id,

@@ -5,12 +5,20 @@ import {
   getAppointmentsController,
   getAppointmentByIdController,
   updateAppointmentController,
+  rescheduleAppointmentController,
+  deleteAppointmentController,
   cancelAppointmentController,
   completeAppointmentController,
   getWaitingPaymentAppointmentsController,
   payAppointmentController,
   getTodayAppointmentsController,
 } from "../controllers/appointment.controller";
+
+import {
+  createRecurringAppointmentController,
+  getRecurrenceOccurrencesController,
+  cancelRecurrenceSeriesController,
+} from "../controllers/recurrence.controller";
 
 import { authenticate } from "../middlewares/auth";
 import { authorize } from "../middlewares/authorize";
@@ -35,6 +43,36 @@ router.get(
   authenticate,
   authorize("admin", "cashier"),
   getAppointmentsController,
+);
+
+/**
+ * Création série récurrente
+ */
+router.post(
+  "/recurring",
+  authenticate,
+  authorize("admin", "cashier"),
+  createRecurringAppointmentController,
+);
+
+/**
+ * Occurrences d'une série récurrente
+ */
+router.get(
+  "/recurring/:groupId",
+  authenticate,
+  authorize("admin", "cashier", "employee"),
+  getRecurrenceOccurrencesController,
+);
+
+/**
+ * Annulation de toute une série récurrente (occurrences futures uniquement)
+ */
+router.patch(
+  "/recurring/:groupId/cancel",
+  authenticate,
+  authorize("admin", "cashier"),
+  cancelRecurrenceSeriesController,
 );
 
 /**
@@ -93,6 +131,26 @@ router.patch(
   authenticate,
   authorize("admin", "cashier"),
   updateAppointmentController,
+);
+
+/**
+ * Déplacement rapide (drag-and-drop calendrier)
+ */
+router.patch(
+  "/:id/reschedule",
+  authenticate,
+  authorize("admin", "cashier"),
+  rescheduleAppointmentController,
+);
+
+/**
+ * Suppression définitive
+ */
+router.delete(
+  "/:id",
+  authenticate,
+  authorize("admin", "cashier"),
+  deleteAppointmentController,
 );
 
 /**

@@ -1,94 +1,115 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { CalendarCheck, Euro, Scissors, TrendingUp, Users } from "lucide-react";
 
 import { getMyEmployeeProfile } from "../../api/employee.api";
-
 import type { Employee } from "../../types/employee";
 
-export default function EmployeeDashboard() {
+import PageHeader from "../../components/ui/PageHeader";
+import StatCard from "../../components/ui/StatCard";
+import LoadingState from "../../components/ui/LoadingState";
+import Badge from "../../components/ui/Badge";
+
+const EmployeeDashboard = () => {
   const [employee, setEmployee] = useState<Employee | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    const loadProfile = async () => {
-      try {
-        const data = await getMyEmployeeProfile();
-
-        setEmployee(data);
-      } catch (error) {
-        console.error("Erreur chargement profil employé", error);
-      }
-    };
-
-    loadProfile();
+  const loadProfile = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError("");
+      const data = await getMyEmployeeProfile();
+      setEmployee(data);
+    } catch (err) {
+      console.error("Erreur chargement profil employé", err);
+      setError("Impossible de charger votre profil");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  if (!employee) {
-    return <div className="ak-card p-6">Chargement...</div>;
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
+
+  if (loading) return <LoadingState label="Chargement de votre espace..." />;
+
+  if (error || !employee) {
+    return (
+      <div className="rounded-2xl bg-red-50 p-5 text-red-600">
+        {error || "Profil introuvable"}
+      </div>
+    );
   }
 
   return (
     <div className="w-full space-y-6">
-      {/* HEADER */}
+      <PageHeader
+        kicker="Espace employé"
+        title={`Bonjour ${employee.firstName}`}
+        description={employee.speciality ?? "Employé"}
+        icon={<Scissors size={24} />}
+      />
 
-      <div className="ak-card px-5 py-7 text-center sm:px-8 lg:text-left">
-        <p className="ak-kicker">Espace employé</p>
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          icon={Euro}
+          title="Chiffre du jour"
+          value="0 DA"
+          accent="black"
+        />
+        <StatCard
+          icon={Scissors}
+          title="Prestations réalisées"
+          value={0}
+          accent="gold"
+        />
+        <StatCard icon={Users} title="Clients reçus" value={0} accent="info" />
+        <StatCard
+          icon={TrendingUp}
+          title="Chiffre du mois"
+          value="0 DA"
+          accent="success"
+        />
+      </section>
 
-        <h1 className="mt-3 font-[Cinzel] text-3xl font-bold text-[#0b0b0b]">
-          Bonjour {employee.firstName}
-        </h1>
-
-        <p className="ak-muted mt-2">{employee.speciality ?? "Employé"}</p>
-      </div>
-
-      {/* KPI */}
-
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard title="Chiffre du jour" value="0 €" />
-
-        <KpiCard title="Prestations réalisées" value="0" />
-
-        <KpiCard title="Clients reçus" value="0" />
-
-        <KpiCard title="Chiffre du mois" value="0 €" />
-      </div>
-
-      {/* CONTENT */}
-
-      <div className="grid gap-4 lg:grid-cols-3">
+      <section className="grid gap-4 lg:grid-cols-3">
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="ak-card p-5 sm:p-6 lg:col-span-2"
+          className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-5 sm:p-6 lg:col-span-2"
         >
-          <h2 className="mb-4 font-semibold text-[#0b0b0b]">Performance</h2>
+          <h2 className="mb-4 font-semibold text-(--black)">Performance</h2>
 
-          <div className="flex h-64 w-full items-end gap-3 rounded-3xl border border-[#e8e2d8] bg-[#f7f4ee] p-5">
+          <div className="flex h-64 w-full items-end gap-3 rounded-3xl border border-(--border) bg-(--surface) p-5">
             {[30, 45, 40, 65, 55, 80, 70].map((height, index) => (
               <div
                 key={index}
-                className="flex-1 rounded-full bg-[#3E2C23]"
-                style={{
-                  height: `${height}%`,
-                }}
+                className="flex-1 rounded-full bg-(--black)"
+                style={{ height: `${height}%` }}
               />
             ))}
           </div>
 
-          <p className="ak-muted mt-4 text-sm">
+          <p className="mt-4 text-sm text-(--muted)">
             Évolution des prestations sur les 7 derniers jours
           </p>
         </motion.div>
 
-        <motion.div whileHover={{ scale: 1.01 }} className="ak-card p-5 sm:p-6">
-          <h2 className="mb-4 font-semibold text-[#0b0b0b]">Ma spécialité</h2>
+        <motion.div
+          whileHover={{ scale: 1.01 }}
+          className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-5 sm:p-6"
+        >
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-semibold text-(--black)">Ma spécialité</h2>
+            <Badge variant={employee.isActive ? "success" : "danger"}>
+              {employee.isActive ? "Actif" : "Inactif"}
+            </Badge>
+          </div>
 
           <div className="space-y-4">
             <Info label="Spécialité" value={employee.speciality ?? "-"} />
-
-            <Info
-              label="Statut"
-              value={employee.isActive ? "Actif" : "Inactif"}
-            />
-
             <Info
               label="Nom complet"
               value={`${employee.firstName} ${employee.lastName}`}
@@ -98,37 +119,29 @@ export default function EmployeeDashboard() {
 
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="ak-card p-5 sm:p-6 lg:col-span-3"
+          className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-5 sm:p-6 lg:col-span-3"
         >
-          <h2 className="mb-4 font-semibold text-[#0b0b0b]">
-            Dernières prestations
-          </h2>
+          <div className="mb-4 flex items-center gap-2">
+            <CalendarCheck size={20} className="text-(--brown)" />
+            <h2 className="font-semibold text-(--black)">
+              Dernières prestations
+            </h2>
+          </div>
 
-          <div className="rounded-2xl border border-[#e8e2d8] bg-[#f7f4ee] p-5 text-sm text-gray-500">
+          <div className="rounded-2xl border border-(--border) bg-(--surface) p-5 text-sm text-(--muted)">
             Aucune prestation récente
           </div>
         </motion.div>
-      </div>
+      </section>
     </div>
   );
-}
+};
 
-function KpiCard({ title, value }: { title: string; value: string }) {
-  return (
-    <motion.div whileHover={{ y: -4 }} className="ak-card p-6">
-      <p className="ak-muted text-sm font-semibold">{title}</p>
+const Info = ({ label, value }: { label: string; value: string }) => (
+  <div>
+    <p className="text-sm text-(--muted)">{label}</p>
+    <p className="font-semibold text-(--black)">{value}</p>
+  </div>
+);
 
-      <h3 className="mt-2 text-2xl font-bold text-[#0b0b0b]">{value}</h3>
-    </motion.div>
-  );
-}
-
-function Info({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="ak-muted text-sm">{label}</p>
-
-      <p className="font-semibold">{value}</p>
-    </div>
-  );
-}
+export default EmployeeDashboard;

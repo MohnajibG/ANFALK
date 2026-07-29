@@ -44,7 +44,7 @@ const Profile = () => {
 
   return (
     <div className="w-full space-y-6">
-      <section className="ak-card flex flex-col gap-5 bg-[#151515] p-6 text-[#FFF4D6] sm:flex-row sm:items-center sm:justify-between">
+      <section className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] flex flex-col gap-5 bg-[#151515] p-6 text-[#FFF4D6] sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.4em] text-[#D8B98A]">
             Compte
@@ -65,7 +65,7 @@ const Profile = () => {
       <div className="flex flex-wrap gap-6">
         <motion.section
           whileHover={{ y: -5 }}
-          className="ak-card flex w-full flex-col items-center justify-center p-6 text-center lg:w-[32%]"
+          className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] flex w-full flex-col items-center justify-center p-6 text-center lg:w-[32%]"
         >
           <div className="flex h-28 w-28 items-center justify-center rounded-full bg-[#151515] font-[Cinzel] text-4xl font-bold text-[#D8B98A]">
             {user.firstName?.charAt(0)}
@@ -81,7 +81,7 @@ const Profile = () => {
           </p>
         </motion.section>
 
-        <section className="ak-card flex-1 p-6">
+        <section className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] flex-1 p-6">
           <h2 className="mb-5 text-xl font-bold">Informations personnelles</h2>
 
           <div className="flex flex-wrap gap-4">
@@ -108,7 +108,7 @@ const Profile = () => {
         </section>
       </div>
 
-      <section className="ak-card p-6">
+      <section className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6">
         <h2 className="text-xl font-bold">Sécurité</h2>
 
         <p className="ak-muted mt-2">Gestion du mot de passe du compte.</p>

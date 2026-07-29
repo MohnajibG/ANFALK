@@ -31,7 +31,11 @@ export default function Profile() {
   }, []);
 
   if (!employee) {
-    return <div className="ak-card p-6">Chargement du profil...</div>;
+    return (
+      <div className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6">
+        Chargement du profil...
+      </div>
+    );
   }
 
   return (
@@ -47,7 +51,7 @@ export default function Profile() {
           opacity: 1,
           y: 0,
         }}
-        className="ak-card p-8"
+        className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-8"
       >
         <div className="flex flex-col gap-6 md:flex-row md:items-center">
           <div className="flex h-32 w-32 items-center justify-center rounded-full bg-[#3E2C23] text-[#FFF4D6]">
@@ -92,7 +96,7 @@ export default function Profile() {
 
       <div className="grid gap-5 lg:grid-cols-2">
         <motion.div
-          className="ak-card p-6"
+          className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6"
           whileHover={{
             scale: 1.01,
           }}
@@ -125,7 +129,7 @@ export default function Profile() {
         </motion.div>
 
         <motion.div
-          className="ak-card p-6"
+          className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6"
           whileHover={{
             scale: 1.01,
           }}
@@ -152,7 +156,7 @@ export default function Profile() {
 
       {/* ACTION */}
 
-      <div className="ak-card p-6">
+      <div className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6">
         <button className="rounded-xl bg-[#3E2C23] px-6 py-3 font-semibold text-[#FFF4D6] transition hover:scale-105">
           Modifier mon profil
         </button>
@@ -167,7 +171,7 @@ function StatCard({ title, value }: { title: string; value: string }) {
       whileHover={{
         y: -4,
       }}
-      className="ak-card p-6"
+      className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6"
     >
       <p className="ak-muted text-sm">{title}</p>
 

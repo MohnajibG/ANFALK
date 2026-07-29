@@ -7,6 +7,7 @@ import {
   ChevronRight,
   LayoutDashboard,
   Layers,
+  ListTodo,
   LogOut,
   Receipt,
   Scissors,
@@ -22,6 +23,7 @@ const links = [
   { label: "Catégories", icon: Layers, path: "/admin/categories" },
   { label: "Services", icon: Scissors, path: "/admin/services" },
   { label: "Rendez-vous", icon: CalendarDays, path: "/admin/appointments" },
+  { label: "Liste d'attente", icon: ListTodo, path: "/admin/waitlist" },
   { label: "Tickets", icon: Receipt, path: "/admin/tickets" },
   { label: "Caisses", icon: Wallet, path: "/admin/cash-register" },
 ];

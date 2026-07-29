@@ -52,7 +52,7 @@ const Customers = () => {
 
   return (
     <div className="w-full space-y-6">
-      <section className="ak-card flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between">
+      <section className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="ak-kicker">CRM</p>
           <h1 className="mt-3 font-[Cinzel] text-3xl font-bold">Customers</h1>
@@ -69,7 +69,7 @@ const Customers = () => {
         <div className="rounded-2xl bg-red-50 p-4 text-red-600">{error}</div>
       )}
 
-      <section className="ak-card p-5">
+      <section className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-5">
         <div className="flex items-center gap-3 rounded-2xl border border-[#D8B98A]/30 bg-[#FFFDF8] p-4">
           <Search size={18} className="text-[#D8B98A]" />
           <input
@@ -87,7 +87,7 @@ const Customers = () => {
             key={client._id}
             whileHover={{ y: -6 }}
             transition={{ duration: 0.2 }}
-            className="ak-card w-full p-6 sm:w-[calc(50%-12px)] xl:w-[calc(33.333%-16px)]"
+            className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] w-full p-6 sm:w-[calc(50%-12px)] xl:w-[calc(33.333%-16px)]"
           >
             <div className="flex items-center gap-4">
               <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#3E2C23] font-[Cinzel] text-xl font-bold text-[#FFF4D6]">

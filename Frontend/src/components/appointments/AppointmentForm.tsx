@@ -2,13 +2,18 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { AxiosError } from "axios";
+import toast from "react-hot-toast";
 
-import { createAppointment } from "../../api/appointment.api";
+import {
+  createAppointment,
+  createRecurringAppointment,
+} from "../../api/appointment.api";
 import { useAuth } from "../../hooks/useAuth";
 
 import type {
   AppointmentService,
   CreateAppointmentPayload,
+  RecurrenceFrequency,
 } from "../../types/appointment";
 
 import type { Client } from "../../types/client";
@@ -52,6 +57,14 @@ const AppointmentForm = ({
   const [manualEndTime, setManualEndTime] = useState(false);
 
   const [notes, setNotes] = useState("");
+
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [frequency, setFrequency] = useState<RecurrenceFrequency>("weekly");
+  const [recurrenceEndMode, setRecurrenceEndMode] = useState<
+    "count" | "until"
+  >("count");
+  const [recurrenceCount, setRecurrenceCount] = useState(4);
+  const [recurrenceUntil, setRecurrenceUntil] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -129,6 +142,12 @@ const AppointmentForm = ({
 
     setNotes("");
     setError("");
+
+    setIsRecurring(false);
+    setFrequency("weekly");
+    setRecurrenceEndMode("count");
+    setRecurrenceCount(4);
+    setRecurrenceUntil("");
   }, []);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -154,42 +173,88 @@ const AppointmentForm = ({
         throw new Error("Veuillez sélectionner au moins une prestation");
       }
 
-      const payload: CreateAppointmentPayload = {
-        client: client._id,
+      const serviceItems = selectedServices.map((service) => ({
+        service: service.service,
 
-        createdBy: user._id,
+        employee:
+          typeof service.employee === "string"
+            ? service.employee
+            : service.employee._id,
 
-        services: selectedServices.map((service) => ({
-          service: service.service,
+        name: service.name,
 
-          employee:
-            typeof service.employee === "string"
-              ? service.employee
-              : service.employee._id,
+        price: service.price,
 
-          name: service.name,
+        duration: service.duration,
+      }));
 
-          price: service.price,
+      if (isRecurring) {
+        if (recurrenceEndMode === "count" && recurrenceCount < 1) {
+          throw new Error("Le nombre d'occurrences doit être au moins 1");
+        }
 
-          duration: service.duration,
-        })),
+        if (recurrenceEndMode === "until" && !recurrenceUntil) {
+          throw new Error("Veuillez choisir une date de fin de récurrence");
+        }
 
-        date,
+        const result = await createRecurringAppointment({
+          client: client._id,
+          services: serviceItems,
+          date,
+          startTime,
+          notes,
+          source: "admin",
+          recurrence: {
+            frequency,
+            count: recurrenceEndMode === "count" ? recurrenceCount : undefined,
+            until: recurrenceEndMode === "until" ? recurrenceUntil : undefined,
+          },
+        });
 
-        startTime,
+        if (result.totalSkipped > 0) {
+          const reasons: Record<string, string> = {
+            employee_unavailable: "employé indisponible",
+            outside_hours: "hors horaires",
+            time_conflict: "créneau déjà pris",
+            other: "conflit",
+          };
 
-        endTime,
+          toast.error(
+            `Série créée : ${result.totalCreated} rendez-vous créés, ${result.totalSkipped} ignorés (` +
+              result.skipped
+                .map((s) => `${s.date.slice(0, 10)} : ${reasons[s.reason]}`)
+                .join(", ") +
+              ")",
+            { duration: 8000 },
+          );
+        } else {
+          toast.success(`Série créée : ${result.totalCreated} rendez-vous`);
+        }
+      } else {
+        const payload: CreateAppointmentPayload = {
+          client: client._id,
 
-        totalDuration,
+          createdBy: user._id,
 
-        estimatedPrice,
+          services: serviceItems,
 
-        notes,
+          date,
 
-        source: "admin",
-      };
+          startTime,
 
-      await createAppointment(payload);
+          endTime,
+
+          totalDuration,
+
+          estimatedPrice,
+
+          notes,
+
+          source: "admin",
+        };
+
+        await createAppointment(payload);
+      }
 
       resetForm();
 
@@ -279,6 +344,90 @@ const AppointmentForm = ({
         className="rounded-2xl border border-(--border) bg-(--cream) p-4"
       />
 
+      <div className="rounded-2xl border border-(--border) p-4">
+        <label className="flex items-center gap-3 text-sm font-medium">
+          <input
+            type="checkbox"
+            checked={isRecurring}
+            onChange={(event) => setIsRecurring(event.target.checked)}
+          />
+          Répéter ce rendez-vous
+        </label>
+
+        {isRecurring && (
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                Fréquence
+              </label>
+
+              <select
+                value={frequency}
+                onChange={(event) =>
+                  setFrequency(event.target.value as RecurrenceFrequency)
+                }
+                className="h-12 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
+              >
+                <option value="weekly">Toutes les semaines</option>
+                <option value="biweekly">Toutes les 2 semaines</option>
+                <option value="monthly">Tous les mois</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium">
+                Se termine
+              </label>
+
+              <select
+                value={recurrenceEndMode}
+                onChange={(event) =>
+                  setRecurrenceEndMode(
+                    event.target.value as "count" | "until",
+                  )
+                }
+                className="h-12 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
+              >
+                <option value="count">Après N occurrences</option>
+                <option value="until">À une date précise</option>
+              </select>
+            </div>
+
+            {recurrenceEndMode === "count" ? (
+              <div>
+                <label className="mb-2 block text-sm font-medium">
+                  Nombre d'occurrences
+                </label>
+
+                <input
+                  type="number"
+                  min={1}
+                  max={52}
+                  value={recurrenceCount}
+                  onChange={(event) =>
+                    setRecurrenceCount(Number(event.target.value))
+                  }
+                  className="h-12 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
+                />
+              </div>
+            ) : (
+              <div>
+                <label className="mb-2 block text-sm font-medium">
+                  Jusqu'au
+                </label>
+
+                <input
+                  type="date"
+                  value={recurrenceUntil}
+                  onChange={(event) => setRecurrenceUntil(event.target.value)}
+                  className="h-12 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
+                />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       <div className="flex gap-3">
         <button
           type="button"
@@ -294,7 +443,11 @@ const AppointmentForm = ({
           disabled={loading}
           className="rounded-2xl bg-(--black) px-6 py-3 text-(--cream)"
         >
-          {loading ? "Création..." : "Créer le rendez-vous"}
+          {loading
+            ? "Création..."
+            : isRecurring
+              ? "Créer la série"
+              : "Créer le rendez-vous"}
         </button>
       </div>
     </form>

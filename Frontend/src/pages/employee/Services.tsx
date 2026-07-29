@@ -40,12 +40,16 @@ export default function Services() {
   }, []);
 
   if (!employee) {
-    return <div className="ak-card p-6">Chargement...</div>;
+    return (
+      <div className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6">
+        Chargement...
+      </div>
+    );
   }
 
   return (
     <div className="w-full space-y-6">
-      <div className="ak-card px-5 py-7 sm:px-8">
+      <div className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] px-5 py-7 sm:px-8">
         <p className="ak-kicker">Espace employé</p>
 
         <h1 className="mt-3 font-[Cinzel] text-3xl font-bold">
@@ -56,7 +60,7 @@ export default function Services() {
       </div>
 
       {services.length === 0 ? (
-        <div className="ak-card p-6 text-center text-gray-500">
+        <div className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6 text-center text-gray-500">
           Aucune prestation disponible
         </div>
       ) : (
@@ -65,7 +69,7 @@ export default function Services() {
             <motion.div
               key={service._id}
               whileHover={{ y: -3 }}
-              className="ak-card p-6"
+              className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6"
             >
               <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex items-center gap-4">

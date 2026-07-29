@@ -23,6 +23,7 @@ import Services from "../pages/admin/Services";
 import Appointments from "../pages/Appointments";
 import Tickets from "../pages/admin/ticket";
 import CashRegisterHistory from "../pages/admin/CashRegisterHistory";
+import Waitlist from "../pages/admin/Waitlist";
 
 // Cashier pages
 import CashierDashboard from "../pages/cashier/Dashboard";
@@ -77,6 +78,7 @@ const AppRouter = () => {
             <Route path="cash-register" element={<CashRegisterHistory />} />
             <Route path="services" element={<Services />} />
             <Route path="appointments" element={<Appointments />} />
+            <Route path="waitlist" element={<Waitlist />} />
             <Route path="tickets" element={<Tickets />} />
           </Route>
         </Route>
@@ -99,6 +101,7 @@ const AppRouter = () => {
             <Route path="pos" element={<POS />} />
             <Route path="tickets" element={<CashierTickets />} />
             <Route path="appointments" element={<Appointments />} />
+            <Route path="waitlist" element={<Waitlist />} />
             <Route path="profile" element={<CashierProfile />} />
           </Route>
         </Route>

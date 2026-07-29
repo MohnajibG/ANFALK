@@ -8,12 +8,16 @@ import {
   getAppointments,
   getAppointmentById,
   updateAppointment,
+  rescheduleAppointment,
+  deleteAppointment,
   cancelAppointment,
   completeAppointment,
   payAppointment,
   getTodayAppointments,
+  AppointmentFilter,
 } from "../services/appointment.service";
 
+import { AppointmentStatus } from "../models/Appointment";
 import Appointment from "../models/Appointment";
 
 /**
@@ -49,7 +53,17 @@ export const getAppointmentsController = async (
   res: Response,
 ) => {
   try {
-    const appointments = await getAppointments(req.query);
+    const { status, employeeId, clientId, dateFrom, dateTo } = req.query;
+
+    const filter: AppointmentFilter = {
+      status: status as AppointmentStatus | undefined,
+      employeeId: employeeId as string | undefined,
+      clientId: clientId as string | undefined,
+      dateFrom: dateFrom ? new Date(dateFrom as string) : undefined,
+      dateTo: dateTo ? new Date(dateTo as string) : undefined,
+    };
+
+    const appointments = await getAppointments(filter);
 
     return res.json({
       success: true,
@@ -100,8 +114,14 @@ export const updateAppointmentController = async (
   res: Response,
 ) => {
   try {
+    const { date, startTime, services, status, notes } = req.body;
+
     const appointment = await updateAppointment(req.params.id as string, {
-      ...req.body,
+      date: date ? new Date(date) : undefined,
+      startTime,
+      services,
+      status,
+      notes,
       updatedBy: req.user!.id,
     });
 
@@ -115,6 +135,63 @@ export const updateAppointmentController = async (
     return res.json({
       success: true,
       appointment,
+    });
+  } catch (error: any) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+/**
+ * Déplacement rapide (drag-and-drop calendrier)
+ */
+export const rescheduleAppointmentController = async (
+  req: AuthRequest,
+  res: Response,
+) => {
+  try {
+    const { date, startTime } = req.body;
+
+    const appointment = await rescheduleAppointment(
+      req.params.id as string,
+      { date: new Date(date), startTime },
+      req.user!.id,
+    );
+
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        message: "Rendez-vous introuvable",
+      });
+    }
+
+    return res.json({
+      success: true,
+      appointment,
+    });
+  } catch (error: any) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+/**
+ * Suppression définitive
+ */
+export const deleteAppointmentController = async (
+  req: AuthRequest,
+  res: Response,
+) => {
+  try {
+    await deleteAppointment(req.params.id as string);
+
+    return res.json({
+      success: true,
+      message: "Rendez-vous supprimé",
     });
   } catch (error: any) {
     return res.status(400).json({

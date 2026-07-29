@@ -11,6 +11,7 @@ import appointmentRoutes from "./routes/appointment.routes";
 import ticketRoutes from "./routes/ticket.routes";
 import publicRoutes from "./routes/public.routes";
 import cashRegisterRoutes from "./routes/cashRegister.routes";
+import waitlistRoutes from "./routes/waitlist.routes";
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use("/api/appointments", appointmentRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/public", publicRoutes);
 app.use("/api/cash-register", cashRegisterRoutes);
+app.use("/api/waitlist", waitlistRoutes);
 
 /* Test Route */
 

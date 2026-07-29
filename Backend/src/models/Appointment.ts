@@ -51,6 +51,8 @@ export interface IAppointment extends Document {
 
   cancelledAt?: Date;
 
+  recurrenceGroupId?: Types.ObjectId;
+
   createdAt: Date;
 
   updatedAt: Date;
@@ -171,6 +173,11 @@ const appointmentSchema = new Schema<IAppointment>(
     cancelledAt: {
       type: Date,
     },
+
+    recurrenceGroupId: {
+      type: Schema.Types.ObjectId,
+      ref: "AppointmentRecurrence",
+    },
   },
   {
     timestamps: true,
@@ -181,6 +188,9 @@ const appointmentSchema = new Schema<IAppointment>(
 appointmentSchema.index({
   date: 1,
 });
+
+// Recherche des occurrences d'une série récurrente
+appointmentSchema.index({ recurrenceGroupId: 1 }, { sparse: true });
 
 // Recherche planning employé
 appointmentSchema.index({

@@ -5,6 +5,7 @@ import {
   ChevronLeft,
   ChevronRight,
   LayoutDashboard,
+  ListTodo,
   LogOut,
   Receipt,
   ShoppingCart,
@@ -17,6 +18,7 @@ const links = [
   { label: "Point de vente", icon: ShoppingCart, path: "/cashier/pos" },
   { label: "Clients", icon: Users, path: "/cashier/customers" },
   { label: "Rendez-vous", icon: CalendarDays, path: "/cashier/appointments" },
+  { label: "Liste d'attente", icon: ListTodo, path: "/cashier/waitlist" },
   { label: "Tickets", icon: Receipt, path: "/cashier/tickets" },
   { label: "Profil", icon: UserRound, path: "/cashier/profile" },
 ];

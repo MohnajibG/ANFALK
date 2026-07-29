@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Eye, Pencil, Power, Trash2, Scissors, Phone } from "lucide-react";
+import { Eye, Pencil, Power, Trash2, Scissors, Phone, Clock } from "lucide-react";
 
 import type { Employee } from "../../types/employee";
 import Badge from "../ui/Badge";
@@ -10,6 +10,7 @@ interface EmployeeCardProps {
   onDelete: (id: string) => void;
   onView: (id: string) => void;
   onEdit: (id: string) => void;
+  onSchedule: (id: string) => void;
 }
 
 export default function EmployeeCard({
@@ -18,6 +19,7 @@ export default function EmployeeCard({
   onDelete,
   onView,
   onEdit,
+  onSchedule,
 }: EmployeeCardProps) {
   return (
     <motion.div
@@ -65,6 +67,13 @@ export default function EmployeeCard({
           className="flex h-10 w-10 items-center justify-center rounded-xl bg-(--black) text-white"
         >
           <Pencil size={17} />
+        </button>
+        <button
+          onClick={() => onSchedule(employee._id)}
+          title="Horaires de travail"
+          className="flex h-10 w-10 items-center justify-center rounded-xl bg-(--cream)"
+        >
+          <Clock size={17} />
         </button>
         <button
           onClick={() => onStatusChange(employee._id, !employee.isActive)}

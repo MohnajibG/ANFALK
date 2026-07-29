@@ -54,8 +54,38 @@ export interface Appointment {
   source: AppointmentSource;
   notes?: string;
   createdBy: string | AppointmentEmployee;
+  recurrenceGroupId?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export type RecurrenceFrequency = "weekly" | "biweekly" | "monthly";
+
+export interface RecurrencePayload {
+  frequency: RecurrenceFrequency;
+  count?: number;
+  until?: string;
+}
+
+export type RecurrenceSkipReason =
+  | "employee_unavailable"
+  | "outside_hours"
+  | "time_conflict"
+  | "other";
+
+export interface RecurrenceSkippedOccurrence {
+  date: string;
+  startTime: string;
+  reason: RecurrenceSkipReason;
+}
+
+export interface CreateRecurringAppointmentResult {
+  recurrenceGroup: { _id: string };
+  created: Appointment[];
+  skipped: RecurrenceSkippedOccurrence[];
+  totalRequested: number;
+  totalCreated: number;
+  totalSkipped: number;
 }
 
 export interface CreateAppointmentService {
@@ -77,6 +107,16 @@ export interface CreateAppointmentPayload {
   estimatedPrice: number;
   source: AppointmentSource;
   notes?: string;
+}
+
+export interface CreateRecurringAppointmentPayload {
+  client: string;
+  services: CreateAppointmentService[];
+  date: string;
+  startTime: string;
+  source: AppointmentSource;
+  notes?: string;
+  recurrence: RecurrencePayload;
 }
 
 export interface UpdateAppointmentPayload {

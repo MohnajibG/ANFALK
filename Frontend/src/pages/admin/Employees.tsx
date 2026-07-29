@@ -11,6 +11,7 @@ import type { Employee } from "../../types/employee";
 
 import EmployeeCard from "../../components/employees/EmployeeCard";
 import EmployeeModal from "../../components/employees/EmployeeModal";
+import EmployeeScheduleModal from "../../components/employees/EmployeeScheduleModal";
 import EmployeeStats from "../../components/employees/EmployeeStats";
 
 import PageHeader from "../../components/ui/PageHeader";
@@ -24,6 +25,9 @@ export default function Employees() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [scheduleEmployeeId, setScheduleEmployeeId] = useState<string | null>(
+    null,
+  );
 
   const loadEmployees = useCallback(async () => {
     try {
@@ -99,6 +103,7 @@ export default function Employees() {
               onDelete={handleDelete}
               onView={(id) => navigate(`/admin/employees/${id}`)}
               onEdit={(id) => navigate(`/admin/employees/${id}/edit`)}
+              onSchedule={(id) => setScheduleEmployeeId(id)}
             />
           ))
         )}
@@ -109,6 +114,13 @@ export default function Employees() {
         onClose={() => setShowModal(false)}
         onCreated={loadEmployees}
       />
+
+      {scheduleEmployeeId && (
+        <EmployeeScheduleModal
+          employeeId={scheduleEmployeeId}
+          onClose={() => setScheduleEmployeeId(null)}
+        />
+      )}
     </div>
   );
 }
