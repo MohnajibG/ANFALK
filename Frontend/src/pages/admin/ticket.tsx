@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { CreditCard, Landmark, Receipt, Users } from "lucide-react";
+import { CreditCard, hand-coins, Receipt, Users } from "lucide-react";
 
 import { getTickets, cancelTicket } from "../../api/ticket.api";
 import type { Ticket, TicketStatus, PaymentMethod } from "../../types/ticket";
@@ -121,7 +121,7 @@ const Tickets = () => {
         </div>
         <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
           <StatCard
-            icon={Landmark}
+            icon={hand-coins}
             title="Chiffre d'affaires"
             value={`${totalRevenue.toLocaleString("fr-FR")} DA`}
             accent="gold"
