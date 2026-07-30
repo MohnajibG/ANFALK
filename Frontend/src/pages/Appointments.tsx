@@ -403,7 +403,119 @@ const Appointments = () => {
               Aucun rendez-vous trouvé
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-3xl border border-(--border) bg-white">
+            <>
+              {/* MOBILE / TABLETTE : cartes */}
+              <div className="flex flex-col gap-3 md:hidden">
+                {filteredAppointments.map((appointment) => (
+                  <article
+                    key={appointment._id}
+                    onClick={() => setSelectedAppointment(appointment)}
+                    className="flex cursor-pointer flex-col gap-3 rounded-2xl border border-(--border) bg-white p-4"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-(--black)">
+                          {appointment.date.slice(0, 10)} · {appointment.startTime}
+                        </p>
+                        <p className="mt-1 text-sm text-stone-600">
+                          {typeof appointment.client !== "string" &&
+                            `${appointment.client.firstName} ${appointment.client.lastName}`}
+                        </p>
+                      </div>
+
+                      <div className="flex shrink-0 items-center gap-1.5">
+                        {appointment.recurrenceGroupId && (
+                          <Repeat
+                            size={14}
+                            className="text-stone-400"
+                            aria-label="Série récurrente"
+                          />
+                        )}
+
+                        <span
+                          className={`rounded-full px-3 py-1.5 text-xs font-semibold ${statusStyle[appointment.status]}`}
+                        >
+                          {statusLabels[appointment.status]}
+                        </span>
+                      </div>
+                    </div>
+
+                    <p className="text-sm text-(--muted)">
+                      {appointment.services.map((s) => s.name).join(", ")}
+                    </p>
+
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-stone-500">
+                        {employeeNames(appointment)}
+                      </span>
+                      <span className="font-semibold text-(--black)">
+                        {moneyFormat.format(appointment.estimatedPrice)} DA
+                      </span>
+                    </div>
+
+                    <div
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex flex-wrap gap-1.5 border-t border-(--border) pt-3"
+                    >
+                      {(appointment.status === "pending" ||
+                        appointment.status === "confirmed") && (
+                        <button
+                          title="Confirmer"
+                          onClick={() =>
+                            changeStatus(appointment._id, "confirmed")
+                          }
+                          className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700"
+                        >
+                          <Check size={15} />
+                        </button>
+                      )}
+
+                      <button
+                        title="Terminer"
+                        onClick={() =>
+                          changeStatus(appointment._id, "completed")
+                        }
+                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-700"
+                      >
+                        <CircleCheck size={15} />
+                      </button>
+
+                      <button
+                        title="Annuler"
+                        onClick={() => handleCancel(appointment._id)}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100 text-red-700"
+                      >
+                        <X size={15} />
+                      </button>
+
+                      {appointment.recurrenceGroupId && (
+                        <button
+                          title="Annuler la série"
+                          onClick={() =>
+                            handleCancelSeries(appointment.recurrenceGroupId!)
+                          }
+                          className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-700"
+                        >
+                          <Repeat size={15} />
+                        </button>
+                      )}
+
+                      {canDelete && (
+                        <button
+                          title="Supprimer"
+                          onClick={() => handleDelete(appointment._id)}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100 text-stone-700"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      )}
+                    </div>
+                  </article>
+                ))}
+              </div>
+
+              {/* DESKTOP : tableau */}
+              <div className="hidden overflow-x-auto rounded-3xl border border-(--border) bg-white md:block">
               <table className="w-full min-w-[860px] text-left text-sm">
                 <thead>
                   <tr className="border-b border-(--border) text-xs uppercase tracking-wide text-stone-500">
@@ -534,7 +646,8 @@ const Appointments = () => {
                   ))}
                 </tbody>
               </table>
-            </div>
+              </div>
+            </>
           )}
         </>
       )}
