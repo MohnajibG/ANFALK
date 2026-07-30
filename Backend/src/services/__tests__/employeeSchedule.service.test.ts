@@ -57,4 +57,31 @@ describe("getEffectiveHours", () => {
 
     expect(hours.isOpen).toBe(false);
   });
+
+  it("identifie correctement le jour à partir d'une date à minuit UTC", async () => {
+    const hours = await getEffectiveHours(
+      EMPLOYEE_ID,
+      new Date("2026-08-17T00:00:00.000Z"), // lundi à minuit UTC
+    );
+
+    expect(hours.isOpen).toBe(true);
+    expect(hours.start).toBe("09:00");
+    expect(hours.end).toBe("18:00");
+  });
+
+  // Régression : sur un serveur dont le fuseau horaire local n'est pas
+  // UTC, date.getDay() (heure locale) peut décaler le jour de la semaine
+  // par rapport aux dates ancrées à minuit UTC envoyées par le frontend,
+  // et rejeter à tort des rendez-vous pourtant valides ("Créneau hors des
+  // horaires de travail"). getDayOfWeek doit donc utiliser getUTCDay(),
+  // jamais getDay() — ce test échoue si ce n'est plus le cas.
+  it("n'utilise jamais l'heure locale du serveur pour déterminer le jour", async () => {
+    const localDaySpy = jest.spyOn(Date.prototype, "getDay");
+
+    await getEffectiveHours(EMPLOYEE_ID, new Date("2026-08-17T00:00:00.000Z"));
+
+    expect(localDaySpy).not.toHaveBeenCalled();
+
+    localDaySpy.mockRestore();
+  });
 });

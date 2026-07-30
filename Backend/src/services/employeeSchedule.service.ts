@@ -22,8 +22,12 @@ const asDate = (date: Date | string) =>
 
 const dateKey = (date: Date | string) => asDate(date).toISOString().slice(0, 10);
 
+// En UTC (comme dateKey et comme les dates envoyées par le frontend,
+// ancrées à minuit UTC) : utiliser getDay() ici décalerait le jour d'un
+// cran selon le fuseau horaire du serveur et rejetterait des créneaux
+// pourtant valides ("Créneau hors des horaires de travail")
 const getDayOfWeek = (date: Date | string): DayOfWeek => {
-  const jsDay = asDate(date).getDay();
+  const jsDay = asDate(date).getUTCDay();
   return DAYS_OF_WEEK[(jsDay + 6) % 7] as DayOfWeek;
 };
 
