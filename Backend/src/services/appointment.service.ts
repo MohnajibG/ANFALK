@@ -78,6 +78,17 @@ export const buildAppointmentSnapshot = async (data: {
     throw new Error("Employé invalide");
   }
 
+  for (const item of data.services) {
+    const service = services.find((s) => s._id.toString() === item.service);
+    const employee = employees.find((e) => e._id.toString() === item.employee);
+
+    if (service && employee && service.speciality !== employee.speciality) {
+      throw new Error(
+        `${employee.firstName} ${employee.lastName} (${employee.speciality}) ne peut pas réaliser "${service.name}" (spécialité requise : ${service.speciality})`,
+      );
+    }
+  }
+
   const serviceSnapshot = data.services.map((item) => {
     const service = services.find((s) => s._id.toString() === item.service);
 

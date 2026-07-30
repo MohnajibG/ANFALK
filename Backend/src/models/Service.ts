@@ -1,10 +1,19 @@
 import { Document, Schema, Types, model } from "mongoose";
 
+export type ServiceSpeciality =
+  | "Hair"
+  | "Nails"
+  | "Makeup"
+  | "Massage"
+  | "Reception";
+
 export interface IService extends Document {
   name: string;
   description?: string;
 
   category: Types.ObjectId;
+
+  speciality: ServiceSpeciality;
 
   price: number;
 
@@ -42,6 +51,12 @@ const serviceSchema = new Schema<IService>(
     category: {
       type: Schema.Types.ObjectId,
       ref: "Category",
+      required: true,
+    },
+
+    speciality: {
+      type: String,
+      enum: ["Hair", "Nails", "Makeup", "Massage", "Reception"],
       required: true,
     },
 

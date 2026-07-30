@@ -12,6 +12,7 @@ import { getEmployees } from "../../api/employee.api";
 import type { Appointment } from "../../types/appointment";
 import type { Employee } from "../../types/employee";
 
+import AppointmentDetailPanel from "../appointments/AppointmentDetailPanel";
 import DayView from "./DayView";
 import WeekView from "./WeekView";
 import MonthView from "./MonthView";
@@ -25,6 +26,11 @@ import {
 
 interface CalendarViewProps {
   canEdit: boolean;
+  onCreateRequest?: (prefill: {
+    date: string;
+    startTime: string;
+    employeeId?: string;
+  }) => void;
 }
 
 const VIEW_LABELS: Record<CalendarViewMode, string> = {
@@ -33,13 +39,15 @@ const VIEW_LABELS: Record<CalendarViewMode, string> = {
   month: "Mois",
 };
 
-const CalendarView = ({ canEdit }: CalendarViewProps) => {
+const CalendarView = ({ canEdit, onCreateRequest }: CalendarViewProps) => {
   const [viewMode, setViewMode] = useState<CalendarViewMode>("week");
   const [currentDateKey, setCurrentDateKey] = useState(() =>
     toDateKey(new Date()),
   );
   const [employeeFilter, setEmployeeFilter] = useState("");
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [selectedAppointment, setSelectedAppointment] =
+    useState<Appointment | null>(null);
 
   useEffect(() => {
     getEmployees()
@@ -113,6 +121,24 @@ const CalendarView = ({ canEdit }: CalendarViewProps) => {
           : "Impossible de déplacer ce rendez-vous";
 
       toast.error(message);
+    }
+  };
+
+  const handleSelectEmptySlot = (columnKey: string, startTime: string) => {
+    if (!onCreateRequest) return;
+
+    if (viewMode === "day") {
+      onCreateRequest({
+        date: currentDateKey,
+        startTime,
+        employeeId: columnKey !== "none" ? columnKey : undefined,
+      });
+    } else {
+      onCreateRequest({
+        date: columnKey,
+        startTime,
+        employeeId: employeeFilter || undefined,
+      });
     }
   };
 
@@ -201,7 +227,10 @@ const CalendarView = ({ canEdit }: CalendarViewProps) => {
         <DayView
           appointments={appointments}
           employees={employees}
+          employeeFilter={employeeFilter || undefined}
           readOnly={!canEdit}
+          onSelectAppointment={setSelectedAppointment}
+          onSelectEmptySlot={handleSelectEmptySlot}
           onReschedule={handleReschedule}
         />
       ) : viewMode === "week" ? (
@@ -209,6 +238,8 @@ const CalendarView = ({ canEdit }: CalendarViewProps) => {
           weekStartKey={weekStartKey}
           appointments={appointments}
           readOnly={!canEdit}
+          onSelectAppointment={setSelectedAppointment}
+          onSelectEmptySlot={handleSelectEmptySlot}
           onReschedule={handleReschedule}
         />
       ) : (
@@ -219,6 +250,15 @@ const CalendarView = ({ canEdit }: CalendarViewProps) => {
             setCurrentDateKey(dateKey);
             setViewMode("day");
           }}
+        />
+      )}
+
+      {selectedAppointment && (
+        <AppointmentDetailPanel
+          appointment={selectedAppointment}
+          canEdit={canEdit}
+          onClose={() => setSelectedAppointment(null)}
+          onChanged={refresh}
         />
       )}
     </div>

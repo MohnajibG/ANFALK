@@ -27,6 +27,9 @@ import AppointmentSummary from "./AppointmentSummary";
 interface AppointmentFormProps {
   services?: Service[];
   employees?: Employee[];
+  initialDate?: string;
+  initialStartTime?: string;
+  initialEmployeeId?: string;
   onClose?: () => void;
   onSuccess?: () => void;
 }
@@ -34,18 +37,20 @@ interface AppointmentFormProps {
 const AppointmentForm = ({
   services = [],
   employees = [],
+  initialDate,
+  initialStartTime,
+  initialEmployeeId,
   onSuccess,
 }: AppointmentFormProps) => {
   const { user } = useAuth();
-  console.log("AUTH USER", user);
   const [client, setClient] = useState<Client | null>(null);
 
   const [selectedServices, setSelectedServices] = useState<
     AppointmentService[]
   >([]);
 
-  const [date, setDate] = useState("");
-  const [startTime, setStartTime] = useState("09:00");
+  const [date, setDate] = useState(initialDate ?? "");
+  const [startTime, setStartTime] = useState(initialStartTime ?? "09:00");
 
   const [customPrice, setCustomPrice] = useState<number | undefined>();
   const [customDuration, setCustomDuration] = useState<number | undefined>();
@@ -314,6 +319,7 @@ const AppointmentForm = ({
         employees={employees}
         selectedServices={selectedServices}
         onChange={setSelectedServices}
+        defaultEmployeeId={initialEmployeeId}
       />
 
       <AppointmentSummary

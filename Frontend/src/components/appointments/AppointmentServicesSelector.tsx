@@ -12,6 +12,7 @@ interface AppointmentServicesSelectorProps {
   selectedServices: AppointmentService[];
 
   onChange: (services: AppointmentService[]) => void;
+  defaultEmployeeId?: string;
 }
 
 const AppointmentServicesSelector = ({
@@ -19,6 +20,7 @@ const AppointmentServicesSelector = ({
   employees,
   selectedServices,
   onChange,
+  defaultEmployeeId,
 }: AppointmentServicesSelectorProps) => {
   const [openCategories, setOpenCategories] = useState<string[]>([]);
 
@@ -55,13 +57,19 @@ const AppointmentServicesSelector = ({
       return;
     }
 
+    const defaultEmployee = employees.find(
+      (employee) =>
+        employee._id === defaultEmployeeId &&
+        employee.speciality === service.speciality,
+    );
+
     onChange([
       ...selectedServices,
 
       {
         service: service._id,
 
-        employee: "",
+        employee: defaultEmployee?._id ?? "",
 
         name: service.name,
 
@@ -265,34 +273,53 @@ const AppointmentServicesSelector = ({
                             Employé responsable
                           </label>
 
-                          <select
-                            value={
-                              typeof item.employee === "string"
-                                ? item.employee
-                                : item.employee._id
-                            }
-                            onChange={(e) =>
-                              updateEmployee(service._id, e.target.value)
-                            }
-                            className="
-                            mt-2
-                            w-full
-                            rounded-xl
-                            bg-white
-                            p-3
-                            text-black
-                            "
-                          >
-                            <option value="">Choisir un employé</option>
+                          {(() => {
+                            const eligibleEmployees = employees.filter(
+                              (employee) =>
+                                employee.speciality === service.speciality,
+                            );
 
-                            {employees.map((employee) => (
-                              <option key={employee._id} value={employee._id}>
-                                {employee.firstName} {employee.lastName}
-                                {employee.speciality &&
-                                  ` - ${employee.speciality}`}
-                              </option>
-                            ))}
-                          </select>
+                            if (eligibleEmployees.length === 0) {
+                              return (
+                                <p className="mt-2 rounded-xl bg-red-50 p-3 text-xs text-red-600">
+                                  Aucun employé pour la spécialité{" "}
+                                  {service.speciality}
+                                </p>
+                              );
+                            }
+
+                            return (
+                              <select
+                                value={
+                                  typeof item.employee === "string"
+                                    ? item.employee
+                                    : item.employee._id
+                                }
+                                onChange={(e) =>
+                                  updateEmployee(service._id, e.target.value)
+                                }
+                                className="
+                                mt-2
+                                w-full
+                                rounded-xl
+                                bg-white
+                                p-3
+                                text-black
+                                "
+                              >
+                                <option value="">Choisir un employé</option>
+
+                                {eligibleEmployees.map((employee) => (
+                                  <option
+                                    key={employee._id}
+                                    value={employee._id}
+                                  >
+                                    {employee.firstName} {employee.lastName}
+                                  </option>
+                                ))}
+                              </select>
+                            );
+                          })()}
                         </div>
                       )}
                     </div>

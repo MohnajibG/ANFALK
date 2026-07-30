@@ -1,5 +1,13 @@
-import Service from "../models/Service";
+import Service, { ServiceSpeciality } from "../models/Service";
 import Category from "../models/Category";
+
+const SPECIALITIES: ServiceSpeciality[] = [
+  "Hair",
+  "Nails",
+  "Makeup",
+  "Massage",
+  "Reception",
+];
 
 /**
  * Créer un service
@@ -9,6 +17,7 @@ export const createService = async (
     name: string;
     description?: string;
     category: string;
+    speciality: ServiceSpeciality;
     price: number;
     duration: number;
   },
@@ -18,6 +27,10 @@ export const createService = async (
 
   if (!category || category.isDeleted) {
     throw new Error("Category not found");
+  }
+
+  if (!data.speciality || !SPECIALITIES.includes(data.speciality)) {
+    throw new Error("Invalid speciality");
   }
 
   if (data.price < 0) {
@@ -46,6 +59,7 @@ export const createService = async (
     name: normalizedName,
     description: data.description?.trim() ?? "",
     category: data.category,
+    speciality: data.speciality,
     price: data.price,
     duration: data.duration,
     createdBy: userId,
@@ -116,6 +130,7 @@ export const updateService = async (
     name?: string;
     description?: string;
     category?: string;
+    speciality?: ServiceSpeciality;
     price?: number;
     duration?: number;
   },
@@ -133,6 +148,14 @@ export const updateService = async (
 
   if (data.duration !== undefined && data.duration <= 0) {
     throw new Error("Invalid duration");
+  }
+
+  if (data.speciality !== undefined) {
+    if (!SPECIALITIES.includes(data.speciality)) {
+      throw new Error("Invalid speciality");
+    }
+
+    service.speciality = data.speciality;
   }
 
   if (data.category) {

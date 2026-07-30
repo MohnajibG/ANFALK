@@ -9,6 +9,7 @@ interface WeekViewProps {
   appointments: Appointment[];
   readOnly?: boolean;
   onSelectAppointment?: (appointment: Appointment) => void;
+  onSelectEmptySlot?: (dateKey: string, startTime: string) => void;
   onReschedule: (
     appointment: Appointment,
     columnKey: string,
@@ -21,6 +22,7 @@ const WeekView = ({
   appointments,
   readOnly,
   onSelectAppointment,
+  onSelectEmptySlot,
   onReschedule,
 }: WeekViewProps) => {
   const columns = useMemo(
@@ -41,6 +43,7 @@ const WeekView = ({
       getColumnKey={(appointment) => appointment.date.slice(0, 10)}
       readOnly={readOnly}
       onSelectAppointment={onSelectAppointment}
+      onSelectEmptySlot={onSelectEmptySlot}
       onReschedule={onReschedule}
     />
   );

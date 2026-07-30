@@ -21,6 +21,7 @@ interface TimeGridProps {
   getColumnKey: (appointment: Appointment) => string | undefined;
   readOnly?: boolean;
   onSelectAppointment?: (appointment: Appointment) => void;
+  onSelectEmptySlot?: (columnKey: string, startTime: string) => void;
   onReschedule: (
     appointment: Appointment,
     columnKey: string,
@@ -38,6 +39,7 @@ const TimeGrid = ({
   getColumnKey,
   readOnly = false,
   onSelectAppointment,
+  onSelectEmptySlot,
   onReschedule,
 }: TimeGridProps) => {
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -66,13 +68,13 @@ const TimeGrid = ({
     return map;
   }, [columns, appointments, getColumnKey]);
 
-  const handleDragEnd = (appointment: Appointment, info: PanInfo) => {
+  const pointToSlot = (clientX: number, clientY: number) => {
     const body = bodyRef.current;
-    if (!body || columns.length === 0) return;
+    if (!body || columns.length === 0) return null;
 
     const rect = body.getBoundingClientRect();
-    const relativeX = info.point.x - rect.left;
-    const relativeY = info.point.y - rect.top + body.scrollTop;
+    const relativeX = clientX - rect.left;
+    const relativeY = clientY - rect.top + body.scrollTop;
 
     const columnIndex = Math.min(
       Math.max(Math.floor((relativeX / rect.width) * columns.length), 0),
@@ -80,22 +82,39 @@ const TimeGrid = ({
     );
 
     const column = columns[columnIndex];
-    if (!column) return;
+    if (!column) return null;
 
     const rawMinutes = startHour * 60 + relativeY / pxPerMinute;
     const snapped = Math.round(rawMinutes / snapMinutes) * snapMinutes;
     const clamped = Math.min(Math.max(snapped, startHour * 60), endHour * 60);
 
-    const newStartTime = minutesToTime(clamped);
+    return { column, startTime: minutesToTime(clamped) };
+  };
+
+  const handleDragEnd = (appointment: Appointment, info: PanInfo) => {
+    const slot = pointToSlot(info.point.x, info.point.y);
+    if (!slot) return;
 
     if (
-      column.key === getColumnKey(appointment) &&
-      newStartTime === appointment.startTime
+      slot.column.key === getColumnKey(appointment) &&
+      slot.startTime === appointment.startTime
     ) {
       return;
     }
 
-    onReschedule(appointment, column.key, newStartTime);
+    onReschedule(appointment, slot.column.key, slot.startTime);
+  };
+
+  const handleBackgroundClick = (
+    event: React.MouseEvent<HTMLDivElement>,
+  ) => {
+    if (!onSelectEmptySlot || readOnly) return;
+    if (event.target !== event.currentTarget) return;
+
+    const slot = pointToSlot(event.clientX, event.clientY);
+    if (!slot) return;
+
+    onSelectEmptySlot(slot.column.key, slot.startTime);
   };
 
   return (
@@ -127,13 +146,16 @@ const TimeGrid = ({
 
         <div
           ref={bodyRef}
-          className="relative border-t border-(--border)"
+          onClick={handleBackgroundClick}
+          className={`relative border-t border-(--border) ${
+            onSelectEmptySlot && !readOnly ? "cursor-cell" : ""
+          }`}
           style={{ height: gridHeight }}
         >
           {hours.map((hour, index) => (
             <div
               key={hour}
-              className="absolute left-0 w-full border-t border-(--border)/50"
+              className="pointer-events-none absolute left-0 w-full border-t border-(--border)/50"
               style={{ top: index * 60 * pxPerMinute }}
             />
           ))}
@@ -141,7 +163,7 @@ const TimeGrid = ({
           {columns.map((column, columnIndex) => (
             <div
               key={column.key}
-              className="absolute top-0 h-full border-r border-(--border)/40"
+              className="pointer-events-none absolute top-0 h-full border-r border-(--border)/40"
               style={{
                 left: `${columnIndex * columnWidthPercent}%`,
                 width: `${columnWidthPercent}%`,

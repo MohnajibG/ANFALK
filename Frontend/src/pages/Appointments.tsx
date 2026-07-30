@@ -5,15 +5,12 @@ import {
   Search,
   Check,
   X,
-  Clock,
   CircleCheck,
-  UserRound,
-  Scissors,
-  Plus,
   Trash2,
   Repeat,
   List,
   CalendarRange,
+  Plus,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -30,6 +27,7 @@ import { useAuth } from "../hooks/useAuth";
 import type { Appointment, AppointmentStatus } from "../types/appointment";
 
 import AppointmentForm from "../components/appointments/AppointmentForm";
+import AppointmentDetailPanel from "../components/appointments/AppointmentDetailPanel";
 import CalendarView from "../components/calendar/CalendarView";
 
 import { getServices } from "../api/service.api";
@@ -62,12 +60,29 @@ const statusStyle: Record<AppointmentStatus, string> = {
 
 const moneyFormat = new Intl.NumberFormat("fr-FR");
 
+const employeeNames = (appointment: Appointment) => {
+  const names = appointment.services.map((service) =>
+    typeof service.employee === "string"
+      ? ""
+      : `${service.employee.firstName} ${service.employee.lastName}`,
+  );
+
+  return Array.from(new Set(names.filter(Boolean))).join(", ");
+};
+
 export default function Appointments() {
   const { user } = useAuth();
 
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [formPrefill, setFormPrefill] = useState<{
+    date?: string;
+    startTime?: string;
+    employeeId?: string;
+  }>({});
+  const [selectedAppointment, setSelectedAppointment] =
+    useState<Appointment | null>(null);
 
   const [services, setServices] = useState<Service[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -150,6 +165,16 @@ export default function Appointments() {
       console.error("Erreur chargement formulaire rendez-vous:", error);
     }
   }, []);
+
+  const handleCreateRequest = async (prefill: {
+    date: string;
+    startTime: string;
+    employeeId?: string;
+  }) => {
+    await loadFormData();
+    setFormPrefill(prefill);
+    setShowForm(true);
+  };
 
   const changeStatus = async (id: string, status: AppointmentStatus) => {
     try {
@@ -252,9 +277,7 @@ export default function Appointments() {
       console.error("Erreur suppression:", error);
     }
   };
-  console.log("loading :", loading);
-  console.log("appointments :", appointments);
-  console.log("filteredAppointments :", filteredAppointments);
+
   return (
     <section className="space-y-6">
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -298,6 +321,7 @@ export default function Appointments() {
           <button
             onClick={async () => {
               await loadFormData();
+              setFormPrefill({});
               setShowForm(true);
             }}
             className="flex items-center justify-center gap-2 rounded-xl bg-(--black) px-5 py-3 text-(--cream)"
@@ -309,13 +333,19 @@ export default function Appointments() {
       </header>
 
       {displayMode === "calendar" && (
-        <CalendarView canEdit={!isEmployee} />
+        <CalendarView
+          canEdit={!isEmployee}
+          onCreateRequest={!isEmployee ? handleCreateRequest : undefined}
+        />
       )}
 
       {showForm && (
         <AppointmentForm
           services={services}
           employees={employees}
+          initialDate={formPrefill.date}
+          initialStartTime={formPrefill.startTime}
+          initialEmployeeId={formPrefill.employeeId}
           onClose={() => setShowForm(false)}
           onSuccess={() => {
             setShowForm(false);
@@ -324,163 +354,189 @@ export default function Appointments() {
         />
       )}
 
-      {displayMode === "list" && (
-      <>
-      <div className="flex flex-col gap-3 rounded-3xl border border-(--border) bg-white p-5 md:flex-row">
-        <div className="flex flex-1 items-center gap-3 rounded-2xl bg-(--cream) px-4">
-          <Search size={18} />
-
-          <input
-            className="h-12 w-full bg-transparent outline-none"
-            placeholder="Rechercher un client..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-
-        <select
-          className="h-12 rounded-2xl border border-(--border) px-4"
-          value={statusFilter}
-          onChange={(e) =>
-            setStatusFilter(e.target.value as AppointmentStatus | "all")
-          }
-        >
-          <option value="all">Tous les rendez-vous</option>
-
-          {Object.entries(statusLabels).map(([key, value]) => (
-            <option key={key} value={key}>
-              {value}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {loading ? (
-        <div className="rounded-3xl bg-white p-10 text-center">
-          Chargement...
-        </div>
-      ) : filteredAppointments.length === 0 ? (
-        <div className="rounded-3xl bg-white p-10 text-center text-stone-500">
-          Aucun rendez-vous trouvé
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {filteredAppointments.map((appointment) => (
-            <article
-              key={appointment._id}
-              className="rounded-3xl border border-(--border) bg-white p-5 shadow-sm"
-            >
-              <div className="flex flex-col gap-4 md:flex-row md:justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-(--cream)">
-                    <UserRound size={22} />
-                  </div>
-
-                  <div>
-                    <h3 className="font-semibold">
-                      {typeof appointment.client !== "string" &&
-                        `${appointment.client.firstName} ${appointment.client.lastName}`}
-                    </h3>
-
-                    <p className="text-sm text-stone-500">
-                      {typeof appointment.client !== "string" &&
-                        appointment.client.phone}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  {appointment.recurrenceGroupId && (
-                    <span
-                      title="Fait partie d'une série récurrente"
-                      className="flex items-center gap-1 rounded-full bg-stone-100 px-3 py-2 text-xs font-semibold text-stone-600"
-                    >
-                      <Repeat size={14} />
-                      Série
-                    </span>
-                  )}
-
-                  <span
-                    className={`rounded-full px-4 py-2  lg:text-xl text-xs font-semibold ${statusStyle[appointment.status]}`}
-                  >
-                    {statusLabels[appointment.status]}
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-5 flex flex-col gap-3 text-sm md:flex-row">
-                <span className="flex items-center gap-2">
-                  <Clock size={16} />
-                  {appointment.date} {appointment.startTime}
-                </span>
-
-                <span className="flex items-center gap-2">
-                  <Scissors size={16} />
-                  {appointment.services
-                    .map((service) => service.name)
-                    .join(", ")}
-                </span>
-
-                <strong>
-                  {moneyFormat.format(appointment.estimatedPrice)} DA
-                </strong>
-              </div>
-
-              <div className="mt-5 flex flex-wrap gap-2 border-t border-(--border) pt-4">
-                {(appointment.status === "pending" ||
-                  appointment.status === "confirmed") && (
-                  <button
-                    onClick={() => changeStatus(appointment._id, "confirmed")}
-                    className="flex items-center gap-2 rounded-xl bg-emerald-100 px-4 py-2 text-emerald-700"
-                  >
-                    <Check size={16} />
-                    Confirmer
-                  </button>
-                )}
-
-                <button
-                  onClick={() => changeStatus(appointment._id, "completed")}
-                  className="flex items-center gap-2 rounded-xl bg-blue-100 px-4 py-2 text-blue-700"
-                >
-                  <CircleCheck size={16} />
-                  Terminer
-                </button>
-
-                <button
-                  onClick={() => handleCancel(appointment._id)}
-                  className="flex items-center gap-2 rounded-xl bg-red-100 px-4 py-2 text-red-700"
-                >
-                  <X size={16} />
-                  Annuler
-                </button>
-
-                {appointment.recurrenceGroupId && (
-                  <button
-                    onClick={() =>
-                      handleCancelSeries(appointment.recurrenceGroupId!)
-                    }
-                    className="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2 text-red-700"
-                  >
-                    <Repeat size={16} />
-                    Annuler la série
-                  </button>
-                )}
-
-                {canDelete && (
-                  <button
-                    onClick={() => handleDelete(appointment._id)}
-                    className="flex items-center gap-2 rounded-xl bg-stone-100 px-4 py-2 text-stone-700"
-                  >
-                    <Trash2 size={16} />
-                    Supprimer
-                  </button>
-                )}
-              </div>
-            </article>
-          ))}
-        </div>
+      {selectedAppointment && (
+        <AppointmentDetailPanel
+          appointment={selectedAppointment}
+          canEdit={!isEmployee}
+          onClose={() => setSelectedAppointment(null)}
+          onChanged={refreshAppointments}
+        />
       )}
-      </>
+
+      {displayMode === "list" && (
+        <>
+          <div className="flex flex-col gap-3 rounded-3xl border border-(--border) bg-white p-5 md:flex-row">
+            <div className="flex flex-1 items-center gap-3 rounded-2xl bg-(--cream) px-4">
+              <Search size={18} />
+
+              <input
+                className="h-12 w-full bg-transparent outline-none"
+                placeholder="Rechercher un client..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+
+            <select
+              className="h-12 rounded-2xl border border-(--border) px-4"
+              value={statusFilter}
+              onChange={(e) =>
+                setStatusFilter(e.target.value as AppointmentStatus | "all")
+              }
+            >
+              <option value="all">Tous les rendez-vous</option>
+
+              {Object.entries(statusLabels).map(([key, value]) => (
+                <option key={key} value={key}>
+                  {value}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {loading ? (
+            <div className="rounded-3xl bg-white p-10 text-center">
+              Chargement...
+            </div>
+          ) : filteredAppointments.length === 0 ? (
+            <div className="rounded-3xl bg-white p-10 text-center text-stone-500">
+              Aucun rendez-vous trouvé
+            </div>
+          ) : (
+            <div className="overflow-x-auto rounded-3xl border border-(--border) bg-white">
+              <table className="w-full min-w-[860px] text-left text-sm">
+                <thead>
+                  <tr className="border-b border-(--border) text-xs uppercase tracking-wide text-stone-500">
+                    <th className="px-4 py-3 font-medium">Date / Heure</th>
+                    <th className="px-4 py-3 font-medium">Client</th>
+                    <th className="px-4 py-3 font-medium">Prestation(s)</th>
+                    <th className="px-4 py-3 font-medium">Employé(s)</th>
+                    <th className="px-4 py-3 font-medium">Prix</th>
+                    <th className="px-4 py-3 font-medium">Statut</th>
+                    <th className="px-4 py-3 font-medium">Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {filteredAppointments.map((appointment) => (
+                    <tr
+                      key={appointment._id}
+                      onClick={() => setSelectedAppointment(appointment)}
+                      className="cursor-pointer border-b border-(--border) last:border-none hover:bg-(--cream)/60"
+                    >
+                      <td className="whitespace-nowrap px-4 py-3">
+                        {appointment.date.slice(0, 10)}
+                        <br />
+                        <span className="text-stone-500">
+                          {appointment.startTime}
+                        </span>
+                      </td>
+
+                      <td className="px-4 py-3">
+                        {typeof appointment.client !== "string" &&
+                          `${appointment.client.firstName} ${appointment.client.lastName}`}
+                      </td>
+
+                      <td className="max-w-56 truncate px-4 py-3">
+                        {appointment.services
+                          .map((service) => service.name)
+                          .join(", ")}
+                      </td>
+
+                      <td className="px-4 py-3">
+                        {employeeNames(appointment)}
+                      </td>
+
+                      <td className="whitespace-nowrap px-4 py-3">
+                        {moneyFormat.format(appointment.estimatedPrice)} DA
+                      </td>
+
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-1.5">
+                          {appointment.recurrenceGroupId && (
+                            <Repeat
+                              size={14}
+                              className="text-stone-400"
+                              aria-label="Série récurrente"
+                            />
+                          )}
+
+                          <span
+                            className={`rounded-full px-3 py-1.5 text-xs font-semibold ${statusStyle[appointment.status]}`}
+                          >
+                            {statusLabels[appointment.status]}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td
+                        className="px-4 py-3"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="flex flex-wrap gap-1.5">
+                          {(appointment.status === "pending" ||
+                            appointment.status === "confirmed") && (
+                            <button
+                              title="Confirmer"
+                              onClick={() =>
+                                changeStatus(appointment._id, "confirmed")
+                              }
+                              className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700"
+                            >
+                              <Check size={15} />
+                            </button>
+                          )}
+
+                          <button
+                            title="Terminer"
+                            onClick={() =>
+                              changeStatus(appointment._id, "completed")
+                            }
+                            className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 text-blue-700"
+                          >
+                            <CircleCheck size={15} />
+                          </button>
+
+                          <button
+                            title="Annuler"
+                            onClick={() => handleCancel(appointment._id)}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100 text-red-700"
+                          >
+                            <X size={15} />
+                          </button>
+
+                          {appointment.recurrenceGroupId && (
+                            <button
+                              title="Annuler la série"
+                              onClick={() =>
+                                handleCancelSeries(
+                                  appointment.recurrenceGroupId!,
+                                )
+                              }
+                              className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-700"
+                            >
+                              <Repeat size={15} />
+                            </button>
+                          )}
+
+                          {canDelete && (
+                            <button
+                              title="Supprimer"
+                              onClick={() => handleDelete(appointment._id)}
+                              className="flex h-8 w-8 items-center justify-center rounded-lg bg-stone-100 text-stone-700"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       )}
     </section>
   );

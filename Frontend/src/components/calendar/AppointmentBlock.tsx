@@ -55,7 +55,10 @@ const AppointmentBlock = ({
       dragSnapToOrigin
       whileDrag={{ scale: 1.03, zIndex: 40, boxShadow: "0 8px 20px rgba(0,0,0,0.2)" }}
       onDragEnd={onDragEnd}
-      onClick={onClick}
+      onClick={(event) => {
+        event.stopPropagation();
+        onClick?.();
+      }}
       className={`overflow-hidden rounded-lg border px-2 py-1 text-left text-xs shadow-sm ${
         draggable ? "cursor-grab active:cursor-grabbing" : "cursor-default"
       } ${STATUS_COLORS[appointment.status]}`}

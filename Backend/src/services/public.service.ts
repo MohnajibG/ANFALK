@@ -154,6 +154,16 @@ export const createOnlineAppointment = async (
     throw new Error("Service invalide");
   }
 
+  const mismatchedService = services.find(
+    (service) => service.speciality !== employee.speciality,
+  );
+
+  if (mismatchedService) {
+    throw new Error(
+      `Cet employé ne peut pas réaliser "${mismatchedService.name}" (spécialité requise : ${mismatchedService.speciality})`,
+    );
+  }
+
   const totalDuration = services.reduce(
     (total, service) => total + service.duration,
     0,

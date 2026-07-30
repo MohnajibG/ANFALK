@@ -7,8 +7,10 @@ import TimeGrid from "./TimeGrid";
 interface DayViewProps {
   appointments: Appointment[];
   employees: Employee[];
+  employeeFilter?: string;
   readOnly?: boolean;
   onSelectAppointment?: (appointment: Appointment) => void;
+  onSelectEmptySlot?: (employeeId: string, startTime: string) => void;
   onReschedule: (
     appointment: Appointment,
     columnKey: string,
@@ -24,34 +26,26 @@ const employeeIdOf = (appointment: Appointment): string | undefined => {
 const DayView = ({
   appointments,
   employees,
+  employeeFilter,
   readOnly,
   onSelectAppointment,
+  onSelectEmptySlot,
   onReschedule,
 }: DayViewProps) => {
   const columns = useMemo(() => {
-    const ids = Array.from(
-      new Set(
-        appointments
-          .map(employeeIdOf)
-          .filter((id): id is string => Boolean(id)),
-      ),
-    );
+    const visibleEmployees = employeeFilter
+      ? employees.filter((employee) => employee._id === employeeFilter)
+      : employees.filter((employee) => employee.role === "employee");
 
-    if (ids.length === 0) {
-      return [{ key: "none", label: "Aucun rendez-vous" }];
+    if (visibleEmployees.length === 0) {
+      return [{ key: "none", label: "Aucun employé" }];
     }
 
-    return ids.map((id) => {
-      const employee = employees.find((e) => e._id === id);
-
-      return {
-        key: id,
-        label: employee
-          ? `${employee.firstName} ${employee.lastName}`
-          : "Employé",
-      };
-    });
-  }, [appointments, employees]);
+    return visibleEmployees.map((employee) => ({
+      key: employee._id,
+      label: `${employee.firstName} ${employee.lastName}`,
+    }));
+  }, [employees, employeeFilter]);
 
   return (
     <TimeGrid
@@ -62,6 +56,7 @@ const DayView = ({
       getColumnKey={(appointment) => employeeIdOf(appointment) ?? "none"}
       readOnly={readOnly}
       onSelectAppointment={onSelectAppointment}
+      onSelectEmptySlot={onSelectEmptySlot}
       onReschedule={onReschedule}
     />
   );
