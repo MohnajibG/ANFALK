@@ -1,9 +1,43 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Loader2,
+  ShieldCheck,
+  Wallet,
+  Scissors,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 type Role = "admin" | "cashier" | "employee";
+
+const roles: {
+  role: Role;
+  icon: typeof ShieldCheck;
+  title: string;
+  description: string;
+}[] = [
+  {
+    role: "admin",
+    icon: ShieldCheck,
+    title: "Administration",
+    description:
+      "Pilotez l'institut : équipe, prestations, statistiques et caisses.",
+  },
+  {
+    role: "cashier",
+    icon: Wallet,
+    title: "Caisse",
+    description: "Encaissez les ventes et gérez les tickets au quotidien.",
+  },
+  {
+    role: "employee",
+    icon: Scissors,
+    title: "Employé",
+    description: "Consultez votre planning et suivez vos prestations.",
+  },
+];
 
 const Login = () => {
   const navigate = useNavigate();
@@ -86,45 +120,84 @@ const Login = () => {
   };
 
   return (
-    <div
-      className="relative flex min-h-screen w-full items-center justify-center bg-(--cream) bg-cover bg-center p-4 sm:p-6 lg:bg-none lg:p-8"
-      style={{
-        backgroundImage:
-          "url(https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1200&q=80)",
-      }}
-    >
-      <div className="absolute inset-0 bg-black/40 lg:hidden" />
-
+    <div className="relative flex min-h-screen w-full items-center justify-center bg-(--cream) p-4 sm:p-6 lg:p-8">
       <div className="relative flex w-full max-w-md flex-col overflow-hidden rounded-3xl bg-(--white) shadow-(--shadow-md) lg:max-w-6xl lg:flex-row">
-        <div className="relative hidden min-h-162.5 flex-1 lg:flex">
+        {/* PANNEAU ACCÈS PROFESSIONNEL */}
+        <div className="relative hidden min-h-162.5 flex-1 flex-col justify-between overflow-hidden p-12 text-(--white) lg:flex">
           <img
             src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1200&q=80"
             alt="Institut ANFEL K"
             className="absolute inset-0 h-full w-full object-cover"
           />
 
-          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 bg-(--black)/75" />
+          <div className="absolute inset-0 bg-linear-to-t from-(--black)/90 via-(--black)/60 to-(--black)/40" />
 
-          <div className="relative z-10 flex flex-col justify-end p-12 text-white">
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
+          <div className="absolute -top-20 -right-16 h-72 w-72 rounded-full bg-rose-300/25 blur-3xl" />
+          <div className="absolute -bottom-24 -left-16 h-64 w-64 rounded-full bg-rose-400/15 blur-3xl" />
+
+          <div className="relative z-10">
+            <a href="/" className="flex items-center gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-(--champagne) font-title text-lg font-bold text-(--black)">
+                AK
+              </span>
+
+              <span className="flex flex-col leading-none">
+                <span className="font-title text-xl tracking-[0.15em] text-(--champagne)">
+                  ANFEL K
+                </span>
+                <span className="mt-1 text-[0.55rem] font-semibold uppercase tracking-[0.45em] text-(--white)/50">
+                  Institute
+                </span>
+              </span>
+            </a>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="font-title text-6xl font-bold tracking-[0.15em]"
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mt-12"
             >
-              ANFEL K
-            </motion.h1>
+              <p className="text-xs font-semibold uppercase tracking-[0.35em] text-(--champagne)">
+                Espace professionnel
+              </p>
 
-            <p className="mt-3 font-body text-xs uppercase tracking-[0.5em] text-white/80">
-              INSTITUTE
-            </p>
+              <h1 className="mt-4 font-title text-3xl font-bold leading-tight">
+                Un accès dédié à chaque métier de l'institut
+              </h1>
 
-            <p className="mt-8 max-w-sm font-body text-lg text-white/80">
-              Système de gestion beauté pour instituts modernes
-            </p>
+              <p className="mt-4 max-w-sm text-sm leading-7 text-(--white)/60">
+                Un seul portail de connexion, un espace de travail adapté à
+                votre rôle dans le salon.
+              </p>
+            </motion.div>
+          </div>
+
+          <div className="relative z-10 flex flex-col gap-4">
+            {roles.map(({ role, icon: Icon, title, description }, index) => (
+              <motion.div
+                key={role}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: 0.2 + index * 0.1 }}
+                className="flex items-start gap-4 rounded-2xl border border-(--white)/10 bg-(--white)/10 p-5 backdrop-blur-sm"
+              >
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-rose-200/15 text-rose-200">
+                  <Icon size={20} />
+                </span>
+
+                <div>
+                  <p className="font-semibold text-(--white)">{title}</p>
+                  <p className="mt-1 text-sm leading-6 text-(--white)/55">
+                    {description}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
 
+        {/* FORMULAIRE */}
         <div className="flex flex-1 items-center justify-center p-6 sm:p-10 lg:p-12">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -132,14 +205,46 @@ const Login = () => {
             transition={{ duration: 0.5 }}
             className="flex w-full max-w-md flex-col"
           >
-            <div className="mb-10">
-              <h2 className="font-title text-4xl font-bold text-(--dark)">
+            {/* Logo mobile (le panneau pro n'est visible qu'à partir de lg) */}
+            <a href="/" className="mb-8 flex items-center gap-3 lg:hidden">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-(--black) font-title text-base font-bold text-(--champagne)">
+                AK
+              </span>
+              <span className="flex flex-col leading-none">
+                <span className="font-title text-lg tracking-[0.15em] text-(--black)">
+                  ANFEL K
+                </span>
+                <span className="mt-1 text-[0.5rem] font-semibold uppercase tracking-[0.4em] text-(--brown)">
+                  Institute
+                </span>
+              </span>
+            </a>
+
+            <div className="mb-8">
+              <p className="font-body text-xs font-semibold uppercase tracking-[0.3em] text-(--brown)">
+                Connexion professionnelle
+              </p>
+
+              <h2 className="mt-3 font-title text-4xl font-bold text-(--dark)">
                 Bienvenue
               </h2>
 
               <p className="mt-3 font-body text-sm text-(--muted)">
-                Connectez-vous à votre espace professionnel
+                Connectez-vous à votre espace : Admin, Caisse ou Employé.
               </p>
+
+              {/* Rappel des rôles, visible sous lg où le panneau est masqué */}
+              <div className="mt-5 flex flex-wrap gap-2 lg:hidden">
+                {roles.map(({ role, icon: Icon, title }) => (
+                  <span
+                    key={role}
+                    className="flex items-center gap-2 rounded-full border border-(--border) bg-(--surface) px-3 py-2 text-xs font-medium text-(--brown-dark)"
+                  >
+                    <Icon size={14} />
+                    {title}
+                  </span>
+                ))}
+              </div>
             </div>
 
             <form onSubmit={handleLogin} className="flex flex-col gap-6">

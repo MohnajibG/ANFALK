@@ -231,8 +231,8 @@ const Waitlist = () => {
               </select>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
+            <div className="flex flex-col gap-4 md:flex-row">
+              <div className="md:flex-1">
                 <label className="mb-2 block text-sm font-medium">
                   Disponible à partir du
                 </label>
@@ -245,7 +245,7 @@ const Waitlist = () => {
                 />
               </div>
 
-              <div>
+              <div className="md:flex-1">
                 <label className="mb-2 block text-sm font-medium">
                   Jusqu'au (optionnel)
                 </label>

@@ -100,37 +100,45 @@ const CashierDashboard = () => {
         action={<Badge variant="success">Réception active</Badge>}
       />
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          icon={DollarSign}
-          title="Chiffre du jour"
-          value={`${totalToday.toLocaleString("fr-FR")} DA`}
-          accent="black"
-        />
-        <StatCard
-          icon={Receipt}
-          title="Tickets"
-          value={todayTickets.length}
-          accent="gold"
-        />
-        <StatCard
-          icon={Users}
-          title="Clients"
-          value={clients.length}
-          accent="info"
-        />
-        <StatCard
-          icon={ShoppingBag}
-          title="Services"
-          value={services.length}
-          accent="success"
-        />
+      <section className="flex flex-wrap gap-4">
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={DollarSign}
+            title="Chiffre du jour"
+            value={`${totalToday.toLocaleString("fr-FR")} DA`}
+            accent="black"
+          />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={Receipt}
+            title="Tickets"
+            value={todayTickets.length}
+            accent="gold"
+          />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={Users}
+            title="Clients"
+            value={clients.length}
+            accent="info"
+          />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={ShoppingBag}
+            title="Services"
+            value={services.length}
+            accent="success"
+          />
+        </div>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-3">
+      <section className="flex flex-wrap gap-6">
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="rounded-md border border-(--border) bg-white p-6 shadow-(--shadow-sm) xl:col-span-2"
+          className="w-full rounded-md border border-(--border) bg-white p-6 shadow-(--shadow-sm) xl:w-[calc(66.667%-8px)]"
         >
           <div className="mb-5 flex items-center justify-between">
             <h2 className="font-semibold text-(--black)">Tickets du jour</h2>
@@ -176,7 +184,7 @@ const CashierDashboard = () => {
 
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="rounded-md border border-(--border) bg-white p-6 shadow-(--shadow-sm)"
+          className="w-full rounded-md border border-(--border) bg-white p-6 shadow-(--shadow-sm) xl:w-[calc(33.333%-16px)]"
         >
           <h2 className="mb-5 font-semibold text-(--black)">
             Services populaires

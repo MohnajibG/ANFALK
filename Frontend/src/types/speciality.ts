@@ -6,6 +6,8 @@ export const SPECIALITIES: Speciality[] = [
   "Makeup",
   "Massage",
   "Reception",
+  "Waxing",
+  "Skincare",
 ];
 
 export const SPECIALITY_LABELS: Record<Speciality, string> = {
@@ -14,4 +16,6 @@ export const SPECIALITY_LABELS: Record<Speciality, string> = {
   Makeup: "Maquillage",
   Massage: "Massage",
   Reception: "Accueil",
+  Waxing: "Épilation",
+  Skincare: "Soin du visage",
 };

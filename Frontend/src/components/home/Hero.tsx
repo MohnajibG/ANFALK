@@ -9,6 +9,12 @@ const images = [
   "https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?auto=format&fit=crop&w=2000&q=90",
 ];
 
+const trustPoints = [
+  { value: "1500+", label: "Clientes satisfaites" },
+  { value: "10+", label: "Experts beauté" },
+  { value: "5★", label: "Note moyenne" },
+];
+
 const Hero = () => {
   const [current, setCurrent] = useState(0);
 
@@ -21,47 +27,50 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="relative flex min-h-svh w-full overflow-hidden bg-black">
+    <section
+      id="home"
+      className="relative flex min-h-svh w-full flex-col overflow-hidden bg-(--black)"
+    >
       <AnimatePresence mode="wait">
         <motion.img
           key={images[current]}
           src={images[current]}
           alt="ANFEL K Institute"
-          initial={{ opacity: 0, scale: 1.15 }}
-          animate={{ opacity: 1, scale: 1.05 }}
+          initial={{ opacity: 0, scale: 1.12 }}
+          animate={{ opacity: 1, scale: 1.04 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1.5 }}
           className="absolute inset-0 h-full w-full object-cover"
         />
       </AnimatePresence>
 
-      {/* Overlay luxe */}
-      <div className="absolute inset-0 bg-black/45" />
-      <div className="absolute inset-0 bg-linear-to-r from-black/80 via-black/40 to-transparent" />
-      <div className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-black/20" />
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-(--black)/55" />
+      <div className="absolute inset-0 bg-linear-to-r from-(--black)/85 via-(--black)/45 to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-t from-(--black)/80 via-transparent to-(--black)/10" />
 
-      <div className="relative z-10 flex w-full items-center px-6 pt-24 sm:px-10 lg:px-20">
+      <div className="relative z-10 flex w-full flex-1 items-center px-6 pt-28 sm:px-10 lg:px-20">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9 }}
-          className="max-w-4xl text-white"
+          className="max-w-4xl text-(--white)"
         >
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <p className="mb-6 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.35em] text-[#d8c39d] sm:text-sm">
+            <p className="mb-6 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.35em] text-(--champagne) sm:text-sm">
               <Sparkles size={17} />
               Institut de beauté premium
             </p>
 
-            <h1 className="font-[Cinzel] text-6xl font-bold tracking-[0.15em] sm:text-7xl lg:text-9xl">
+            <h1 className="font-title text-6xl font-bold tracking-[0.1em] sm:text-7xl lg:text-9xl">
               ANFEL K
             </h1>
 
-            <p className="mt-4 text-xs uppercase tracking-[0.65em] text-[#d8c39d] sm:text-sm">
+            <p className="mt-4 text-xs uppercase tracking-[0.65em] text-(--champagne) sm:text-sm">
               Institute
             </p>
           </motion.div>
@@ -70,47 +79,74 @@ const Hero = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="mt-10 max-w-2xl rounded-3xl border border-white/20 bg-black/20 p-6 backdrop-blur-md sm:p-10"
+            className="mt-10 max-w-2xl rounded-3xl border border-(--white)/15 bg-(--black)/25 p-6 backdrop-blur-md sm:p-10"
           >
-            <h2 className="font-[Cinzel] text-3xl leading-tight sm:text-5xl">
+            <h2 className="font-title text-3xl leading-tight sm:text-5xl">
               Révélez votre beauté naturelle
             </h2>
 
-            <p className="mt-6 max-w-xl text-sm leading-7 text-white/75 sm:text-base">
+            <p className="mt-6 max-w-xl text-sm leading-7 text-(--white)/75 sm:text-base">
               Une expérience beauté haut de gamme dédiée à la coiffure, au
               maquillage, aux soins et au bien-être dans un environnement
               élégant et personnalisé.
             </p>
 
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-              <button className="flex items-center justify-center gap-3 rounded-xl bg-[#d8c39d] px-8 py-4 font-semibold text-black transition hover:bg-[#ead8b5]">
+              <a
+                href="#services"
+                className="flex items-center justify-center gap-3 rounded-full bg-(--champagne) px-8 py-4 text-sm font-semibold text-(--black) transition hover:bg-(--gold)"
+              >
                 Découvrir nos prestations
                 <ArrowRight size={18} />
-              </button>
+              </a>
 
-              <button className="flex items-center justify-center gap-3 rounded-xl border border-white/30 px-8 py-4 font-semibold text-white transition hover:bg-white/10">
+              <a
+                href="#contact"
+                className="flex items-center justify-center gap-3 rounded-full border border-(--white)/30 px-8 py-4 text-sm font-semibold text-(--white) transition hover:bg-(--white)/10"
+              >
                 <CalendarDays size={18} />
                 Réserver
-              </button>
+              </a>
             </div>
           </motion.div>
         </motion.div>
       </div>
 
+      {/* Trust strip */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+        className="relative z-10 flex w-full flex-wrap gap-x-10 gap-y-4 border-t border-(--white)/10 px-6 py-6 sm:px-10 lg:px-20"
+      >
+        {trustPoints.map((point) => (
+          <div key={point.label} className="flex items-baseline gap-2">
+            <span className="font-title text-xl font-bold text-(--champagne) sm:text-2xl">
+              {point.value}
+            </span>
+            <span className="text-xs uppercase tracking-[0.2em] text-(--white)/60">
+              {point.label}
+            </span>
+          </div>
+        ))}
+      </motion.div>
+
       {/* Indicateurs */}
-      <div className="absolute bottom-12 left-1/2 z-20 flex -translate-x-1/2 gap-3 ">
+      <div className="absolute right-6 top-1/2 z-20 hidden -translate-y-1/2 flex-col gap-3 sm:right-10 lg:right-20 lg:flex">
         {images.map((_, index) => (
           <button
             key={index}
+            type="button"
+            aria-label={`Image ${index + 1}`}
             onClick={() => setCurrent(index)}
             className={`h-2 rounded-full transition-all ${
-              current === index ? "w-12 bg-[#d8c39d]" : "w-2 bg-white/50"
+              current === index
+                ? "h-8 w-2 bg-(--champagne)"
+                : "w-2 bg-(--white)/40"
             }`}
           />
         ))}
       </div>
-
-      <div className="absolute bottom-0 left-0 h-px w-full bg-white/20" />
     </section>
   );
 };

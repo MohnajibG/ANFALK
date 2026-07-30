@@ -133,58 +133,74 @@ const EmployeeDetails = () => {
             {employee.role === "employee" ? "Employé" : "Caissier"}
           </p>
 
-          <div className="mt-8 grid gap-6 sm:grid-cols-2">
-            <Info
-              icon={<Phone size={18} />}
-              label="Téléphone"
-              value={employee.phone || "Non renseigné"}
-            />
+          <div className="mt-8 flex flex-wrap gap-6">
+            <div className="w-full sm:w-[calc(50%-12px)]">
+              <Info
+                icon={<Phone size={18} />}
+                label="Téléphone"
+                value={employee.phone || "Non renseigné"}
+              />
+            </div>
 
-            <Info
-              icon={<Mail size={18} />}
-              label="Email"
-              value={employee.email}
-            />
+            <div className="w-full sm:w-[calc(50%-12px)]">
+              <Info
+                icon={<Mail size={18} />}
+                label="Email"
+                value={employee.email}
+              />
+            </div>
 
-            <Info
-              icon={<Scissors size={18} />}
-              label="Spécialité"
-              value={employee.speciality || "Non définie"}
-            />
+            <div className="w-full sm:w-[calc(50%-12px)]">
+              <Info
+                icon={<Scissors size={18} />}
+                label="Spécialité"
+                value={employee.speciality || "Non définie"}
+              />
+            </div>
 
-            <Info
-              icon={<CalendarDays size={18} />}
-              label="Création compte"
-              value={
-                employee.createdAt
-                  ? new Date(employee.createdAt).toLocaleDateString()
-                  : "-"
-              }
-            />
+            <div className="w-full sm:w-[calc(50%-12px)]">
+              <Info
+                icon={<CalendarDays size={18} />}
+                label="Création compte"
+                value={
+                  employee.createdAt
+                    ? new Date(employee.createdAt).toLocaleDateString()
+                    : "-"
+                }
+              />
+            </div>
           </div>
         </div>
       </section>
 
       {/* STATS */}
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Card title="Chiffre généré" value="0 DA" icon={<Wallet />} />
+      <section className="flex flex-wrap gap-4">
+        <div className="w-full *:h-full md:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <Card title="Chiffre généré" value="0 DA" icon={<Wallet />} />
+        </div>
 
-        <Card title="Rendez-vous" value="0" icon={<CalendarDays />} />
+        <div className="w-full *:h-full md:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <Card title="Rendez-vous" value="0" icon={<CalendarDays />} />
+        </div>
 
-        <Card title="Panier moyen" value="0 DA" icon={<TrendingUp />} />
+        <div className="w-full *:h-full md:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <Card title="Panier moyen" value="0 DA" icon={<TrendingUp />} />
+        </div>
 
-        <Card title="Heures" value="0 h" icon={<Clock />} />
+        <div className="w-full *:h-full md:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <Card title="Heures" value="0 h" icon={<Clock />} />
+        </div>
       </section>
 
       {/* PERFORMANCE */}
 
-      <section className="grid gap-6 lg:grid-cols-3">
+      <section className="flex flex-wrap gap-6">
         <motion.div
           whileHover={{
             scale: 1.01,
           }}
-          className="lg:col-span-2 rounded-3xl border border-(--border) bg-white p-6"
+          className="w-full rounded-3xl border border-(--border) bg-white p-6 lg:w-[calc(66.667%-8px)]"
         >
           <h2 className="mb-6 text-xl font-semibold">Evolution mensuelle</h2>
 
@@ -201,7 +217,7 @@ const EmployeeDetails = () => {
           </div>
         </motion.div>
 
-        <div className="rounded-3xl border border-(--border) bg-white p-6">
+        <div className="w-full rounded-3xl border border-(--border) bg-white p-6 lg:w-[calc(33.333%-16px)]">
           <h2 className="mb-5 text-xl font-semibold">Performance</h2>
 
           <div className="space-y-4">

@@ -3,26 +3,11 @@ import { Menu, X, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const links = [
-  {
-    name: "Accueil",
-    href: "#home",
-  },
-  {
-    name: "À propos",
-    href: "#about",
-  },
-  {
-    name: "Prestations",
-    href: "#services",
-  },
-  {
-    name: "Galerie",
-    href: "#gallery",
-  },
-  {
-    name: "Contact",
-    href: "#contact",
-  },
+  { name: "Accueil", href: "#home" },
+  { name: "À propos", href: "#about" },
+  { name: "Prestations", href: "#services" },
+  { name: "Galerie", href: "#gallery" },
+  { name: "Contact", href: "#contact" },
 ];
 
 const Header = () => {
@@ -43,191 +28,82 @@ const Header = () => {
 
   return (
     <header
-      className={`
-        fixed
-        left-0
-        top-0
-        z-50
-        w-full
-        transition-all
-        duration-500
-        ${
-          scrolled
-            ? "border-b border-[#e8e2d8] bg-white/90 py-4 backdrop-blur-xl shadow-sm"
-            : "bg-white/70 py-5 backdrop-blur-md"
-        }
-      `}
+      className={`fixed left-0 top-0 z-50 w-full transition-all duration-500 ${
+        scrolled
+          ? "border-b border-(--border) bg-(--white)/90 py-3 shadow-(--shadow-sm) backdrop-blur-xl"
+          : "bg-(--white)/60 py-5 backdrop-blur-md"
+      }`}
     >
-      <div className="ak-container flex items-center justify-between">
+      <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 sm:px-10 lg:px-20">
         {/* LOGO */}
+        <a href="#home" className="flex items-center gap-3 select-none">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-(--black) font-title text-lg font-bold text-(--champagne)">
+            AK
+          </span>
 
-        <a
-          href="#home"
-          className="
-            flex
-            flex-col
-            items-center
-            select-none
-          "
-        >
-          <h1
-            className="
-              ak-logo
-              text-2xl
-              sm:text-3xl
-            "
-          >
-            ANFEL K
-          </h1>
-
-          <p
-            className="
-              ak-logo-subtitle
-              mt-1
-              text-[0.55rem]
-              sm:text-[0.65rem]
-            "
-          >
-            Institut de beauté
-          </p>
+          <span className="flex flex-col leading-none">
+            <span className="font-title text-xl tracking-[0.15em] text-(--black) sm:text-2xl">
+              ANFEL K
+            </span>
+            <span className="mt-1 text-[0.6rem] font-semibold uppercase tracking-[0.45em] text-(--brown)">
+              Institute
+            </span>
+          </span>
         </a>
 
         {/* NAVIGATION DESKTOP */}
-
-        <nav
-          className="
-            hidden
-            items-center
-            gap-9
-            lg:flex
-          "
-        >
+        <nav className="hidden items-center gap-8 lg:flex">
           {links.map((item) => (
             <a
               key={item.name}
               href={item.href}
-              className="
-                relative
-                text-xs
-                font-semibold
-                uppercase
-                tracking-[0.18em]
-                text-[#6f6f6f]
-                transition
-                hover:text-[#0b0b0b]
-
-                after:absolute
-                after:-bottom-2
-                after:left-0
-                after:h-px
-                after:w-0
-                after:bg-[#d8c39d]
-                after:transition-all
-
-                hover:after:w-full
-              "
+              className="group relative text-xs font-semibold uppercase tracking-[0.18em] text-(--muted) transition hover:text-(--black)"
             >
               {item.name}
+              <span className="absolute -bottom-2 left-0 h-px w-0 bg-(--gold) transition-all duration-300 group-hover:w-full" />
             </a>
           ))}
 
           <a
             href="/login"
-            className="
-              ak-button
-              group
-              flex
-              items-center
-              gap-2
-              px-6
-              py-3
-            "
+            className="group flex items-center gap-2 rounded-full bg-(--black) px-6 py-3 text-xs font-semibold uppercase tracking-[0.15em] text-(--cream) transition hover:bg-(--gold) hover:text-(--black)"
           >
             Connexion
             <ArrowRight
-              size={17}
-              className="
-                transition
-                group-hover:translate-x-1
-              "
+              size={15}
+              className="transition group-hover:translate-x-1"
             />
           </a>
         </nav>
 
         {/* MOBILE BUTTON */}
-
         <button
+          type="button"
           onClick={() => setOpen(!open)}
-          className="
-            flex
-            items-center
-            justify-center
-            rounded-xl
-            border
-            border-[#e8e2d8]
-            bg-white
-            p-3
-            lg:hidden
-          "
+          aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
+          className="flex h-11 w-11 items-center justify-center rounded-xl border border-(--border) bg-(--white) text-(--black) lg:hidden"
         >
-          {open ? <X size={23} /> : <Menu size={23} />}
+          {open ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
 
       {/* MENU MOBILE */}
-
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{
-              opacity: 0,
-              height: 0,
-            }}
-            animate={{
-              opacity: 1,
-              height: "auto",
-            }}
-            exit={{
-              opacity: 0,
-              height: 0,
-            }}
-            transition={{
-              duration: 0.35,
-            }}
-            className="
-              mx-4
-              mt-3
-              overflow-hidden
-              rounded-3xl
-              border
-              border-[#e8e2d8]
-              bg-white
-              shadow-xl
-              lg:hidden
-            "
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="mx-4 mt-3 overflow-hidden rounded-3xl border border-(--border) bg-(--white) shadow-(--shadow-md) lg:hidden"
           >
-            <div
-              className="
-                flex
-                flex-col
-                items-center
-                gap-6
-                px-8
-                py-10
-              "
-            >
+            <div className="flex flex-col items-center gap-6 px-8 py-10">
               {links.map((item) => (
                 <a
                   key={item.name}
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="
-                    text-sm
-                    font-semibold
-                    uppercase
-                    tracking-[0.2em]
-                    text-[#171717]
-                  "
+                  className="text-sm font-semibold uppercase tracking-[0.2em] text-(--black)"
                 >
                   {item.name}
                 </a>
@@ -235,15 +111,11 @@ const Header = () => {
 
               <a
                 href="/login"
-                className="
-                  ak-button
-                  mt-2
-                  w-full
-                  py-4
-                  text-center
-                "
+                onClick={() => setOpen(false)}
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-full bg-(--black) py-4 text-sm font-semibold uppercase tracking-[0.15em] text-(--cream) transition hover:bg-(--gold) hover:text-(--black)"
               >
                 Connexion
+                <ArrowRight size={16} />
               </a>
             </div>
           </motion.div>

@@ -50,18 +50,18 @@ const MonthView = ({ monthAnchorKey, appointments, onSelectDay }: MonthViewProps
 
   return (
     <div className="overflow-hidden rounded-2xl border border-(--border)">
-      <div className="grid grid-cols-7 border-b border-(--border) bg-(--cream)">
+      <div className="flex border-b border-(--border) bg-(--cream)">
         {WEEKDAY_LABELS.map((label) => (
           <div
             key={label}
-            className="p-2 text-center text-xs font-semibold uppercase tracking-wide text-stone-500"
+            className="w-[14.2857%] p-2 text-center text-xs font-semibold uppercase tracking-wide text-stone-500"
           >
             {label}
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-7">
+      <div className="flex flex-wrap">
         {cells.map((dateKey) => {
           const inMonth = fromDateKey(dateKey).getUTCMonth() === monthNumber;
           const dayAppointments = appointmentsByDate.get(dateKey) ?? [];
@@ -73,7 +73,7 @@ const MonthView = ({ monthAnchorKey, appointments, onSelectDay }: MonthViewProps
               key={dateKey}
               type="button"
               onClick={() => onSelectDay(dateKey)}
-              className={`min-h-28 border-b border-r border-(--border) p-2 text-left align-top last:border-r-0 ${
+              className={`min-h-28 w-[14.2857%] border-b border-r border-(--border) p-2 text-left align-top last:border-r-0 ${
                 inMonth ? "bg-white" : "bg-stone-50 text-stone-400"
               } ${dateKey === todayKey ? "ring-2 ring-inset ring-(--black)" : ""}`}
             >

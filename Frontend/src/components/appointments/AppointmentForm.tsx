@@ -349,8 +349,8 @@ const AppointmentForm = ({
 
         <ClientAutocomplete value={client} onChange={setClient} />
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <div>
+        <div className="flex flex-col gap-4 md:flex-row">
+          <div className="md:flex-1">
             <label className="mb-2 block text-sm font-medium">Date</label>
 
             <input
@@ -362,7 +362,7 @@ const AppointmentForm = ({
             />
           </div>
 
-          <div>
+          <div className="md:flex-1">
             <label className="mb-2 block text-sm font-medium">
               Heure début
             </label>
@@ -424,8 +424,8 @@ const AppointmentForm = ({
           </label>
 
           {isRecurring && (
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
-              <div>
+            <div className="mt-4 flex flex-wrap gap-4">
+              <div className="w-full md:w-[calc(50%-8px)]">
                 <label className="mb-2 block text-sm font-medium">
                   Fréquence
                 </label>
@@ -443,7 +443,7 @@ const AppointmentForm = ({
                 </select>
               </div>
 
-              <div>
+              <div className="w-full md:w-[calc(50%-8px)]">
                 <label className="mb-2 block text-sm font-medium">
                   Se termine
                 </label>
@@ -463,7 +463,7 @@ const AppointmentForm = ({
               </div>
 
               {recurrenceEndMode === "count" ? (
-                <div>
+                <div className="w-full md:w-[calc(50%-8px)]">
                   <label className="mb-2 block text-sm font-medium">
                     Nombre d'occurrences
                   </label>
@@ -480,7 +480,7 @@ const AppointmentForm = ({
                   />
                 </div>
               ) : (
-                <div>
+                <div className="w-full md:w-[calc(50%-8px)]">
                   <label className="mb-2 block text-sm font-medium">
                     Jusqu'au
                   </label>

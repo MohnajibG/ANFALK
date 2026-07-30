@@ -10,7 +10,7 @@ import Footer from "../components/home/Footer";
 
 const Home = () => {
   return (
-    <main className="flex lg:gap-5min-h-screen w-full flex-col overflow-x-hidden">
+    <main className="flex min-h-screen w-full flex-col overflow-x-hidden">
       <Header />
       <Hero />
       <About />

@@ -156,19 +156,31 @@ const Services = () => {
         </button>
       </section>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard icon={Scissors} title="Services" value={services.length} />
-        <StatCard icon={Layers} title="Catégories" value={categories.length} />
-        <StatCard
-          icon={HandCoins}
-          title="Valeur totale"
-          value={`${totalPrice} DA`}
-        />
-        <StatCard
-          icon={Clock}
-          title="Actifs"
-          value={services.filter((item) => item.isActive).length}
-        />
+      <div className="flex flex-wrap gap-4">
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard icon={Scissors} title="Services" value={services.length} />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={Layers}
+            title="Catégories"
+            value={categories.length}
+          />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={HandCoins}
+            title="Valeur totale"
+            value={`${totalPrice} DA`}
+          />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={Clock}
+            title="Actifs"
+            value={services.filter((item) => item.isActive).length}
+          />
+        </div>
       </div>
 
       <div className="flex flex-col gap-3 rounded-3xl border border-(--border) bg-white p-5 md:flex-row">

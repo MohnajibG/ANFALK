@@ -33,24 +33,24 @@ const PaymentBox = ({
           <strong>{total} DA</strong>
         </div>
 
-        <div className="mt-5 grid grid-cols-3 gap-2">
+        <div className="mt-5 flex gap-2">
           <button
             onClick={() => setPaymentMethod("cash")}
-            className={buttonClass(paymentMethod === "cash")}
+            className={`flex-1 ${buttonClass(paymentMethod === "cash")}`}
           >
             <Banknote size={18} className="mx-auto" />
           </button>
 
           <button
             onClick={() => setPaymentMethod("card")}
-            className={buttonClass(paymentMethod === "card")}
+            className={`flex-1 ${buttonClass(paymentMethod === "card")}`}
           >
             <CreditCard size={18} className="mx-auto" />
           </button>
 
           <button
             onClick={() => setPaymentMethod("transfer")}
-            className={buttonClass(paymentMethod === "transfer")}
+            className={`flex-1 ${buttonClass(paymentMethod === "transfer")}`}
           >
             <WalletCards size={18} className="mx-auto" />
           </button>

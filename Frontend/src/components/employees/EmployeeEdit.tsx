@@ -13,7 +13,7 @@ import type {
   EmployeeForm as EmployeeFormType,
 } from "../../types/employee";
 
-export default function EmployeeEdit() {
+const EmployeeEdit = () => {
   const { id } = useParams<{ id: string }>();
 
   const navigate = useNavigate();
@@ -157,4 +157,6 @@ export default function EmployeeEdit() {
       </section>
     </div>
   );
-}
+};
+
+export default EmployeeEdit;

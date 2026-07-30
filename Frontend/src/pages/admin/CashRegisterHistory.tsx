@@ -141,18 +141,24 @@ const CashRegisterHistory = () => {
         </button>
       </section>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <StatCard icon={Receipt} title="Sessions" value={history.length} />
-        <StatCard
-          icon={Euro}
-          title="Total encaissé"
-          value={`${totalRevenue} DA`}
-        />
-        <StatCard
-          icon={Unlock}
-          title="Caisses ouvertes"
-          value={history.filter((h) => h.status === "open").length}
-        />
+      <div className="flex flex-wrap gap-4">
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(33.333%-10.667px)]">
+          <StatCard icon={Receipt} title="Sessions" value={history.length} />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(33.333%-10.667px)]">
+          <StatCard
+            icon={Euro}
+            title="Total encaissé"
+            value={`${totalRevenue} DA`}
+          />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(33.333%-10.667px)]">
+          <StatCard
+            icon={Unlock}
+            title="Caisses ouvertes"
+            value={history.filter((h) => h.status === "open").length}
+          />
+        </div>
       </div>
 
       {error && (

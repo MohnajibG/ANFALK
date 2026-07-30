@@ -56,14 +56,14 @@ const ServiceTable = ({
 }: Props) => (
   <div className="overflow-hidden rounded-3xl border border-(--border) bg-white">
     <div className="hidden md:block">
-      <div className="grid grid-cols-7 border-b border-(--border) bg-(--surface) px-6 py-4 text-sm font-semibold text-(--muted)">
-        <span>Nom</span>
-        <span>Catégorie</span>
-        <span>Prix</span>
-        <span>Durée</span>
-        <span>Statut</span>
-        <span>Spécialité</span>
-        <span>Actions</span>
+      <div className="flex border-b border-(--border) bg-(--surface) px-6 py-4 text-sm font-semibold text-(--muted)">
+        <span className="min-w-0 flex-1">Nom</span>
+        <span className="min-w-0 flex-1">Catégorie</span>
+        <span className="min-w-0 flex-1">Prix</span>
+        <span className="min-w-0 flex-1">Durée</span>
+        <span className="min-w-0 flex-1">Statut</span>
+        <span className="min-w-0 flex-1">Spécialité</span>
+        <span className="min-w-0 flex-1">Actions</span>
       </div>
 
       <div className="divide-y divide-(--border)">
@@ -71,39 +71,43 @@ const ServiceTable = ({
           <motion.div
             key={service._id}
             whileHover={{ backgroundColor: "var(--surface)" }}
-            className="grid grid-cols-7 items-center px-6 py-5 text-sm"
+            className="flex items-center px-6 py-5 text-sm"
           >
-            <div>
+            <div className="min-w-0 flex-1">
               <p className="font-semibold text-(--black)">{service.name}</p>
               {service.description && (
                 <p className="text-xs text-(--muted)">{service.description}</p>
               )}
             </div>
-            <span>{service.category.name}</span>
-            <span className="flex items-center gap-1 font-semibold">
+            <span className="min-w-0 flex-1">{service.category.name}</span>
+            <span className="flex min-w-0 flex-1 items-center gap-1 font-semibold">
               <Euro size={14} />
               {service.price}
             </span>
-            <span className="flex items-center gap-1">
+            <span className="flex min-w-0 flex-1 items-center gap-1">
               <Clock size={14} />
               {service.duration} min
             </span>
-            <Badge variant={service.isActive ? "success" : "danger"}>
-              {service.isActive ? "Actif" : "Inactif"}
-            </Badge>
-            <span>
+            <div className="min-w-0 flex-1">
+              <Badge variant={service.isActive ? "success" : "danger"}>
+                {service.isActive ? "Actif" : "Inactif"}
+              </Badge>
+            </div>
+            <span className="min-w-0 flex-1">
               {service.speciality
                 ? SPECIALITY_LABELS[service.speciality]
                 : "Non définie"}
             </span>
-            <Actions
-              service={service}
-              onView={onView}
-              onEdit={onEdit}
-              onDelete={onDelete}
-              onToggle={onToggle}
-              services={services}
-            />
+            <div className="min-w-0 flex-1">
+              <Actions
+                service={service}
+                onView={onView}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onToggle={onToggle}
+                services={services}
+              />
+            </div>
           </motion.div>
         ))}
       </div>

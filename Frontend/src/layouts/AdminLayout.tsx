@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 
 import {
   CalendarDays,
@@ -9,11 +10,13 @@ import {
   Layers,
   ListTodo,
   LogOut,
+  MoreHorizontal,
   Receipt,
   Scissors,
   UserCog,
   Users,
   Wallet,
+  X,
 } from "lucide-react";
 
 const links = [
@@ -32,6 +35,7 @@ const AdminLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
+  const [showMore, setShowMore] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
@@ -68,7 +72,7 @@ const AdminLayout = () => {
 
       {/* MOBILE NAV */}
       <nav className="fixed bottom-0 left-0 z-50 flex h-20 w-full items-center justify-around border-t border-(--border) bg-white md:hidden">
-        {links.slice(0, 5).map(({ path, icon: Icon }) => (
+        {links.slice(0, 4).map(({ path, icon: Icon }) => (
           <button
             key={path}
             onClick={() => navigate(path)}
@@ -79,12 +83,86 @@ const AdminLayout = () => {
             <Icon size={20} />
           </button>
         ))}
+
+        <button
+          onClick={() => setShowMore(true)}
+          className={`flex h-11 w-11 items-center justify-center rounded-xl transition ${
+            links.slice(4).some(({ path }) => active(path))
+              ? "bg-(--black) text-(--cream)"
+              : "text-(--brown)"
+          }`}
+        >
+          <MoreHorizontal size={20} />
+        </button>
       </nav>
+
+      {/* MOBILE "PLUS" SHEET */}
+      <AnimatePresence>
+        {showMore && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowMore(false)}
+              className="fixed inset-0 z-50 bg-black/40 md:hidden"
+            />
+
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ duration: 0.25 }}
+              className="fixed inset-x-0 bottom-0 z-50 flex max-h-[75vh] flex-col rounded-t-3xl bg-white p-4 md:hidden"
+            >
+              <div className="mb-2 flex items-center justify-between px-2">
+                <h2 className="font-title text-lg font-bold text-(--black)">
+                  Menu
+                </h2>
+                <button
+                  onClick={() => setShowMore(false)}
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-(--cream)"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="flex flex-col gap-1 overflow-y-auto">
+                {links.map(({ path, icon: Icon, label }) => (
+                  <button
+                    key={path}
+                    onClick={() => {
+                      navigate(path);
+                      setShowMore(false);
+                    }}
+                    className={`flex items-center gap-4 rounded-xl px-4 py-3 text-sm font-medium transition ${
+                      active(path)
+                        ? "bg-(--black) text-(--cream)"
+                        : "text-(--muted) hover:bg-(--cream)"
+                    }`}
+                  >
+                    <Icon size={20} />
+                    {label}
+                  </button>
+                ))}
+
+                <button
+                  onClick={logout}
+                  className="mt-2 flex items-center gap-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-600"
+                >
+                  <LogOut size={20} />
+                  Déconnexion
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* TABLET SIDEBAR */}
       <aside className="fixed left-0 top-0 hidden h-screen w-20 flex-col items-center border-r border-(--border) bg-white py-6 md:flex lg:hidden">
         <h1 className="mb-8 font-title text-xl">AK</h1>
-        <nav className="flex flex-1 flex-col gap-3">
+        <nav className="flex flex-1 flex-col gap-3 overflow-y-auto">
           {links.map(({ path, icon: Icon, label }) => (
             <button
               key={path}

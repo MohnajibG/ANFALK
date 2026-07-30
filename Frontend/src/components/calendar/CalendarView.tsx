@@ -154,7 +154,7 @@ const CalendarView = ({ canEdit, onCreateRequest }: CalendarViewProps) => {
   return (
     <div className="rounded-3xl border border-(--border) bg-white p-5">
       <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => navigate(-1)}
@@ -182,11 +182,11 @@ const CalendarView = ({ canEdit, onCreateRequest }: CalendarViewProps) => {
           <span className="ml-2 text-sm font-semibold capitalize">{title}</span>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <select
             value={employeeFilter}
             onChange={(event) => setEmployeeFilter(event.target.value)}
-            className="h-10 rounded-xl border border-(--border) px-3 text-sm"
+            className="h-10 w-full rounded-xl border border-(--border) px-3 text-sm sm:w-auto"
           >
             <option value="">Tous les employés</option>
             {employees.map((employee) => (

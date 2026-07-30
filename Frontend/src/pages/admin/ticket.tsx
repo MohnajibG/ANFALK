@@ -110,31 +110,39 @@ const Tickets = () => {
         icon={<Receipt size={24} />}
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          icon={Receipt}
-          title="Tickets"
-          value={tickets.length}
-          accent="black"
-        />
-        <StatCard
-          icon={Euro}
-          title="Chiffre d'affaires"
-          value={`${totalRevenue.toLocaleString("fr-FR")} DA`}
-          accent="gold"
-        />
-        <StatCard
-          icon={Users}
-          title="Clients"
-          value={totalClients}
-          accent="info"
-        />
-        <StatCard
-          icon={CreditCard}
-          title="Payés"
-          value={tickets.filter((t) => t.status === "paid").length}
-          accent="success"
-        />
+      <div className="flex flex-wrap gap-4">
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={Receipt}
+            title="Tickets"
+            value={tickets.length}
+            accent="black"
+          />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={Euro}
+            title="Chiffre d'affaires"
+            value={`${totalRevenue.toLocaleString("fr-FR")} DA`}
+            accent="gold"
+          />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={Users}
+            title="Clients"
+            value={totalClients}
+            accent="info"
+          />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={CreditCard}
+            title="Payés"
+            value={tickets.filter((t) => t.status === "paid").length}
+            accent="success"
+          />
+        </div>
       </div>
 
       <SearchBar

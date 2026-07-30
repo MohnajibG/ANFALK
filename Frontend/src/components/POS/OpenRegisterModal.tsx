@@ -18,8 +18,8 @@ const OpenRegisterModal = ({ onOpen, loading, error }: Props) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
+    <div className="flex min-h-100 w-full items-center justify-center p-4">
+      <div className="w-full max-w-md rounded-3xl border border-(--border) bg-white p-8 shadow-(--shadow-md)">
         <div className="flex flex-col items-center text-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-(--black) text-(--champagne)">
             <Lock size={28} />

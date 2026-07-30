@@ -234,15 +234,15 @@ const EmployeeScheduleModal = ({
                 )}
               </div>
 
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="mt-4 flex flex-wrap gap-3">
                 <input
                   type="date"
                   value={exceptionDate}
                   onChange={(event) => setExceptionDate(event.target.value)}
-                  className="h-10 rounded-xl border border-(--border) px-3"
+                  className="h-10 w-full rounded-xl border border-(--border) px-3 sm:w-[calc(50%-6px)]"
                 />
 
-                <label className="flex items-center gap-2 text-sm">
+                <label className="flex w-full items-center gap-2 text-sm sm:w-[calc(50%-6px)]">
                   <input
                     type="checkbox"
                     checked={exceptionIsOff}
@@ -261,14 +261,14 @@ const EmployeeScheduleModal = ({
                       onChange={(event) =>
                         setExceptionStart(event.target.value)
                       }
-                      className="h-10 rounded-xl border border-(--border) px-3"
+                      className="h-10 w-full rounded-xl border border-(--border) px-3 sm:w-[calc(50%-6px)]"
                       placeholder="Début"
                     />
                     <input
                       type="time"
                       value={exceptionEnd}
                       onChange={(event) => setExceptionEnd(event.target.value)}
-                      className="h-10 rounded-xl border border-(--border) px-3"
+                      className="h-10 w-full rounded-xl border border-(--border) px-3 sm:w-[calc(50%-6px)]"
                       placeholder="Fin"
                     />
                   </>
@@ -278,7 +278,7 @@ const EmployeeScheduleModal = ({
                   value={exceptionReason}
                   onChange={(event) => setExceptionReason(event.target.value)}
                   placeholder="Motif (optionnel)"
-                  className="h-10 rounded-xl border border-(--border) px-3 sm:col-span-2"
+                  className="h-10 w-full rounded-xl border border-(--border) px-3"
                 />
               </div>
 

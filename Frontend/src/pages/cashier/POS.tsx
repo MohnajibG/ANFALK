@@ -88,8 +88,8 @@ const POS = () => {
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-5 lg:col-span-2">
+      <div className="flex flex-col gap-6 lg:flex-row">
+        <div className="flex flex-col gap-5 lg:w-[calc(66.667%-8px)]">
           <ClientSelector
             selectedClient={pos.selectedClient}
             search={pos.searchClient}
@@ -112,7 +112,7 @@ const POS = () => {
           <TodayAppointments onSelect={pos.selectAppointment} />
         </div>
 
-        <div>
+        <div className="lg:w-[calc(33.333%-16px)]">
           <TicketCart
             cart={pos.cart}
             employees={pos.employees}

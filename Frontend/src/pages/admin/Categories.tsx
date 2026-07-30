@@ -75,19 +75,23 @@ const Categories = () => {
         }
       />
 
-      <section className="grid gap-4 sm:grid-cols-2">
-        <StatCard
-          icon={Layers}
-          title="Total catégories"
-          value={categories.length}
-          accent="black"
-        />
-        <StatCard
-          icon={Layers}
-          title="Catégories actives"
-          value={activeCount}
-          accent="success"
-        />
+      <section className="flex flex-wrap gap-4">
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)]">
+          <StatCard
+            icon={Layers}
+            title="Total catégories"
+            value={categories.length}
+            accent="black"
+          />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)]">
+          <StatCard
+            icon={Layers}
+            title="Catégories actives"
+            value={activeCount}
+            accent="success"
+          />
+        </div>
       </section>
 
       <section className="rounded-3xl border border-(--border) bg-white p-6">
@@ -100,12 +104,12 @@ const Categories = () => {
             description="Créez votre première catégorie de services."
           />
         ) : (
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="flex flex-wrap gap-5">
             {categories.map((category) => (
               <motion.article
                 key={category._id}
                 whileHover={{ y: -4 }}
-                className="rounded-2xl border border-(--border) p-5 transition hover:shadow-(--shadow-sm)"
+                className="w-full rounded-2xl border border-(--border) p-5 transition hover:shadow-(--shadow-sm) md:w-[calc(50%-10px)] xl:w-[calc(33.333%-13.333px)]"
               >
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-(--black)">

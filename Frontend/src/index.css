@@ -105,6 +105,10 @@ html {
   scroll-behavior: smooth;
 }
 
+section[id] {
+  scroll-margin-top: 6rem;
+}
+
 body,
 #root {
   width: 100%;

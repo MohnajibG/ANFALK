@@ -52,20 +52,28 @@ const MyStatistics = () => {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard title="Chiffre d'affaires" value="0 €" icon={HandCoins} />
+      <div className="flex flex-wrap gap-4">
+        <div className="w-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <KpiCard title="Chiffre d'affaires" value="0 €" icon={HandCoins} />
+        </div>
 
-        <KpiCard title="Prestations réalisées" value="0" icon={Scissors} />
+        <div className="w-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <KpiCard title="Prestations réalisées" value="0" icon={Scissors} />
+        </div>
 
-        <KpiCard title="Clients reçus" value="0" icon={Users} />
+        <div className="w-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <KpiCard title="Clients reçus" value="0" icon={Users} />
+        </div>
 
-        <KpiCard title="Panier moyen" value="0 €" icon={TrendingUp} />
+        <div className="w-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <KpiCard title="Panier moyen" value="0 €" icon={TrendingUp} />
+        </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="flex flex-wrap gap-4">
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm) lg:col-span-2"
+          className="w-full rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm) lg:w-[calc(66.667%-8px)]"
         >
           <h2 className="mb-5 font-semibold">
             Évolution du chiffre d'affaires
@@ -90,7 +98,7 @@ const MyStatistics = () => {
 
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm)"
+          className="w-full rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm) lg:w-[calc(33.333%-16px)]"
         >
           <h2 className="mb-5 font-semibold">Résumé mensuel</h2>
 
@@ -109,7 +117,7 @@ const MyStatistics = () => {
           </div>
         </motion.div>
 
-        <motion.div className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm) lg:col-span-3">
+        <motion.div className="w-full rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm)">
           <h2 className="mb-5 font-semibold">Prestations réalisées</h2>
 
           <div className="rounded-2xl bg-(--surface) p-5 text-sm text-(--muted)">

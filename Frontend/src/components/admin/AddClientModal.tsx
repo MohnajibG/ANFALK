@@ -91,14 +91,14 @@ const AddClientModal = ({ open, onClose, onSuccess }: Props) => {
         </div>
 
         <form onSubmit={submit} className="flex flex-col gap-4">
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-4 sm:flex-row">
             <input
               name="firstName"
               value={form.firstName}
               onChange={handleChange}
               placeholder="Prénom"
               required
-              className="h-11 rounded-2xl border border-(--border) bg-(--cream) px-4 outline-none focus:ring-2 focus:ring-(--brown)/20"
+              className="h-11 rounded-2xl border border-(--border) bg-(--cream) px-4 outline-none focus:ring-2 focus:ring-(--brown)/20 sm:flex-1"
             />
 
             <input
@@ -107,7 +107,7 @@ const AddClientModal = ({ open, onClose, onSuccess }: Props) => {
               onChange={handleChange}
               placeholder="Nom"
               required
-              className="h-11 rounded-2xl border border-(--border) bg-(--cream) px-4 outline-none focus:ring-2 focus:ring-(--brown)/20"
+              className="h-11 rounded-2xl border border-(--border) bg-(--cream) px-4 outline-none focus:ring-2 focus:ring-(--brown)/20 sm:flex-1"
             />
           </div>
 

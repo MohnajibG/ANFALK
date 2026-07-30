@@ -60,26 +60,26 @@ const CloseRegisterModal = ({
           </button>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-3 rounded-2xl bg-(--surface) p-4 text-sm">
-          <div>
+        <div className="mt-6 flex flex-wrap gap-3 rounded-2xl bg-(--surface) p-4 text-sm">
+          <div className="w-[calc(50%-6px)]">
             <p className="text-(--muted)">Fond de départ</p>
             <p className="font-semibold">{register.openingAmount} DA</p>
           </div>
-          <div>
+          <div className="w-[calc(50%-6px)]">
             <p className="text-(--muted)">Tickets encaissés</p>
             <p className="font-semibold">{register.totals.ticketsCount}</p>
           </div>
-          <div>
+          <div className="w-[calc(50%-6px)]">
             <p className="text-(--muted)">Espèces encaissées</p>
             <p className="font-semibold">{register.totals.cash} DA</p>
           </div>
-          <div>
+          <div className="w-[calc(50%-6px)]">
             <p className="text-(--muted)">Carte / Virement</p>
             <p className="font-semibold">
               {register.totals.card + register.totals.transfer} DA
             </p>
           </div>
-          <div className="col-span-2 border-t border-(--border) pt-3">
+          <div className="w-full border-t border-(--border) pt-3">
             <p className="text-(--muted)">
               Montant attendu en caisse (espèces)
             </p>

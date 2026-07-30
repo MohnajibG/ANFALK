@@ -84,19 +84,25 @@ const Profile = () => {
 
       {/* QUICK STATS */}
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <StatCard title="Prestations réalisées" value="-" />
+      <div className="flex flex-wrap gap-4">
+        <div className="w-full md:w-[calc(33.333%-10.667px)]">
+          <StatCard title="Prestations réalisées" value="-" />
+        </div>
 
-        <StatCard title="Chiffre du mois" value="-" />
+        <div className="w-full md:w-[calc(33.333%-10.667px)]">
+          <StatCard title="Chiffre du mois" value="-" />
+        </div>
 
-        <StatCard title="Clients reçus" value="-" />
+        <div className="w-full md:w-[calc(33.333%-10.667px)]">
+          <StatCard title="Clients reçus" value="-" />
+        </div>
       </div>
 
       {/* INFORMATIONS */}
 
-      <div className="grid gap-5 lg:grid-cols-2">
+      <div className="flex flex-col gap-5 lg:flex-row">
         <motion.div
-          className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm)"
+          className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm) lg:flex-1"
           whileHover={{
             scale: 1.01,
           }}
@@ -129,7 +135,7 @@ const Profile = () => {
         </motion.div>
 
         <motion.div
-          className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm)"
+          className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm) lg:flex-1"
           whileHover={{
             scale: 1.01,
           }}

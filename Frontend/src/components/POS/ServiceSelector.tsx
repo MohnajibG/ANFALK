@@ -29,12 +29,12 @@ const ServiceSelector = ({
         />
       </div>
 
-      <div className="mt-5 grid gap-4 md:grid-cols-2">
+      <div className="mt-5 flex flex-wrap gap-4">
         {services.map((service) => (
           <motion.div
             key={service._id}
             whileHover={{ y: -4 }}
-            className="rounded-2xl border border-(--border) p-5"
+            className="w-full rounded-2xl border border-(--border) p-5 md:w-[calc(50%-8px)]"
           >
             <div className="flex justify-between">
               <div>

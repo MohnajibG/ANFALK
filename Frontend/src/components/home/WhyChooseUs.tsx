@@ -24,66 +24,65 @@ const reasons = [
   },
 ];
 
-const WhyChooseUs = () => {
-  return (
-    <section className="relative w-full overflow-hidden bg-[#fff4d6] px-6 py-24 sm:px-10 lg:px-20">
-      <div className="mx-auto max-w-7xl">
-        <div className="grid items-center gap-14 lg:grid-cols-2">
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-          >
-            <p className="text-xs font-semibold uppercase tracking-[0.4em] text-[#b89b6a]">
-              Pourquoi nous choisir
-            </p>
+const WhyChooseUs = () => (
+  <section className="relative w-full overflow-hidden bg-(--white) px-6 py-24 sm:px-10 lg:px-20">
+    <div className="mx-auto max-w-7xl">
+      <div className="flex flex-col items-center gap-14 lg:flex-row">
+        <motion.div
+          initial={{ opacity: 0, x: -40 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          className="w-full lg:flex-1"
+        >
+          <p className="text-xs font-semibold uppercase tracking-[0.4em] text-(--brown)">
+            Pourquoi nous choisir
+          </p>
 
-            <h2 className="mt-5 font-[Cinzel] text-3xl font-bold leading-tight text-[#0b0b0b] sm:text-5xl">
-              Une expérience beauté pensée dans les moindres détails
-            </h2>
+          <h2 className="mt-5 font-title text-3xl font-bold leading-tight text-(--black) sm:text-5xl">
+            Une expérience beauté pensée dans les moindres détails
+          </h2>
 
-            <p className="mt-6 max-w-xl text-sm leading-7 text-black/60 sm:text-base">
-              Chez ANFEL K Institute, chaque détail compte. Notre objectif est
-              de créer une expérience unique, élégante et personnalisée pour
-              chaque cliente.
-            </p>
+          <p className="mt-6 max-w-xl text-sm leading-7 text-(--muted) sm:text-base">
+            Chez ANFEL K Institute, chaque détail compte. Notre objectif est
+            de créer une expérience unique, élégante et personnalisée pour
+            chaque cliente.
+          </p>
 
-            <div className="mt-8 h-px w-24 bg-[#d8c39d]" />
-          </motion.div>
+          <div className="mt-8 h-px w-24 bg-(--champagne)" />
+        </motion.div>
 
-          <div className="grid gap-6 sm:grid-cols-2">
-            {reasons.map((reason, index) => {
-              const Icon = reason.icon;
+        <div className="flex w-full flex-wrap gap-6 lg:flex-1">
+          {reasons.map((reason, index) => {
+            const Icon = reason.icon;
 
-              return (
-                <motion.div
-                  key={reason.title}
-                  initial={{ opacity: 0, y: 40 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.15 }}
-                  whileHover={{ y: -8 }}
-                  className="rounded-3xl border border-black/10 bg-white/70 p-7 shadow-[0_20px_50px_rgba(0,0,0,0.08)] backdrop-blur-md"
-                >
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[#d8c39d] bg-[#fff4d6] text-[#b89b6a]">
-                    <Icon size={26} strokeWidth={1.5} />
-                  </div>
+            return (
+              <motion.div
+                key={reason.title}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.15 }}
+                whileHover={{ y: -8 }}
+                className="w-full rounded-3xl border border-(--border) bg-(--surface) p-7 shadow-(--shadow-sm) sm:w-[calc(50%-12px)]"
+              >
+                <div className="flex h-14 w-14 items-center justify-center rounded-full border border-(--champagne) bg-(--white) text-(--brown)">
+                  <Icon size={26} strokeWidth={1.5} />
+                </div>
 
-                  <h3 className="mt-6 font-[Cinzel] text-xl font-bold text-[#0b0b0b]">
-                    {reason.title}
-                  </h3>
+                <h3 className="mt-6 font-title text-xl font-bold text-(--black)">
+                  {reason.title}
+                </h3>
 
-                  <p className="mt-3 text-sm leading-6 text-black/60">
-                    {reason.text}
-                  </p>
-                </motion.div>
-              );
-            })}
-          </div>
+                <p className="mt-3 text-sm leading-6 text-(--muted)">
+                  {reason.text}
+                </p>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
-    </section>
-  );
-};
+    </div>
+  </section>
+);
 
 export default WhyChooseUs;

@@ -64,7 +64,7 @@ const Services = () => {
           Aucune prestation disponible
         </div>
       ) : (
-        <div className="grid gap-5">
+        <div className="flex flex-col gap-5">
           {services.map((service) => (
             <motion.div
               key={service._id}
@@ -84,19 +84,19 @@ const Services = () => {
                   </div>
                 </div>
 
-                <div className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
-                  <div className="flex items-center gap-2">
+                <div className="flex flex-wrap gap-3 text-sm">
+                  <div className="flex w-full items-center gap-2 sm:w-[calc(50%-6px)] lg:w-[calc(25%-9px)]">
                     <User size={16} />
                     {service.client}
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex w-full items-center gap-2 sm:w-[calc(50%-6px)] lg:w-[calc(25%-9px)]">
                     <CalendarDays size={16} />
 
                     {new Date(service.date).toLocaleDateString("fr-FR")}
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex w-full items-center gap-2 sm:w-[calc(50%-6px)] lg:w-[calc(25%-9px)]">
                     <HandCoins size={16} />
 
                     <span className="font-semibold">
@@ -104,7 +104,7 @@ const Services = () => {
                     </span>
                   </div>
 
-                  <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                  <span className="w-full rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700 sm:w-[calc(50%-6px)] lg:w-[calc(25%-9px)]">
                     {service.status}
                   </span>
                 </div>

@@ -165,8 +165,8 @@ const AppointmentDetailPanel = ({
           ))}
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <div>
+        <div className="flex flex-col gap-4 md:flex-row">
+          <div className="md:flex-1">
             <label className="mb-2 block text-sm font-medium">Date</label>
             <input
               type="date"
@@ -177,7 +177,7 @@ const AppointmentDetailPanel = ({
             />
           </div>
 
-          <div>
+          <div className="md:flex-1">
             <label className="mb-2 block text-sm font-medium">Heure</label>
             <input
               type="time"

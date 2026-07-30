@@ -8,25 +8,31 @@ const EmployeeStats = ({ employees }: { employees: Employee[] }) => {
   const cashiers = employees.filter((e) => e.role === "cashier").length;
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <StatCard
-        icon={Users}
-        title="Total employés"
-        value={total}
-        accent="black"
-      />
-      <StatCard
-        icon={UserCheck}
-        title="Employés actifs"
-        value={active}
-        accent="success"
-      />
-      <StatCard
-        icon={WalletCards}
-        title="Caissiers"
-        value={cashiers}
-        accent="gold"
-      />
+    <div className="flex flex-wrap gap-4">
+      <div className="w-full *:h-full sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-10.667px)]">
+        <StatCard
+          icon={Users}
+          title="Total employés"
+          value={total}
+          accent="black"
+        />
+      </div>
+      <div className="w-full *:h-full sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-10.667px)]">
+        <StatCard
+          icon={UserCheck}
+          title="Employés actifs"
+          value={active}
+          accent="success"
+        />
+      </div>
+      <div className="w-full *:h-full sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-10.667px)]">
+        <StatCard
+          icon={WalletCards}
+          title="Caissiers"
+          value={cashiers}
+          accent="gold"
+        />
+      </div>
     </div>
   );
 };

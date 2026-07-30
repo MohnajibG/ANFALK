@@ -54,6 +54,8 @@ const TimeGrid = ({
   }, [startHour, endHour]);
 
   const columnWidthPercent = 100 / Math.max(columns.length, 1);
+  const minColumnWidth = 120;
+  const contentMinWidth = columns.length * minColumnWidth;
 
   const positionedByColumn = useMemo(() => {
     const map = new Map<string, ReturnType<typeof assignLanes>>();
@@ -132,79 +134,84 @@ const TimeGrid = ({
       </div>
 
       <div className="flex-1 overflow-x-auto">
-        <div className="flex border-b border-(--border) pb-2">
-          {columns.map((column) => (
-            <div
-              key={column.key}
-              style={{ width: `${columnWidthPercent}%` }}
-              className="px-2 text-center text-sm font-semibold"
-            >
-              {column.label}
-            </div>
-          ))}
-        </div>
+        <div style={{ minWidth: contentMinWidth }}>
+          <div className="flex border-b border-(--border) pb-2">
+            {columns.map((column) => (
+              <div
+                key={column.key}
+                style={{ width: `${columnWidthPercent}%` }}
+                className="truncate px-2 text-center text-sm font-semibold"
+              >
+                {column.label}
+              </div>
+            ))}
+          </div>
 
-        <div
-          ref={bodyRef}
-          onClick={handleBackgroundClick}
-          className={`relative border-t border-(--border) ${
-            onSelectEmptySlot && !readOnly ? "cursor-cell" : ""
-          }`}
-          style={{ height: gridHeight }}
-        >
-          {hours.map((hour, index) => (
-            <div
-              key={hour}
-              className="pointer-events-none absolute left-0 w-full border-t border-(--border)/50"
-              style={{ top: index * 60 * pxPerMinute }}
-            />
-          ))}
+          <div
+            ref={bodyRef}
+            onClick={handleBackgroundClick}
+            className={`relative border-t border-(--border) ${
+              onSelectEmptySlot && !readOnly ? "cursor-cell" : ""
+            }`}
+            style={{ height: gridHeight }}
+          >
+            {hours.map((hour, index) => (
+              <div
+                key={hour}
+                className="pointer-events-none absolute left-0 w-full border-t border-(--border)/50"
+                style={{ top: index * 60 * pxPerMinute }}
+              />
+            ))}
 
-          {columns.map((column, columnIndex) => (
-            <div
-              key={column.key}
-              className="pointer-events-none absolute top-0 h-full border-r border-(--border)/40"
-              style={{
-                left: `${columnIndex * columnWidthPercent}%`,
-                width: `${columnWidthPercent}%`,
-              }}
-            />
-          ))}
+            {columns.map((column, columnIndex) => (
+              <div
+                key={column.key}
+                className="pointer-events-none absolute top-0 h-full border-r border-(--border)/40"
+                style={{
+                  left: `${columnIndex * columnWidthPercent}%`,
+                  width: `${columnWidthPercent}%`,
+                }}
+              />
+            ))}
 
-          {columns.flatMap((column, columnIndex) => {
-            const items = positionedByColumn.get(column.key) ?? [];
+            {columns.flatMap((column, columnIndex) => {
+              const items = positionedByColumn.get(column.key) ?? [];
 
-            return items.map(({ appointment, lane, laneCount }) => {
-              const top =
-                (timeToMinutes(appointment.startTime) - startHour * 60) *
-                pxPerMinute;
-              const height = Math.max(
-                appointment.totalDuration * pxPerMinute,
-                18,
-              );
+              return items.map(({ appointment, lane, laneCount }) => {
+                const top =
+                  (timeToMinutes(appointment.startTime) - startHour * 60) *
+                  pxPerMinute;
+                const height = Math.max(
+                  appointment.totalDuration * pxPerMinute,
+                  18,
+                );
 
-              const laneWidth = columnWidthPercent / laneCount;
-              const left = columnIndex * columnWidthPercent + lane * laneWidth;
+                const laneWidth = columnWidthPercent / laneCount;
+                const left =
+                  columnIndex * columnWidthPercent + lane * laneWidth;
 
-              return (
-                <AppointmentBlock
-                  key={appointment._id}
-                  appointment={appointment}
-                  readOnly={readOnly}
-                  dragConstraintsRef={bodyRef}
-                  onClick={() => onSelectAppointment?.(appointment)}
-                  onDragEnd={(_event, info) => handleDragEnd(appointment, info)}
-                  style={{
-                    position: "absolute",
-                    top,
-                    height,
-                    left: `${left}%`,
-                    width: `${laneWidth}%`,
-                  }}
-                />
-              );
-            });
-          })}
+                return (
+                  <AppointmentBlock
+                    key={appointment._id}
+                    appointment={appointment}
+                    readOnly={readOnly}
+                    dragConstraintsRef={bodyRef}
+                    onClick={() => onSelectAppointment?.(appointment)}
+                    onDragEnd={(_event, info) =>
+                      handleDragEnd(appointment, info)
+                    }
+                    style={{
+                      position: "absolute",
+                      top,
+                      height,
+                      left: `${left}%`,
+                      width: `${laneWidth}%`,
+                    }}
+                  />
+                );
+              });
+            })}
+          </div>
         </div>
       </div>
     </div>

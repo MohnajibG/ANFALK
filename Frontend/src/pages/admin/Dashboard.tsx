@@ -127,70 +127,86 @@ const Dashboard = () => {
         }
       />
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          icon={Euro}
-          title="Chiffre d'affaires"
-          value={`${data.sales.current.revenue.toLocaleString("fr-FR")} DA`}
-          trend={{ value: Math.round(data.sales.change.revenue) }}
-          accent="black"
-        />
-        <StatCard
-          icon={Receipt}
-          title="Tickets"
-          value={data.sales.current.tickets}
-          trend={{ value: Math.round(data.sales.change.tickets) }}
-          accent="gold"
-        />
-        <StatCard
-          icon={ShoppingBag}
-          title="Panier moyen"
-          value={`${Math.round(data.averageBasket).toLocaleString("fr-FR")} DA`}
-          accent="info"
-        />
-        <StatCard
-          icon={Users}
-          title="Clients"
-          value={data.clients.total}
-          footer={`${data.clients.new} nouvelles • ${data.clients.returning} fidèles`}
-          accent="success"
-        />
+      <section className="flex flex-wrap gap-4">
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={Euro}
+            title="Chiffre d'affaires"
+            value={`${data.sales.current.revenue.toLocaleString("fr-FR")} DA`}
+            trend={{ value: Math.round(data.sales.change.revenue) }}
+            accent="black"
+          />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={Receipt}
+            title="Tickets"
+            value={data.sales.current.tickets}
+            trend={{ value: Math.round(data.sales.change.tickets) }}
+            accent="gold"
+          />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={ShoppingBag}
+            title="Panier moyen"
+            value={`${Math.round(data.averageBasket).toLocaleString("fr-FR")} DA`}
+            accent="info"
+          />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={Users}
+            title="Clients"
+            value={data.clients.total}
+            footer={`${data.clients.new} nouvelles • ${data.clients.returning} fidèles`}
+            accent="success"
+          />
+        </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          icon={UserCog}
-          title="Employés"
-          value={data.employees.total}
-          accent="gold"
-        />
-        <StatCard
-          icon={CalendarCheck}
-          title="Taux de conversion RDV"
-          value={`${Math.round(data.appointments.conversionRate)}%`}
-          footer={`${data.appointments.completed}/${data.appointments.total} terminés`}
-          accent="success"
-        />
-        <StatCard
-          icon={XCircle}
-          title="No-show"
-          value={`${Math.round(data.appointments.noShowRate)}%`}
-          footer={`${data.appointments.noShow} absences`}
-          accent="danger"
-        />
-        <StatCard
-          icon={TrendingDown}
-          title="Annulations"
-          value={`${Math.round(data.cancellation.rate)}%`}
-          footer={`${data.cancellation.cancelledValue.toLocaleString("fr-FR")} DA perdus`}
-          accent="danger"
-        />
+      <section className="flex flex-wrap gap-4">
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={UserCog}
+            title="Employés"
+            value={data.employees.total}
+            accent="gold"
+          />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={CalendarCheck}
+            title="Taux de conversion RDV"
+            value={`${Math.round(data.appointments.conversionRate)}%`}
+            footer={`${data.appointments.completed}/${data.appointments.total} terminés`}
+            accent="success"
+          />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={XCircle}
+            title="No-show"
+            value={`${Math.round(data.appointments.noShowRate)}%`}
+            footer={`${data.appointments.noShow} absences`}
+            accent="danger"
+          />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={TrendingDown}
+            title="Annulations"
+            value={`${Math.round(data.cancellation.rate)}%`}
+            footer={`${data.cancellation.cancelledValue.toLocaleString("fr-FR")} DA perdus`}
+            accent="danger"
+          />
+        </div>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-3">
+      <section className="flex flex-wrap gap-6">
         <motion.div
           whileHover={{ scale: 1.005 }}
-          className="rounded-3xl border border-(--border) bg-white p-6 lg:col-span-2"
+          className="w-full rounded-3xl border border-(--border) bg-white p-6 lg:w-[calc(66.667%-8px)]"
         >
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-(--black)">
@@ -230,7 +246,7 @@ const Dashboard = () => {
 
         <motion.div
           whileHover={{ scale: 1.005 }}
-          className="rounded-3xl border border-(--border) bg-white p-6"
+          className="w-full rounded-3xl border border-(--border) bg-white p-6 lg:w-[calc(33.333%-16px)]"
         >
           <div className="mb-5 flex items-center gap-2">
             <Wallet size={20} className="text-(--brown)" />
@@ -265,7 +281,7 @@ const Dashboard = () => {
 
         <motion.div
           whileHover={{ scale: 1.005 }}
-          className="rounded-3xl border border-(--border) bg-white p-6"
+          className="w-full rounded-3xl border border-(--border) bg-white p-6 lg:w-[calc(33.333%-16px)]"
         >
           <div className="mb-5 flex items-center gap-2">
             <ShoppingBag size={20} className="text-(--brown)" />
@@ -313,7 +329,7 @@ const Dashboard = () => {
 
         <motion.div
           whileHover={{ scale: 1.005 }}
-          className="rounded-3xl border border-(--border) bg-white p-6"
+          className="w-full rounded-3xl border border-(--border) bg-white p-6 lg:w-[calc(33.333%-16px)]"
         >
           <div className="mb-5 flex items-center gap-2">
             <Receipt size={20} className="text-(--brown)" />
@@ -351,23 +367,23 @@ const Dashboard = () => {
 
         <motion.div
           whileHover={{ scale: 1.005 }}
-          className="rounded-3xl border border-(--border) bg-white p-6 lg:col-span-3"
+          className="w-full rounded-3xl border border-(--border) bg-white p-6"
         >
           <h2 className="mb-5 font-semibold text-(--black)">
             Performance employés & caissiers
           </h2>
 
-          <div className="grid gap-6 lg:grid-cols-2">
-            <div>
+          <div className="flex flex-col gap-6 lg:flex-row">
+            <div className="w-full lg:flex-1">
               <p className="mb-3 text-xs uppercase tracking-[0.3em] text-(--muted)">
                 Employés
               </p>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="flex flex-wrap gap-4">
                 {data.topEmployees.length ? (
                   data.topEmployees.map((employee, index) => (
                     <div
                       key={employee.employeeId}
-                      className="rounded-2xl bg-(--surface) p-5"
+                      className="w-full rounded-2xl bg-(--surface) p-5 sm:w-[calc(50%-8px)]"
                     >
                       <div className="flex items-center justify-between">
                         <p className="font-semibold text-(--black)">
@@ -407,16 +423,16 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div>
+            <div className="w-full lg:flex-1">
               <p className="mb-3 text-xs uppercase tracking-[0.3em] text-(--muted)">
                 Caissiers
               </p>
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="flex flex-wrap gap-4">
                 {data.topCashiers.length ? (
                   data.topCashiers.map((cashier, index) => (
                     <div
                       key={cashier.userId}
-                      className="rounded-2xl bg-(--surface) p-5"
+                      className="w-full rounded-2xl bg-(--surface) p-5 sm:w-[calc(50%-8px)]"
                     >
                       <div className="flex items-center justify-between">
                         <p className="font-semibold text-(--black)">

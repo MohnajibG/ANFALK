@@ -78,25 +78,31 @@ const Clients = () => {
         }
       />
 
-      <section className="grid gap-4 sm:grid-cols-3">
-        <StatCard
-          icon={Users}
-          title="Total clientes"
-          value={clients.length}
-          accent="black"
-        />
-        <StatCard
-          icon={Wallet}
-          title="Chiffre cumulé"
-          value={`${totalSpent.toLocaleString("fr-FR")} DA`}
-          accent="gold"
-        />
-        <StatCard
-          icon={CalendarDays}
-          title="Panier moyen"
-          value={`${avgSpent.toLocaleString("fr-FR")} DA`}
-          accent="info"
-        />
+      <section className="flex flex-wrap gap-4">
+        <div className="w-full *:h-full sm:w-[calc(33.333%-10.667px)]">
+          <StatCard
+            icon={Users}
+            title="Total clientes"
+            value={clients.length}
+            accent="black"
+          />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(33.333%-10.667px)]">
+          <StatCard
+            icon={Wallet}
+            title="Chiffre cumulé"
+            value={`${totalSpent.toLocaleString("fr-FR")} DA`}
+            accent="gold"
+          />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(33.333%-10.667px)]">
+          <StatCard
+            icon={CalendarDays}
+            title="Panier moyen"
+            value={`${avgSpent.toLocaleString("fr-FR")} DA`}
+            accent="info"
+          />
+        </div>
       </section>
 
       <SearchBar

@@ -30,27 +30,27 @@ const ViewTicketModal = ({ ticket, onClose }: ViewTicketModalProps) => {
           </button>
         </div>
 
-        <div className="mt-6 grid gap-4 rounded-2xl bg-(--surface) p-4 sm:grid-cols-2">
-          <div>
+        <div className="mt-6 flex flex-wrap gap-4 rounded-2xl bg-(--surface) p-4">
+          <div className="w-full sm:w-[calc(50%-8px)]">
             <p className="text-xs text-(--muted)">Client</p>
             <p className="font-medium">
               {client ? `${client.firstName} ${client.lastName}` : "-"}
             </p>
           </div>
 
-          <div>
+          <div className="w-full sm:w-[calc(50%-8px)]">
             <p className="text-xs text-(--muted)">Employé</p>
             <p className="font-medium">
               {employee ? `${employee.firstName} ${employee.lastName}` : "-"}
             </p>
           </div>
 
-          <div>
+          <div className="w-full sm:w-[calc(50%-8px)]">
             <p className="text-xs text-(--muted)">Paiement</p>
             <p className="font-medium capitalize">{ticket.paymentMethod}</p>
           </div>
 
-          <div>
+          <div className="w-full sm:w-[calc(50%-8px)]">
             <p className="text-xs text-(--muted)">Date</p>
             <p className="font-medium">
               {new Date(ticket.createdAt).toLocaleDateString()}

@@ -7,6 +7,8 @@ const SPECIALITIES: ServiceSpeciality[] = [
   "Makeup",
   "Massage",
   "Reception",
+  "Waxing",
+  "Skincare",
 ];
 
 /**

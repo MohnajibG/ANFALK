@@ -5,7 +5,9 @@ export type ServiceSpeciality =
   | "Nails"
   | "Makeup"
   | "Massage"
-  | "Reception";
+  | "Reception"
+  | "Waxing"
+  | "Skincare";
 
 export interface IService extends Document {
   name: string;
@@ -56,7 +58,15 @@ const serviceSchema = new Schema<IService>(
 
     speciality: {
       type: String,
-      enum: ["Hair", "Nails", "Makeup", "Massage", "Reception"],
+      enum: [
+        "Hair",
+        "Nails",
+        "Makeup",
+        "Massage",
+        "Reception",
+        "Waxing",
+        "Skincare",
+      ],
       required: true,
     },
 

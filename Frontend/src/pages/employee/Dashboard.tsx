@@ -53,32 +53,45 @@ const EmployeeDashboard = () => {
         icon={<Scissors size={24} />}
       />
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          icon={Euro}
-          title="Chiffre du jour"
-          value="0 DA"
-          accent="black"
-        />
-        <StatCard
-          icon={Scissors}
-          title="Prestations réalisées"
-          value={0}
-          accent="gold"
-        />
-        <StatCard icon={Users} title="Clients reçus" value={0} accent="info" />
-        <StatCard
-          icon={TrendingUp}
-          title="Chiffre du mois"
-          value="0 DA"
-          accent="success"
-        />
+      <section className="flex flex-wrap gap-4">
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={Euro}
+            title="Chiffre du jour"
+            value="0 DA"
+            accent="black"
+          />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={Scissors}
+            title="Prestations réalisées"
+            value={0}
+            accent="gold"
+          />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={Users}
+            title="Clients reçus"
+            value={0}
+            accent="info"
+          />
+        </div>
+        <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
+          <StatCard
+            icon={TrendingUp}
+            title="Chiffre du mois"
+            value="0 DA"
+            accent="success"
+          />
+        </div>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-3">
+      <section className="flex flex-wrap gap-4">
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="rounded-md border border-(--border) bg-white p-6 shadow-(--shadow-sm) sm:p-6 lg:col-span-2"
+          className="w-full rounded-md border border-(--border) bg-white p-6 shadow-(--shadow-sm) sm:p-6 lg:w-[calc(66.667%-8px)]"
         >
           <h2 className="mb-4 font-semibold text-(--black)">Performance</h2>
 
@@ -99,7 +112,7 @@ const EmployeeDashboard = () => {
 
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="rounded-md border border-(--border) bg-white shadow-(--shadow-sm) p-5 sm:p-6"
+          className="w-full rounded-md border border-(--border) bg-white shadow-(--shadow-sm) p-5 sm:p-6 lg:w-[calc(33.333%-16px)]"
         >
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-semibold text-(--black)">Ma spécialité</h2>
@@ -119,7 +132,7 @@ const EmployeeDashboard = () => {
 
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="rounded-md border border-(--border) bg-white p-6 shadow-(--shadow-sm) sm:p-6 lg:col-span-3"
+          className="w-full rounded-md border border-(--border) bg-white p-6 shadow-(--shadow-sm) sm:p-6"
         >
           <div className="mb-4 flex items-center gap-2">
             <CalendarCheck size={20} className="text-(--brown)" />

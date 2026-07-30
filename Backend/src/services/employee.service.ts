@@ -28,6 +28,8 @@ const allowedSpecialities = [
   "Makeup",
   "Massage",
   "Reception",
+  "Waxing",
+  "Skincare",
 ] as const;
 
 const validateEmail = (email: string) =>

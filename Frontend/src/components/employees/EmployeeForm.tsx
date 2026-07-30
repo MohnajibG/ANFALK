@@ -51,6 +51,14 @@ const specialities: {
     value: "Reception",
     label: "Accueil",
   },
+  {
+    value: "Waxing",
+    label: "Épilation",
+  },
+  {
+    value: "Skincare",
+    label: "Soin du visage",
+  },
 ];
 
 const defaultValues: EmployeeFormType = {
@@ -131,20 +139,24 @@ const EmployeeForm = ({
         </div>
       )}
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Input
-          icon={<User size={17} />}
-          placeholder="Prénom"
-          value={form.firstName}
-          onChange={(v) => updateField("firstName", v)}
-        />
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="sm:flex-1">
+          <Input
+            icon={<User size={17} />}
+            placeholder="Prénom"
+            value={form.firstName}
+            onChange={(v) => updateField("firstName", v)}
+          />
+        </div>
 
-        <Input
-          icon={<User size={17} />}
-          placeholder="Nom"
-          value={form.lastName}
-          onChange={(v) => updateField("lastName", v)}
-        />
+        <div className="sm:flex-1">
+          <Input
+            icon={<User size={17} />}
+            placeholder="Nom"
+            value={form.lastName}
+            onChange={(v) => updateField("lastName", v)}
+          />
+        </div>
       </div>
 
       <Input
@@ -162,11 +174,11 @@ const EmployeeForm = ({
         onChange={(v) => updateField("phone", v)}
       />
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="flex flex-col gap-3 sm:flex-row">
         <select
           value={form.role}
           onChange={(e) => handleRoleChange(e.target.value as EmployeeRole)}
-          className="rounded-xl border border-(--border) bg-white p-3 outline-none"
+          className="rounded-xl border border-(--border) bg-white p-3 outline-none sm:flex-1"
         >
           {roles.map((role) => (
             <option key={role.value} value={role.value}>
@@ -179,7 +191,7 @@ const EmployeeForm = ({
           <select
             value={form.speciality ?? ""}
             onChange={(e) => updateField("speciality", e.target.value)}
-            className="rounded-xl border border-(--border) bg-white p-3 outline-none"
+            className="rounded-xl border border-(--border) bg-white p-3 outline-none sm:flex-1"
           >
             {specialities.map((item) => (
               <option key={item.value} value={item.value}>
