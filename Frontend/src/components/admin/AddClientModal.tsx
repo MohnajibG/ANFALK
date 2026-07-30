@@ -7,9 +7,7 @@ import { createClient } from "../../api/client.api";
 
 interface Props {
   open: boolean;
-
   onClose: () => void;
-
   onSuccess: () => void;
 }
 
@@ -20,17 +18,11 @@ const AddClientModal = ({ open, onClose, onSuccess }: Props) => {
 
   const [form, setForm] = useState({
     firstName: "",
-
     lastName: "",
-
     phone: "",
-
     email: "",
-
     gender: "",
-
     birthDate: "",
-
     notes: "",
   });
 
@@ -53,28 +45,18 @@ const AddClientModal = ({ open, onClose, onSuccess }: Props) => {
 
     try {
       setLoading(true);
-
       setError("");
-
       await createClient(form);
-
       onSuccess();
-
       onClose();
 
       setForm({
         firstName: "",
-
         lastName: "",
-
         phone: "",
-
         email: "",
-
         gender: "",
-
         birthDate: "",
-
         notes: "",
       });
     } catch (err: any) {

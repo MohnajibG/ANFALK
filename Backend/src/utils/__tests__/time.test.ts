@@ -1,4 +1,9 @@
-import { timeToMinutes, minutesToTime, rangesOverlap } from "../time";
+import {
+  timeToMinutes,
+  minutesToTime,
+  rangesOverlap,
+  isPastCalendarDate,
+} from "../time";
 
 describe("timeToMinutes", () => {
   it("convertit une heure en minutes depuis minuit", () => {
@@ -35,5 +40,27 @@ describe("rangesOverlap", () => {
 
   it("détecte un chevauchement quand un créneau contient l'autre", () => {
     expect(rangesOverlap(60, 180, 90, 120)).toBe(true);
+  });
+});
+
+describe("isPastCalendarDate", () => {
+  const now = new Date("2026-08-15T10:00:00.000Z");
+
+  it("considère la veille comme passée", () => {
+    expect(isPastCalendarDate(new Date("2026-08-14T00:00:00.000Z"), now)).toBe(
+      true,
+    );
+  });
+
+  it("ne considère pas aujourd'hui comme passé, même avant l'heure actuelle", () => {
+    expect(isPastCalendarDate(new Date("2026-08-15T00:00:00.000Z"), now)).toBe(
+      false,
+    );
+  });
+
+  it("ne considère pas demain comme passé", () => {
+    expect(isPastCalendarDate(new Date("2026-08-16T00:00:00.000Z"), now)).toBe(
+      false,
+    );
   });
 });

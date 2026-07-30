@@ -3,7 +3,7 @@ import Client from "../models/Client";
 import User from "../models/User";
 import Service from "../models/Service";
 import Ticket from "../models/Ticket";
-import { timeToMinutes, minutesToTime } from "../utils/time";
+import { timeToMinutes, minutesToTime, isPastCalendarDate } from "../utils/time";
 import { assertEmployeeAvailable } from "./availability.service";
 
 interface CreateAppointmentData {
@@ -139,6 +139,10 @@ export const buildAppointmentSnapshot = async (data: {
  * Création rendez-vous
  */
 export const createAppointment = async (data: CreateAppointmentData) => {
+  if (isPastCalendarDate(data.date)) {
+    throw new Error("Impossible de créer un rendez-vous dans le passé");
+  }
+
   const { serviceSnapshot, totalDuration, estimatedPrice } =
     await buildAppointmentSnapshot({
       client: data.client,

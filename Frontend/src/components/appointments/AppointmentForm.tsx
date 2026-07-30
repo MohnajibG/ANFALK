@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { AxiosError } from "axios";
+import { X } from "lucide-react";
 import toast from "react-hot-toast";
 
 import {
@@ -24,6 +25,21 @@ import ClientAutocomplete from "./ClientAutocomplete";
 import AppointmentServicesSelector from "./AppointmentServicesSelector";
 import AppointmentSummary from "./AppointmentSummary";
 
+// Formatage en heure locale du navigateur (pas toISOString, qui est en
+// UTC et peut décaler le jour selon le fuseau horaire)
+const toLocalDateValue = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const toLocalTimeValue = (date: Date) => {
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${hours}:${minutes}`;
+};
+
 interface AppointmentFormProps {
   services?: Service[];
   employees?: Employee[];
@@ -40,6 +56,7 @@ const AppointmentForm = ({
   initialDate,
   initialStartTime,
   initialEmployeeId,
+  onClose,
   onSuccess,
 }: AppointmentFormProps) => {
   const { user } = useAuth();
@@ -48,6 +65,8 @@ const AppointmentForm = ({
   const [selectedServices, setSelectedServices] = useState<
     AppointmentService[]
   >([]);
+
+  const [todayLocal] = useState(() => toLocalDateValue(new Date()));
 
   const [date, setDate] = useState(initialDate ?? "");
   const [startTime, setStartTime] = useState(initialStartTime ?? "09:00");
@@ -174,6 +193,12 @@ const AppointmentForm = ({
         throw new Error("Veuillez sélectionner une date");
       }
 
+      if (startTime && new Date(`${date}T${startTime}`) < new Date()) {
+        throw new Error(
+          "Impossible de prendre un rendez-vous dans le passé",
+        );
+      }
+
       if (!selectedServices.length) {
         throw new Error("Veuillez sélectionner au moins une prestation");
       }
@@ -290,183 +315,213 @@ const AppointmentForm = ({
     }
   };
 
+  const minTime = date === todayLocal ? toLocalTimeValue(new Date()) : undefined;
+
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-      {error && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-          {error}
-        </div>
-      )}
-
-      <ClientAutocomplete value={client} onChange={setClient} />
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <div>
-          <label className="mb-2 block text-sm font-medium">Date</label>
-
-          <input
-            type="date"
-            value={date}
-            onChange={(event) => setDate(event.target.value)}
-            className="h-12 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
-          />
-        </div>
-
-        <div>
-          <label className="mb-2 block text-sm font-medium">Heure début</label>
-
-          <input
-            type="time"
-            value={startTime}
-            onChange={(event) => setStartTime(event.target.value)}
-            className="h-12 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
-          />
-        </div>
-      </div>
-
-      <AppointmentServicesSelector
-        services={services}
-        employees={employees}
-        selectedServices={selectedServices}
-        onChange={setSelectedServices}
-        defaultEmployeeId={initialEmployeeId}
-      />
-
-      <AppointmentSummary
-        services={selectedServices}
-        startTime={startTime}
-        totalDuration={totalDuration}
-        estimatedPrice={estimatedPrice}
-        endTime={endTime}
-        onDurationChange={(value) => {
-          setManualDuration(true);
-          setCustomDuration(value);
-        }}
-        onPriceChange={(value) => {
-          setManualPrice(true);
-          setCustomPrice(value);
-        }}
-        onEndTimeChange={(value) => {
-          setManualEndTime(true);
-          setCustomEndTime(value);
-        }}
-      />
-
-      <textarea
-        rows={3}
-        value={notes}
-        onChange={(event) => setNotes(event.target.value)}
-        placeholder="Ajouter une remarque..."
-        className="rounded-2xl border border-(--border) bg-(--cream) p-4"
-      />
-
-      <div className="rounded-2xl border border-(--border) p-4">
-        <label className="flex items-center gap-3 text-sm font-medium">
-          <input
-            type="checkbox"
-            checked={isRecurring}
-            onChange={(event) => setIsRecurring(event.target.checked)}
-          />
-          Répéter ce rendez-vous
-        </label>
-
-        {isRecurring && (
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-            <div>
-              <label className="mb-2 block text-sm font-medium">
-                Fréquence
-              </label>
-
-              <select
-                value={frequency}
-                onChange={(event) =>
-                  setFrequency(event.target.value as RecurrenceFrequency)
-                }
-                className="h-12 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
-              >
-                <option value="weekly">Toutes les semaines</option>
-                <option value="biweekly">Toutes les 2 semaines</option>
-                <option value="monthly">Tous les mois</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium">
-                Se termine
-              </label>
-
-              <select
-                value={recurrenceEndMode}
-                onChange={(event) =>
-                  setRecurrenceEndMode(
-                    event.target.value as "count" | "until",
-                  )
-                }
-                className="h-12 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
-              >
-                <option value="count">Après N occurrences</option>
-                <option value="until">À une date précise</option>
-              </select>
-            </div>
-
-            {recurrenceEndMode === "count" ? (
-              <div>
-                <label className="mb-2 block text-sm font-medium">
-                  Nombre d'occurrences
-                </label>
-
-                <input
-                  type="number"
-                  min={1}
-                  max={52}
-                  value={recurrenceCount}
-                  onChange={(event) =>
-                    setRecurrenceCount(Number(event.target.value))
-                  }
-                  className="h-12 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
-                />
-              </div>
-            ) : (
-              <div>
-                <label className="mb-2 block text-sm font-medium">
-                  Jusqu'au
-                </label>
-
-                <input
-                  type="date"
-                  value={recurrenceUntil}
-                  onChange={(event) => setRecurrenceUntil(event.target.value)}
-                  className="h-12 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
-                />
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      <div className="flex gap-3">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <form
+        onSubmit={handleSubmit}
+        className="relative flex max-h-[90vh] w-full max-w-2xl flex-col gap-6 overflow-y-auto rounded-3xl bg-white p-6 shadow-xl"
+      >
         <button
           type="button"
-          onClick={resetForm}
-          disabled={loading}
-          className="rounded-2xl border px-6 py-3"
+          onClick={onClose}
+          className="absolute right-5 top-5 flex h-9 w-9 items-center justify-center rounded-full bg-(--cream)"
         >
-          Réinitialiser
+          <X size={18} />
         </button>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded-2xl bg-(--black) px-6 py-3 text-(--cream)"
-        >
-          {loading
-            ? "Création..."
-            : isRecurring
-              ? "Créer la série"
-              : "Créer le rendez-vous"}
-        </button>
-      </div>
-    </form>
+        <div>
+          <p className="text-xs uppercase tracking-[0.3em] text-(--brown)">
+            Rendez-vous
+          </p>
+
+          <h2 className="mt-2 font-title text-2xl font-bold text-(--black)">
+            Nouveau rendez-vous
+          </h2>
+        </div>
+
+        {error && (
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+
+        <ClientAutocomplete value={client} onChange={setClient} />
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <div>
+            <label className="mb-2 block text-sm font-medium">Date</label>
+
+            <input
+              type="date"
+              value={date}
+              min={todayLocal}
+              onChange={(event) => setDate(event.target.value)}
+              className="h-12 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium">
+              Heure début
+            </label>
+
+            <input
+              type="time"
+              value={startTime}
+              min={minTime}
+              onChange={(event) => setStartTime(event.target.value)}
+              className="h-12 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
+            />
+          </div>
+        </div>
+
+        <AppointmentServicesSelector
+          services={services}
+          employees={employees}
+          selectedServices={selectedServices}
+          onChange={setSelectedServices}
+          defaultEmployeeId={initialEmployeeId}
+        />
+
+        <AppointmentSummary
+          services={selectedServices}
+          startTime={startTime}
+          totalDuration={totalDuration}
+          estimatedPrice={estimatedPrice}
+          endTime={endTime}
+          onDurationChange={(value) => {
+            setManualDuration(true);
+            setCustomDuration(value);
+          }}
+          onPriceChange={(value) => {
+            setManualPrice(true);
+            setCustomPrice(value);
+          }}
+          onEndTimeChange={(value) => {
+            setManualEndTime(true);
+            setCustomEndTime(value);
+          }}
+        />
+
+        <textarea
+          rows={3}
+          value={notes}
+          onChange={(event) => setNotes(event.target.value)}
+          placeholder="Ajouter une remarque..."
+          className="rounded-2xl border border-(--border) bg-(--cream) p-4"
+        />
+
+        <div className="rounded-2xl border border-(--border) p-4">
+          <label className="flex items-center gap-3 text-sm font-medium">
+            <input
+              type="checkbox"
+              checked={isRecurring}
+              onChange={(event) => setIsRecurring(event.target.checked)}
+            />
+            Répéter ce rendez-vous
+          </label>
+
+          {isRecurring && (
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="mb-2 block text-sm font-medium">
+                  Fréquence
+                </label>
+
+                <select
+                  value={frequency}
+                  onChange={(event) =>
+                    setFrequency(event.target.value as RecurrenceFrequency)
+                  }
+                  className="h-12 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
+                >
+                  <option value="weekly">Toutes les semaines</option>
+                  <option value="biweekly">Toutes les 2 semaines</option>
+                  <option value="monthly">Tous les mois</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium">
+                  Se termine
+                </label>
+
+                <select
+                  value={recurrenceEndMode}
+                  onChange={(event) =>
+                    setRecurrenceEndMode(
+                      event.target.value as "count" | "until",
+                    )
+                  }
+                  className="h-12 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
+                >
+                  <option value="count">Après N occurrences</option>
+                  <option value="until">À une date précise</option>
+                </select>
+              </div>
+
+              {recurrenceEndMode === "count" ? (
+                <div>
+                  <label className="mb-2 block text-sm font-medium">
+                    Nombre d'occurrences
+                  </label>
+
+                  <input
+                    type="number"
+                    min={1}
+                    max={52}
+                    value={recurrenceCount}
+                    onChange={(event) =>
+                      setRecurrenceCount(Number(event.target.value))
+                    }
+                    className="h-12 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
+                  />
+                </div>
+              ) : (
+                <div>
+                  <label className="mb-2 block text-sm font-medium">
+                    Jusqu'au
+                  </label>
+
+                  <input
+                    type="date"
+                    value={recurrenceUntil}
+                    min={date || todayLocal}
+                    onChange={(event) => setRecurrenceUntil(event.target.value)}
+                    className="h-12 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={resetForm}
+            disabled={loading}
+            className="rounded-2xl border px-6 py-3"
+          >
+            Réinitialiser
+          </button>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="rounded-2xl bg-(--black) px-6 py-3 text-(--cream)"
+          >
+            {loading
+              ? "Création..."
+              : isRecurring
+                ? "Créer la série"
+                : "Créer le rendez-vous"}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 };
 

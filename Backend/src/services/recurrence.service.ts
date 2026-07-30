@@ -2,7 +2,7 @@ import Appointment, { AppointmentStatus } from "../models/Appointment";
 import AppointmentRecurrence, {
   RecurrenceFrequency,
 } from "../models/AppointmentRecurrence";
-import { timeToMinutes, minutesToTime } from "../utils/time";
+import { timeToMinutes, minutesToTime, isPastCalendarDate } from "../utils/time";
 import { assertEmployeeAvailable, AvailabilityError } from "./availability.service";
 import { buildAppointmentSnapshot } from "./appointment.service";
 
@@ -72,6 +72,10 @@ interface CreateRecurringAppointmentData {
 export const createRecurringAppointment = async (
   data: CreateRecurringAppointmentData,
 ) => {
+  if (isPastCalendarDate(data.date)) {
+    throw new Error("Impossible de créer un rendez-vous dans le passé");
+  }
+
   const dates = computeOccurrenceDates(data.date, data.recurrence);
 
   const recurrenceGroup = await AppointmentRecurrence.create({

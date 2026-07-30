@@ -2,7 +2,7 @@ import Service from "../models/Service";
 import User from "../models/User";
 import Appointment from "../models/Appointment";
 import Client from "../models/Client";
-import { timeToMinutes, minutesToTime } from "../utils/time";
+import { timeToMinutes, minutesToTime, isPastCalendarDate } from "../utils/time";
 import { getEffectiveHours } from "./employeeSchedule.service";
 import { assertEmployeeAvailable } from "./availability.service";
 
@@ -104,6 +104,10 @@ export const getAvailability = async (employeeId: string, date: Date) => {
 export const createOnlineAppointment = async (
   data: CreateOnlineAppointmentData,
 ) => {
+  if (isPastCalendarDate(data.date)) {
+    throw new Error("Impossible de réserver un rendez-vous dans le passé");
+  }
+
   let client = await Client.findOne({
     phone: data.client.phone,
 

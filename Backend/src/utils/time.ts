@@ -18,3 +18,17 @@ export const rangesOverlap = (
   bStart: number,
   bEnd: number,
 ): boolean => aStart < bEnd && aEnd > bStart;
+
+/**
+ * Compare uniquement le jour calendaire (en UTC, comme les dates de
+ * rendez-vous ancrées à minuit UTC) — volontairement pas de comparaison à
+ * l'heure près ici, pour éviter tout écart de fuseau horaire entre client
+ * et serveur.
+ */
+export const isPastCalendarDate = (date: Date, now: Date = new Date()) => {
+  const startOfToday = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+  );
+
+  return date.getTime() < startOfToday.getTime();
+};
