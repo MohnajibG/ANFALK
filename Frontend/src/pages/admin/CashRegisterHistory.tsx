@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   Download,
-  Euro,
+  bank,
   Lock,
   Receipt,
   Search,
@@ -147,7 +147,7 @@ const CashRegisterHistory = () => {
         </div>
         <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(33.333%-10.667px)]">
           <StatCard
-            icon={Euro}
+            icon={bank}
             title="Total encaissé"
             value={`${totalRevenue} DA`}
           />

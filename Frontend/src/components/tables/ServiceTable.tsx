@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Clock, Euro, Eye, Pencil, Power, Trash2 } from "lucide-react";
+import { Clock, bank, Eye, Pencil, Power, Trash2 } from "lucide-react";
 import type { Service } from "../../types/service";
 import { SPECIALITY_LABELS } from "../../types/speciality";
 import Badge from "../ui/Badge";
@@ -81,7 +81,7 @@ const ServiceTable = ({
             </div>
             <span className="min-w-0 flex-1">{service.category.name}</span>
             <span className="flex min-w-0 flex-1 items-center gap-1 font-semibold">
-              <Euro size={14} />
+              <bank size={14} />
               {service.price}
             </span>
             <span className="flex min-w-0 flex-1 items-center gap-1">
