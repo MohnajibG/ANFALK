@@ -8,7 +8,7 @@ import Testimonials from "../components/home/Testimonials";
 import Contact from "../components/home/Contact";
 import Footer from "../components/home/Footer";
 
-export default function Home() {
+const Home = () => {
   return (
     <main className="flex lg:gap-5min-h-screen w-full flex-col overflow-x-hidden">
       <Header />
@@ -22,4 +22,6 @@ export default function Home() {
       <Footer />
     </main>
   );
-}
+};
+
+export default Home;

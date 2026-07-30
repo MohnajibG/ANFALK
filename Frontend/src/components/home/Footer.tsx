@@ -3,7 +3,7 @@ import { MapPin, Phone, ArrowUpRight } from "lucide-react";
 import { FaInstagram } from "react-icons/fa";
 import { motion } from "framer-motion";
 
-export default function Footer() {
+const Footer = () => {
   return (
     <footer className="border-t border-[#e8e2d8] bg-[#0b0b0b] text-white">
       <div className="ak-container py-16">
@@ -93,4 +93,6 @@ export default function Footer() {
       </div>
     </footer>
   );
-}
+};
+
+export default Footer;

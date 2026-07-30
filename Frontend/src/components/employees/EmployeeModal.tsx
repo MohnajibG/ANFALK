@@ -16,13 +16,13 @@ interface EmployeeModalProps {
   onCreated: () => void;
 }
 
-export default function EmployeeModal({
+const EmployeeModal = ({
   open,
 
   onClose,
 
   onCreated,
-}: EmployeeModalProps) {
+}: EmployeeModalProps) => {
   const [loading, setLoading] = useState(false);
 
   const [error, setError] = useState("");
@@ -147,4 +147,6 @@ export default function EmployeeModal({
       </div>
     </div>
   );
-}
+};
+
+export default EmployeeModal;

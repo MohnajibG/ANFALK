@@ -62,11 +62,11 @@ const defaultValues: EmployeeFormType = {
   speciality: "Hair",
 };
 
-export default function EmployeeForm({
+const EmployeeForm = ({
   initialValues = defaultValues,
   loading = false,
   onSubmit,
-}: EmployeeFormProps) {
+}: EmployeeFormProps) => {
   const [form, setForm] = useState<EmployeeFormType>(initialValues);
 
   const [error, setError] = useState("");
@@ -198,9 +198,9 @@ export default function EmployeeForm({
       </button>
     </form>
   );
-}
+};
 
-function Input({
+const Input = ({
   icon,
   value,
   placeholder,
@@ -212,7 +212,7 @@ function Input({
   placeholder: string;
   type?: string;
   onChange: (value: string) => void;
-}) {
+}) => {
   return (
     <div className="flex items-center gap-3 rounded-xl border border-(--border) px-3">
       <span className="text-(--brown)">{icon}</span>
@@ -226,4 +226,6 @@ function Input({
       />
     </div>
   );
-}
+};
+
+export default EmployeeForm;

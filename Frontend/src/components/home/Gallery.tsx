@@ -27,7 +27,7 @@ const galleryImages = [
   },
 ];
 
-export default function Gallery() {
+const Gallery = () => {
   return (
     <section
       id="gallery"
@@ -91,4 +91,6 @@ export default function Gallery() {
       </div>
     </section>
   );
-}
+};
+
+export default Gallery;

@@ -24,7 +24,7 @@ const reasons = [
   },
 ];
 
-export default function WhyChooseUs() {
+const WhyChooseUs = () => {
   return (
     <section className="relative w-full overflow-hidden bg-[#fff4d6] px-6 py-24 sm:px-10 lg:px-20">
       <div className="mx-auto max-w-7xl">
@@ -84,4 +84,6 @@ export default function WhyChooseUs() {
       </div>
     </section>
   );
-}
+};
+
+export default WhyChooseUs;

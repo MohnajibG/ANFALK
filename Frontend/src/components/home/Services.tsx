@@ -19,7 +19,7 @@ const services = [
   },
 ];
 
-export default function Services() {
+const Services = () => {
   return (
     <section
       id="services"
@@ -90,4 +90,6 @@ export default function Services() {
       </div>
     </section>
   );
-}
+};
+
+export default Services;

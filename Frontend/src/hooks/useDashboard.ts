@@ -6,7 +6,7 @@ import {
   type DashboardPeriod,
 } from "../api/dashboard.api";
 
-export default function useDashboard() {
+const useDashboard = () => {
   const [period, setPeriod] = useState<DashboardPeriod>("month");
 
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
@@ -81,4 +81,6 @@ export default function useDashboard() {
 
     refresh: loadDashboard,
   };
-}
+};
+
+export default useDashboard;

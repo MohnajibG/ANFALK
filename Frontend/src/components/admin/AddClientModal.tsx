@@ -13,13 +13,7 @@ interface Props {
   onSuccess: () => void;
 }
 
-export default function AddClientModal({
-  open,
-
-  onClose,
-
-  onSuccess,
-}: Props) {
+const AddClientModal = ({ open, onClose, onSuccess }: Props) => {
   const [loading, setLoading] = useState(false);
 
   const [error, setError] = useState("");
@@ -84,116 +78,54 @@ export default function AddClientModal({
         notes: "",
       });
     } catch (err: any) {
-      setError(err.message || "Error creating client");
+      setError(err.message || "Erreur lors de la création de la cliente");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div
-      className="
-fixed
-inset-0
-z-50
-flex
-items-center
-justify-center
-bg-black/40
-p-4
-"
-    >
-      <div
-        className="
-w-full
-max-w-lg
-rounded-3xl
-bg-white
-p-6
-shadow-2xl
-"
-      >
-        {/* HEADER */}
-
-        <div
-          className="
-mb-6
-flex
-items-center
-justify-between
-"
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="relative w-full max-w-lg rounded-3xl bg-white p-6 shadow-xl">
+        <button
+          onClick={onClose}
+          className="absolute right-5 top-5 flex h-9 w-9 items-center justify-center rounded-full bg-(--cream)"
         >
-          <div>
-            <h2
-              className="
-font-serif
-text-2xl
-font-bold
-"
-            >
-              Add Client
-            </h2>
+          <X size={18} />
+        </button>
 
-            <p
-              className="
-text-sm
-text-gray-500
-"
-            >
-              Create customer profile
-            </p>
-          </div>
+        <div className="mb-6">
+          <p className="text-xs uppercase tracking-[0.3em] text-(--brown)">
+            CRM
+          </p>
 
-          <button onClick={onClose}>
-            <X />
-          </button>
+          <h2 className="mt-2 font-title text-2xl font-bold text-(--black)">
+            Ajouter une cliente
+          </h2>
+
+          <p className="mt-2 text-sm text-(--muted)">
+            Créer une nouvelle fiche cliente
+          </p>
         </div>
 
-        <form
-          onSubmit={submit}
-          className="
-space-y-4
-"
-        >
-          <div
-            className="
-grid
-gap-4
-sm:grid-cols-2
-"
-          >
+        <form onSubmit={submit} className="flex flex-col gap-4">
+          <div className="grid gap-4 sm:grid-cols-2">
             <input
               name="firstName"
               value={form.firstName}
               onChange={handleChange}
-              placeholder="First name"
+              placeholder="Prénom"
               required
-              className="
-rounded-xl
-border
-px-4
-py-3
-outline-none
-focus:ring-2
-focus:ring-[#3E2C23]/20
-"
+              className="h-11 rounded-2xl border border-(--border) bg-(--cream) px-4 outline-none focus:ring-2 focus:ring-(--brown)/20"
             />
 
             <input
               name="lastName"
               value={form.lastName}
               onChange={handleChange}
-              placeholder="Last name"
+              placeholder="Nom"
               required
-              className="
-rounded-xl
-border
-px-4
-py-3
-outline-none
-focus:ring-2
-focus:ring-[#3E2C23]/20
-"
+              className="h-11 rounded-2xl border border-(--border) bg-(--cream) px-4 outline-none focus:ring-2 focus:ring-(--brown)/20"
             />
           </div>
 
@@ -201,15 +133,9 @@ focus:ring-[#3E2C23]/20
             name="phone"
             value={form.phone}
             onChange={handleChange}
-            placeholder="Phone"
+            placeholder="Téléphone"
             required
-            className="
-w-full
-rounded-xl
-border
-px-4
-py-3
-"
+            className="h-11 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
           />
 
           <input
@@ -218,32 +144,20 @@ py-3
             value={form.email}
             onChange={handleChange}
             placeholder="Email"
-            className="
-w-full
-rounded-xl
-border
-px-4
-py-3
-"
+            className="h-11 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
           />
 
           <select
             name="gender"
             value={form.gender}
             onChange={handleChange}
-            className="
-w-full
-rounded-xl
-border
-px-4
-py-3
-"
+            className="h-11 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
           >
-            <option value="">Gender</option>
+            <option value="">Genre</option>
 
-            <option value="female">Female</option>
+            <option value="female">Femme</option>
 
-            <option value="male">Male</option>
+            <option value="male">Homme</option>
           </select>
 
           <input
@@ -251,70 +165,37 @@ py-3
             type="date"
             value={form.birthDate}
             onChange={handleChange}
-            className="
-w-full
-rounded-xl
-border
-px-4
-py-3
-"
+            className="h-11 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
           />
 
           <textarea
             name="notes"
             value={form.notes}
             onChange={handleChange}
-            placeholder="Notes..."
+            placeholder="Remarques..."
             rows={3}
-            className="
-w-full
-rounded-xl
-border
-px-4
-py-3
-"
+            className="w-full rounded-2xl border border-(--border) bg-(--cream) p-4"
           />
 
           {error && (
-            <div
-              className="
-rounded-xl
-bg-red-50
-p-3
-text-sm
-text-red-600
-"
-            >
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">
               {error}
             </div>
           )}
 
           <button
             disabled={loading}
-            className="
-flex
-w-full
-items-center
-justify-center
-gap-2
-rounded-xl
-bg-[#3E2C23]
-py-3
-font-semibold
-text-[#FFF4D6]
-hover:bg-[#5a3a1e]
-disabled:opacity-60
-"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-(--black) py-3 font-semibold text-(--cream) transition hover:bg-(--brown-dark) disabled:opacity-60"
           >
             {loading ? (
               <>
                 <Loader2 size={18} className="animate-spin" />
-                Saving...
+                Enregistrement...
               </>
             ) : (
               <>
                 <UserPlus size={18} />
-                Create Client
+                Créer la cliente
               </>
             )}
           </button>
@@ -322,4 +203,6 @@ disabled:opacity-60
       </div>
     </div>
   );
-}
+};
+
+export default AddClientModal;

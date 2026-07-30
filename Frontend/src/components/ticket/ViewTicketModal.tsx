@@ -13,10 +13,10 @@ const ViewTicketModal = ({ ticket, onClose }: ViewTicketModalProps) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-3xl border border-[#eadfce] bg-white p-6">
+      <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-3xl border border-(--border) bg-white p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-[#8b7560]">
+            <p className="text-xs uppercase tracking-[0.3em] text-(--brown)">
               Ticket
             </p>
             <h2 className="mt-2 text-2xl font-bold">{ticket.ticketNumber}</h2>
@@ -24,34 +24,34 @@ const ViewTicketModal = ({ ticket, onClose }: ViewTicketModalProps) => {
 
           <button
             onClick={onClose}
-            className="rounded-xl border border-[#eadfce] p-2 hover:bg-[#fff4d6]"
+            className="rounded-xl border border-(--border) p-2 hover:bg-(--cream)"
           >
             <X size={20} />
           </button>
         </div>
 
-        <div className="mt-6 grid gap-4 rounded-2xl bg-[#fffaf0] p-4 sm:grid-cols-2">
+        <div className="mt-6 grid gap-4 rounded-2xl bg-(--surface) p-4 sm:grid-cols-2">
           <div>
-            <p className="text-xs text-gray-500">Client</p>
+            <p className="text-xs text-(--muted)">Client</p>
             <p className="font-medium">
               {client ? `${client.firstName} ${client.lastName}` : "-"}
             </p>
           </div>
 
           <div>
-            <p className="text-xs text-gray-500">Employé</p>
+            <p className="text-xs text-(--muted)">Employé</p>
             <p className="font-medium">
               {employee ? `${employee.firstName} ${employee.lastName}` : "-"}
             </p>
           </div>
 
           <div>
-            <p className="text-xs text-gray-500">Paiement</p>
+            <p className="text-xs text-(--muted)">Paiement</p>
             <p className="font-medium capitalize">{ticket.paymentMethod}</p>
           </div>
 
           <div>
-            <p className="text-xs text-gray-500">Date</p>
+            <p className="text-xs text-(--muted)">Date</p>
             <p className="font-medium">
               {new Date(ticket.createdAt).toLocaleDateString()}
             </p>
@@ -65,11 +65,11 @@ const ViewTicketModal = ({ ticket, onClose }: ViewTicketModalProps) => {
             {ticket.items.map((item) => (
               <div
                 key={item.service}
-                className="flex items-center justify-between rounded-2xl border border-[#eadfce] p-4"
+                className="flex items-center justify-between rounded-2xl border border-(--border) p-4"
               >
                 <div>
                   <p className="font-medium">{item.name}</p>
-                  <p className="text-xs text-gray-500">{item.duration} min</p>
+                  <p className="text-xs text-(--muted)">{item.duration} min</p>
                 </div>
 
                 <p className="font-semibold">{item.finalPrice} DA</p>
@@ -78,7 +78,7 @@ const ViewTicketModal = ({ ticket, onClose }: ViewTicketModalProps) => {
           </div>
         </div>
 
-        <div className="mt-6 space-y-3 rounded-2xl bg-[#fffaf0] p-4">
+        <div className="mt-6 space-y-3 rounded-2xl bg-(--surface) p-4">
           <div className="flex justify-between text-sm">
             <span>Sous-total</span>
             <span>{ticket.subtotal} DA</span>
@@ -89,15 +89,15 @@ const ViewTicketModal = ({ ticket, onClose }: ViewTicketModalProps) => {
             <span>- {ticket.discount} DA</span>
           </div>
 
-          <div className="flex justify-between border-t border-[#eadfce] pt-3 text-lg font-bold">
+          <div className="flex justify-between border-t border-(--border) pt-3 text-lg font-bold">
             <span>Total</span>
             <span>{ticket.total} DA</span>
           </div>
         </div>
 
         {ticket.notes && (
-          <div className="mt-5 rounded-2xl border border-[#eadfce] p-4">
-            <p className="text-xs text-gray-500">Note</p>
+          <div className="mt-5 rounded-2xl border border-(--border) p-4">
+            <p className="text-xs text-(--muted)">Note</p>
             <p>{ticket.notes}</p>
           </div>
         )}

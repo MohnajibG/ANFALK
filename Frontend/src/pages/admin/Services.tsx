@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState, type ComponentType } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
 import { Clock, HandCoins, Layers, Plus, Scissors, Search } from "lucide-react";
 
 import {
@@ -17,6 +16,7 @@ import AddServiceModal from "../../components/service/AddServiceModal";
 import EditServiceModal from "../../components/service/EditServiceModal";
 import ViewServiceModal from "../../components/service/ViewServiceModal";
 import DeleteServiceModal from "../../components/service/DeleteServiceModal";
+import StatCard from "../../components/ui/StatCard";
 
 type ModalType = "add" | "edit" | "view" | "delete" | null;
 
@@ -124,7 +124,7 @@ const Services = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-100 items-center justify-center text-gray-500">
+      <div className="flex min-h-100 items-center justify-center text-(--muted)">
         Chargement des services...
       </div>
     );
@@ -132,24 +132,24 @@ const Services = () => {
 
   return (
     <div className="w-full space-y-6">
-      <section className="flex flex-col gap-5 rounded-3xl border border-[#eadfce] bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
+      <section className="flex flex-col gap-5 rounded-3xl border border-(--border) bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.4em] text-[#8b7560]">
+          <p className="text-xs uppercase tracking-[0.4em] text-(--brown)">
             Administration
           </p>
 
-          <h1 className="mt-3 font-serif text-3xl font-bold text-[#111]">
+          <h1 className="mt-3 font-title text-3xl font-bold text-(--black)">
             Gestion des services
           </h1>
 
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-(--muted)">
             Gérez les prestations de l'institut.
           </p>
         </div>
 
         <button
           onClick={() => setModal("add")}
-          className="flex items-center justify-center gap-2 rounded-xl bg-[#3E2C23] px-5 py-3 text-[#fff4d6] transition hover:bg-[#5a3a1e]"
+          className="flex items-center justify-center gap-2 rounded-xl bg-(--black) px-5 py-3 text-(--cream) transition hover:bg-(--brown-dark)"
         >
           <Plus size={18} />
           Ajouter un service
@@ -171,7 +171,7 @@ const Services = () => {
         />
       </div>
 
-      <div className="flex flex-col gap-3 rounded-3xl border border-[#eadfce] bg-white p-5 md:flex-row">
+      <div className="flex flex-col gap-3 rounded-3xl border border-(--border) bg-white p-5 md:flex-row">
         <div className="flex flex-1 items-center gap-3">
           <Search size={20} />
 
@@ -186,7 +186,7 @@ const Services = () => {
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="rounded-xl border border-[#eadfce] px-4 py-2"
+          className="rounded-xl border border-(--border) px-4 py-2"
         >
           <option value="all">Toutes les catégories</option>
 
@@ -265,29 +265,5 @@ const Services = () => {
     </div>
   );
 };
-
-function StatCard({
-  icon: Icon,
-  title,
-  value,
-}: {
-  icon: ComponentType<{ size?: number }>;
-  title: string;
-  value: string | number;
-}) {
-  return (
-    <motion.div
-      whileHover={{ y: -4 }}
-      className="rounded-3xl border border-[#eadfce] bg-white p-6"
-    >
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500">{title}</p>
-        <Icon size={22} />
-      </div>
-
-      <h3 className="mt-4 text-3xl font-bold">{value}</h3>
-    </motion.div>
-  );
-}
 
 export default Services;

@@ -16,7 +16,7 @@ const reviews = [
   },
 ];
 
-export default function Testimonials() {
+const Testimonials = () => {
   return (
     <section className="relative w-full overflow-hidden bg-[#0b0b0b] px-6 py-24 text-white sm:px-10 lg:px-20">
       <div className="mx-auto max-w-7xl text-center">
@@ -75,4 +75,6 @@ export default function Testimonials() {
       </div>
     </section>
   );
-}
+};
+
+export default Testimonials;

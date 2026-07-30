@@ -19,7 +19,7 @@ const details = [
   },
 ];
 
-export default function Contact() {
+const Contact = () => {
   return (
     <section
       id="contact"
@@ -96,4 +96,6 @@ export default function Contact() {
       </div>
     </section>
   );
-}
+};
+
+export default Contact;
