@@ -30,7 +30,7 @@ const Profile = () => {
 
   if (loading)
     return (
-      <div className="flex min-h-100 items-center justify-center text-gray-500">
+      <div className="flex min-h-100 items-center justify-center text-(--muted)">
         Chargement du profil...
       </div>
     );
@@ -44,15 +44,15 @@ const Profile = () => {
 
   return (
     <div className="w-full space-y-6">
-      <section className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] flex flex-col gap-5 bg-[#151515] p-6 text-[#FFF4D6] sm:flex-row sm:items-center sm:justify-between">
+      <section className="flex flex-col gap-5 rounded-3xl border border-(--border) bg-(--black) p-6 text-(--cream) shadow-(--shadow-sm) sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.4em] text-[#D8B98A]">
+          <p className="text-xs uppercase tracking-[0.4em] text-(--champagne)">
             Compte
           </p>
 
-          <h1 className="mt-3 font-[Cinzel] text-3xl font-bold">Mon Profil</h1>
+          <h1 className="mt-3 font-title text-3xl font-bold">Mon Profil</h1>
 
-          <p className="mt-2 text-sm text-white/60">
+          <p className="mt-2 text-sm text-(--cream)/60">
             Gestion de vos informations personnelles
           </p>
         </div>
@@ -65,9 +65,9 @@ const Profile = () => {
       <div className="flex flex-wrap gap-6">
         <motion.section
           whileHover={{ y: -5 }}
-          className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] flex w-full flex-col items-center justify-center p-6 text-center lg:w-[32%]"
+          className="flex w-full flex-col items-center justify-center rounded-3xl border border-(--border) bg-white p-6 text-center shadow-(--shadow-sm) lg:w-[32%]"
         >
-          <div className="flex h-28 w-28 items-center justify-center rounded-full bg-[#151515] font-[Cinzel] text-4xl font-bold text-[#D8B98A]">
+          <div className="flex h-28 w-28 items-center justify-center rounded-full bg-(--black) font-title text-4xl font-bold text-(--champagne)">
             {user.firstName?.charAt(0)}
             {user.lastName?.charAt(0)}
           </div>
@@ -76,12 +76,12 @@ const Profile = () => {
             {user.firstName} {user.lastName}
           </h2>
 
-          <p className="mt-3 rounded-full bg-[#D8B98A]/20 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-[#8B6A3D]">
+          <p className="mt-3 rounded-full bg-(--champagne)/20 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-(--brown)">
             {user.role}
           </p>
         </motion.section>
 
-        <section className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] flex-1 p-6">
+        <section className="flex-1 rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm)">
           <h2 className="mb-5 text-xl font-bold">Informations personnelles</h2>
 
           <div className="flex flex-wrap gap-4">
@@ -108,12 +108,12 @@ const Profile = () => {
         </section>
       </div>
 
-      <section className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6">
+      <section className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm)">
         <h2 className="text-xl font-bold">Sécurité</h2>
 
         <p className="ak-muted mt-2">Gestion du mot de passe du compte.</p>
 
-        <button className="mt-5 rounded-xl bg-[#151515] px-5 py-3 text-[#FFF4D6] transition hover:bg-[#3E2C23]">
+        <button className="mt-5 rounded-xl bg-(--black) px-5 py-3 text-(--cream) transition hover:bg-(--brown-dark)">
           Modifier le mot de passe
         </button>
       </section>
@@ -130,13 +130,13 @@ const InfoCard = ({
   label: string;
   value: string;
 }) => (
-  <div className="flex min-w-60 flex-1 items-center gap-4 rounded-2xl bg-[#F7F2EA] p-4">
-    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#151515] text-[#D8B98A]">
+  <div className="flex min-w-60 flex-1 items-center gap-4 rounded-2xl bg-(--surface) p-4">
+    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-(--black) text-(--champagne)">
       <Icon size={20} />
     </div>
 
     <div>
-      <p className="text-xs text-gray-500">{label}</p>
+      <p className="text-xs text-(--muted)">{label}</p>
 
       <p className="font-medium">{value}</p>
     </div>

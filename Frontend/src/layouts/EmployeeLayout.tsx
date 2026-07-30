@@ -12,27 +12,27 @@ import { useState } from "react";
 
 const links = [
   {
-    label: "Dashboard",
+    label: "Tableau de bord",
     icon: LayoutDashboard,
     path: "/employee/dashboard",
   },
   {
-    label: "My Services",
+    label: "Mes prestations",
     icon: Briefcase,
     path: "/employee/services",
   },
   {
-    label: "My Appointments",
+    label: "Mes rendez-vous",
     icon: CalendarDays,
     path: "/employee/appointments",
   },
   {
-    label: "My Statistics",
+    label: "Mes statistiques",
     icon: BarChart3,
     path: "/employee/statistics",
   },
   {
-    label: "My Profile",
+    label: "Mon profil",
     icon: User,
     path: "/employee/profile",
   },
@@ -40,7 +40,7 @@ const links = [
 
 const months = ["2026-01", "2026-02", "2026-03", "2026-04"];
 
-export default function EmployeeLayout() {
+const EmployeeLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -54,29 +54,31 @@ export default function EmployeeLayout() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#F8F8F8]">
-      <aside className="hidden w-72 flex-col bg-[#111] text-[#FFF4D6] md:flex">
-        <div className="border-b border-white/10 p-6">
-          <h1 className="font-[Cinzel] text-2xl tracking-[3px]">ANFEL K</h1>
+    <div className="role-employee flex min-h-screen bg-(--cream)">
+      <aside className="hidden w-72 flex-col bg-(--role-shell-bg) text-(--role-shell-text) md:flex">
+        <div className="border-b border-(--role-shell-border) p-6">
+          <h1 className="font-title text-2xl tracking-[3px]">ANFAL K</h1>
 
-          <p className="text-xs tracking-[4px] text-white/60">INSTITUTE</p>
+          <p className="text-xs tracking-[4px] text-(--role-shell-text)/60">
+            INSTITUTE
+          </p>
 
-          <p className="mt-4 text-xs font-semibold uppercase tracking-[2px] text-[#D8B98A]">
-            EMPLOYEE
+          <p className="mt-4 text-xs font-semibold uppercase tracking-[2px] text-(--role-shell-accent)">
+            EMPLOYÉ
           </p>
         </div>
 
         <nav className="flex-1 space-y-2 p-4">
           {links.map(({ label, icon: Icon, path }) => {
-            if (label === "My Statistics") {
+            if (label === "Mes statistiques") {
               return (
                 <div key={path}>
                   <button
                     onClick={() => setOpenStats(!openStats)}
                     className={`flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm ${
                       location.pathname.includes("statistics")
-                        ? "bg-[#3E2C23]"
-                        : "text-white/70 hover:bg-white/10"
+                        ? "bg-(--role-shell-accent) text-(--role-shell-accent-text)"
+                        : "text-(--role-shell-text)/70 hover:bg-black/5"
                     }`}
                   >
                     <span className="flex items-center gap-3">
@@ -100,7 +102,7 @@ export default function EmployeeLayout() {
                           onClick={() =>
                             navigate(`/employee/statistics/${month}`)
                           }
-                          className="w-full rounded-lg px-3 py-2 text-left text-xs text-white/60 hover:bg-white/10"
+                          className="w-full rounded-lg px-3 py-2 text-left text-xs text-(--role-shell-text)/60 hover:bg-black/5"
                         >
                           {month}
                         </button>
@@ -117,8 +119,8 @@ export default function EmployeeLayout() {
                 onClick={() => navigate(path)}
                 className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm ${
                   location.pathname === path
-                    ? "bg-[#3E2C23]"
-                    : "text-white/70 hover:bg-white/10"
+                    ? "bg-(--role-shell-accent) text-(--role-shell-accent-text)"
+                    : "text-(--role-shell-text)/70 hover:bg-black/5"
                 }`}
               >
                 <Icon size={18} />
@@ -128,13 +130,13 @@ export default function EmployeeLayout() {
           })}
         </nav>
 
-        <div className="border-t border-white/10 p-4">
+        <div className="border-t border-(--role-shell-border) p-4">
           <button
             onClick={logout}
-            className="flex w-full items-center gap-3 rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-300"
+            className="flex w-full items-center gap-3 rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-600"
           >
             <LogOut size={18} />
-            Sign Out
+            Déconnexion
           </button>
         </div>
       </aside>
@@ -144,4 +146,6 @@ export default function EmployeeLayout() {
       </main>
     </div>
   );
-}
+};
+
+export default EmployeeLayout;

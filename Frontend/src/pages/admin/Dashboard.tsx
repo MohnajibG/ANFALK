@@ -40,7 +40,7 @@ const paymentLabels: Record<string, string> = {
   transfer: "Virement",
 };
 
-export default function Dashboard() {
+const Dashboard = () => {
   const [period, setPeriod] = useState<DashboardPeriod>("month");
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -450,4 +450,6 @@ export default function Dashboard() {
       </section>
     </div>
   );
-}
+};
+
+export default Dashboard;

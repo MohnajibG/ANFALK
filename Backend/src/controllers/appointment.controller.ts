@@ -30,6 +30,7 @@ export const createAppointmentController = async (
   try {
     const appointment = await createAppointment({
       ...req.body,
+      date: new Date(req.body.date),
       createdBy: req.user!.id,
     });
 

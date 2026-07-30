@@ -44,6 +44,16 @@ export const buildAppointmentSnapshot = async (data: {
   client: string;
   services: { service: string; employee: string }[];
 }) => {
+  if (!data.services.length) {
+    throw new Error("Veuillez sélectionner au moins une prestation");
+  }
+
+  if (data.services.some((item) => !item.service || !item.employee)) {
+    throw new Error(
+      "Chaque prestation doit avoir un service et un employé assignés",
+    );
+  }
+
   const client = await Client.findOne({
     _id: data.client,
     isDeleted: false,

@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useAuth } from "./useAuth";
 import type { Appointment } from "../types/appointment";
 
-export default function useAppointments(appointments: Appointment[]) {
+const useAppointments = (appointments: Appointment[]) => {
   const { user } = useAuth();
 
   const role = user?.role;
@@ -48,4 +48,6 @@ export default function useAppointments(appointments: Appointment[]) {
       delete: true,
     },
   };
-}
+};
+
+export default useAppointments;

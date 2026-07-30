@@ -51,10 +51,10 @@ const ClientSelector = ({
   }, [loadClients]);
 
   return (
-    <section className="rounded-3xl border border-[#D8B98A]/30 bg-white p-5">
+    <section className="rounded-3xl border border-(--border) bg-white p-5">
       <label className="text-sm font-semibold">Client</label>
 
-      <div className="mt-3 flex items-center gap-3 rounded-xl border p-3">
+      <div className="mt-3 flex items-center gap-3 rounded-xl border border-(--border) p-3">
         <User size={18} />
         <input
           value={search}
@@ -64,7 +64,7 @@ const ClientSelector = ({
         />
       </div>
 
-      {loading && <p className="mt-3 text-sm text-gray-500">Recherche...</p>}
+      {loading && <p className="mt-3 text-sm text-(--muted)">Recherche...</p>}
 
       {!loading && search.length >= 2 && (
         <div className="mt-3 space-y-2">
@@ -77,17 +77,17 @@ const ClientSelector = ({
                 setSearch("");
                 setClients([]);
               }}
-              className="flex w-full justify-between rounded-xl bg-[#F7F2EA] p-3 hover:bg-[#EFE3D2]"
+              className="flex w-full justify-between rounded-xl bg-(--surface) p-3 hover:bg-(--cream)"
             >
               <span>
                 {client.firstName} {client.lastName}
               </span>
-              <span className="text-xs text-gray-500">{client.phone}</span>
+              <span className="text-xs text-(--muted)">{client.phone}</span>
             </button>
           ))}
 
           {clients.length === 0 && (
-            <p className="rounded-xl bg-[#F7F2EA] p-3 text-sm text-gray-500">
+            <p className="rounded-xl bg-(--surface) p-3 text-sm text-(--muted)">
               Aucun client trouvé.
             </p>
           )}
@@ -95,7 +95,7 @@ const ClientSelector = ({
       )}
 
       {selectedClient && (
-        <div className="mt-3 rounded-xl bg-[#151515] p-3 text-[#FFF4D6]">
+        <div className="mt-3 rounded-xl bg-(--black) p-3 text-(--cream)">
           Client :{" "}
           <strong className="ml-2">
             {selectedClient.firstName} {selectedClient.lastName}

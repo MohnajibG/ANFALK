@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 const links = [
-  { label: "Dashboard", icon: LayoutDashboard, path: "/admin/dashboard" },
+  { label: "Tableau de bord", icon: LayoutDashboard, path: "/admin/dashboard" },
   { label: "Clients", icon: Users, path: "/admin/clients" },
   { label: "Employés", icon: UserCog, path: "/admin/employees" },
   { label: "Catégories", icon: Layers, path: "/admin/categories" },
@@ -28,7 +28,7 @@ const links = [
   { label: "Caisses", icon: Wallet, path: "/admin/cash-register" },
 ];
 
-export default function AdminLayout() {
+const AdminLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
@@ -187,4 +187,6 @@ export default function AdminLayout() {
       </main>
     </div>
   );
-}
+};
+
+export default AdminLayout;

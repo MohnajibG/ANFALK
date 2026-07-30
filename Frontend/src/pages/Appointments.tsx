@@ -70,7 +70,7 @@ const employeeNames = (appointment: Appointment) => {
   return Array.from(new Set(names.filter(Boolean))).join(", ");
 };
 
-export default function Appointments() {
+const Appointments = () => {
   const { user } = useAuth();
 
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -540,4 +540,6 @@ export default function Appointments() {
       )}
     </section>
   );
-}
+};
+
+export default Appointments;

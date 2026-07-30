@@ -19,7 +19,7 @@ import SearchBar from "../../components/ui/SearchBar";
 import EmptyState from "../../components/ui/EmptyState";
 import LoadingState from "../../components/ui/LoadingState";
 
-export default function Employees() {
+const Employees = () => {
   const navigate = useNavigate();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [search, setSearch] = useState("");
@@ -123,4 +123,6 @@ export default function Employees() {
       )}
     </div>
   );
-}
+};
+
+export default Employees;

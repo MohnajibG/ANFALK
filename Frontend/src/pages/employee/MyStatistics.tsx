@@ -7,7 +7,7 @@ import { getMyEmployeeProfile } from "../../api/employee.api";
 
 import type { Employee } from "../../types/employee";
 
-export default function MyStatistics() {
+const MyStatistics = () => {
   const { month } = useParams();
 
   const [employee, setEmployee] = useState<Employee | null>(null);
@@ -28,7 +28,7 @@ export default function MyStatistics() {
 
   if (!employee) {
     return (
-      <div className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6">
+      <div className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm)">
         Chargement...
       </div>
     );
@@ -38,16 +38,16 @@ export default function MyStatistics() {
 
   return (
     <div className="w-full space-y-6">
-      <div className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] px-5 py-7 sm:px-8">
+      <div className="rounded-3xl border border-(--border) bg-white px-5 py-7 shadow-(--shadow-sm) sm:px-8">
         <p className="ak-kicker">Statistiques employé</p>
 
-        <h1 className="mt-3 font-[Cinzel] text-3xl font-bold">
+        <h1 className="mt-3 font-title text-3xl font-bold">
           Performance de {employee.firstName}
         </h1>
 
         <p className="ak-muted mt-2">{employee.speciality ?? "Employé"}</p>
 
-        <div className="mt-4 inline-flex rounded-xl bg-[#FFF4D6] px-4 py-2 text-sm font-semibold text-[#3E2C23]">
+        <div className="mt-4 inline-flex rounded-xl bg-(--champagne)/20 px-4 py-2 text-sm font-semibold text-(--brown-dark)">
           {currentMonth}
         </div>
       </div>
@@ -65,17 +65,17 @@ export default function MyStatistics() {
       <div className="grid gap-4 lg:grid-cols-3">
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6 lg:col-span-2"
+          className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm) lg:col-span-2"
         >
           <h2 className="mb-5 font-semibold">
             Évolution du chiffre d'affaires
           </h2>
 
-          <div className="flex h-64 items-end gap-3 rounded-3xl bg-[#f7f4ee] p-5">
+          <div className="flex h-64 items-end gap-3 rounded-3xl bg-(--surface) p-5">
             {[30, 45, 60, 40, 70, 80, 65].map((height, index) => (
               <div
                 key={index}
-                className="flex-1 rounded-full bg-[#3E2C23]"
+                className="flex-1 rounded-full bg-(--black)"
                 style={{
                   height: `${height}%`,
                 }}
@@ -90,7 +90,7 @@ export default function MyStatistics() {
 
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6"
+          className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm)"
         >
           <h2 className="mb-5 font-semibold">Résumé mensuel</h2>
 
@@ -109,19 +109,19 @@ export default function MyStatistics() {
           </div>
         </motion.div>
 
-        <motion.div className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6 lg:col-span-3">
+        <motion.div className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm) lg:col-span-3">
           <h2 className="mb-5 font-semibold">Prestations réalisées</h2>
 
-          <div className="rounded-2xl bg-[#f7f4ee] p-5 text-sm text-gray-500">
+          <div className="rounded-2xl bg-(--surface) p-5 text-sm text-(--muted)">
             Aucune donnée disponible
           </div>
         </motion.div>
       </div>
     </div>
   );
-}
+};
 
-function KpiCard({
+const KpiCard = ({
   title,
   value,
   icon: Icon,
@@ -129,23 +129,23 @@ function KpiCard({
   title: string;
   value: string;
   icon: React.ElementType;
-}) {
-  return (
-    <motion.div
-      whileHover={{ y: -4 }}
-      className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6"
-    >
-      <div className="flex justify-between">
-        <div>
-          <p className="ak-muted text-sm">{title}</p>
+}) => (
+  <motion.div
+    whileHover={{ y: -4 }}
+    className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm)"
+  >
+    <div className="flex justify-between">
+      <div>
+        <p className="ak-muted text-sm">{title}</p>
 
-          <h3 className="mt-2 text-2xl font-bold">{value}</h3>
-        </div>
-
-        <div className="rounded-full bg-[#FFF4D6] p-4">
-          <Icon size={22} />
-        </div>
+        <h3 className="mt-2 text-2xl font-bold">{value}</h3>
       </div>
-    </motion.div>
-  );
-}
+
+      <div className="rounded-full bg-(--cream) p-4">
+        <Icon size={22} />
+      </div>
+    </div>
+  </motion.div>
+);
+
+export default MyStatistics;

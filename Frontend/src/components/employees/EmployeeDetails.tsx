@@ -40,7 +40,7 @@ const recentServices = [
   },
 ];
 
-export default function EmployeeDetails() {
+const EmployeeDetails = () => {
   const { id } = useParams();
 
   const navigate = useNavigate();
@@ -245,9 +245,9 @@ export default function EmployeeDetails() {
       </section>
     </div>
   );
-}
+};
 
-function Card({
+const Card = ({
   title,
   value,
   icon,
@@ -255,7 +255,7 @@ function Card({
   title: string;
   value: string;
   icon: React.ReactNode;
-}) {
+}) => {
   return (
     <motion.div
       whileHover={{ y: -5 }}
@@ -272,9 +272,9 @@ function Card({
       </div>
     </motion.div>
   );
-}
+};
 
-function Info({
+const Info = ({
   icon,
   label,
   value,
@@ -282,7 +282,7 @@ function Info({
   icon: React.ReactNode;
   label: string;
   value: string;
-}) {
+}) => {
   return (
     <div className="flex items-center gap-3">
       <div className="rounded-xl bg-(--cream) p-3 text-(--brown)">{icon}</div>
@@ -294,9 +294,9 @@ function Info({
       </div>
     </div>
   );
-}
+};
 
-function Stat({
+const Stat = ({
   icon,
   title,
   value,
@@ -304,7 +304,7 @@ function Stat({
   icon: React.ReactNode;
   title: string;
   value: string;
-}) {
+}) => {
   return (
     <div className="flex items-center gap-4 rounded-2xl bg-(--soft) p-4">
       <div className="rounded-xl bg-(--cream) p-3 text-(--brown)">{icon}</div>
@@ -316,4 +316,6 @@ function Stat({
       </div>
     </div>
   );
-}
+};
+
+export default EmployeeDetails;

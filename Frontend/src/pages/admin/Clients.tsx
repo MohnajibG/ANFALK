@@ -29,7 +29,7 @@ interface Client {
   lastVisit?: string;
 }
 
-export default function Clients() {
+const Clients = () => {
   const [clients, setClients] = useState<Client[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
@@ -192,4 +192,6 @@ export default function Clients() {
       />
     </div>
   );
-}
+};
+
+export default Clients;

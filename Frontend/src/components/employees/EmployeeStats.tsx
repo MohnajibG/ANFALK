@@ -2,11 +2,7 @@ import { Users, UserCheck, WalletCards } from "lucide-react";
 import StatCard from "../ui/StatCard";
 import type { Employee } from "../../types/employee";
 
-export default function EmployeeStats({
-  employees,
-}: {
-  employees: Employee[];
-}) {
+const EmployeeStats = ({ employees }: { employees: Employee[] }) => {
   const total = employees.length;
   const active = employees.filter((e) => e.isActive).length;
   const cashiers = employees.filter((e) => e.role === "cashier").length;
@@ -33,4 +29,6 @@ export default function EmployeeStats({
       />
     </div>
   );
-}
+};
+
+export default EmployeeStats;

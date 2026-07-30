@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
 import {
   Download,
   Euro,
@@ -13,6 +12,7 @@ import {
 
 import { getCashRegisterHistory } from "../../api/cashRegister.api";
 import type { CashRegister } from "../../types/cashRegister";
+import StatCard from "../../components/ui/StatCard";
 
 const CashRegisterHistory = () => {
   const [history, setHistory] = useState<CashRegister[]>([]);
@@ -111,7 +111,7 @@ const CashRegisterHistory = () => {
 
   if (loading) {
     return (
-      <div className="flex min-h-100 items-center justify-center text-gray-500">
+      <div className="flex min-h-100 items-center justify-center text-(--muted)">
         Chargement de l'historique des caisses...
       </div>
     );
@@ -119,22 +119,22 @@ const CashRegisterHistory = () => {
 
   return (
     <div className="w-full space-y-6">
-      <section className="flex flex-col gap-5 rounded-3xl border border-[#eadfce] bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
+      <section className="flex flex-col gap-5 rounded-3xl border border-(--border) bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.4em] text-[#8b7560]">
+          <p className="text-xs uppercase tracking-[0.4em] text-(--brown)">
             Administration
           </p>
-          <h1 className="mt-3 font-serif text-3xl font-bold">
+          <h1 className="mt-3 font-title text-3xl font-bold text-(--black)">
             Historique des caisses
           </h1>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-(--muted)">
             Suivi des ouvertures/fermetures de caisse par journée
           </p>
         </div>
 
         <button
           onClick={exportCSV}
-          className="flex items-center justify-center gap-2 rounded-xl bg-[#3E2C23] px-5 py-3 text-[#fff4d6] transition hover:bg-[#5a3a1e]"
+          className="flex items-center justify-center gap-2 rounded-xl bg-(--black) px-5 py-3 text-(--cream) transition hover:bg-(--brown-dark)"
         >
           <Download size={18} />
           Exporter CSV
@@ -159,7 +159,7 @@ const CashRegisterHistory = () => {
         <div className="rounded-2xl bg-red-50 p-4 text-red-600">{error}</div>
       )}
 
-      <div className="flex flex-col gap-3 rounded-3xl border border-[#eadfce] bg-white p-5 md:flex-row">
+      <div className="flex flex-col gap-3 rounded-3xl border border-(--border) bg-white p-5 md:flex-row">
         <div className="flex flex-1 items-center gap-3">
           <Search size={20} />
           <input
@@ -175,7 +175,7 @@ const CashRegisterHistory = () => {
           onChange={(e) =>
             setStatus(e.target.value as "all" | "open" | "closed")
           }
-          className="rounded-xl border border-[#eadfce] px-4 py-2"
+          className="rounded-xl border border-(--border) px-4 py-2"
         >
           <option value="all">Tous les statuts</option>
           <option value="open">Ouvertes</option>
@@ -183,10 +183,10 @@ const CashRegisterHistory = () => {
         </select>
       </div>
 
-      <div className="overflow-hidden rounded-3xl border border-[#eadfce] bg-white">
+      <div className="overflow-hidden rounded-3xl border border-(--border) bg-white">
         <div className="overflow-x-auto">
           <table className="w-full min-w-225 text-left">
-            <thead className="border-b border-[#eadfce] bg-[#fffaf0]">
+            <thead className="border-b border-(--border) bg-(--surface)">
               <tr>
                 <th className="px-6 py-4 text-sm font-semibold">Date</th>
                 <th className="px-6 py-4 text-sm font-semibold">Caissier</th>
@@ -207,7 +207,7 @@ const CashRegisterHistory = () => {
                 return (
                   <tr
                     key={item._id}
-                    className="border-b border-[#eadfce] last:border-none"
+                    className="border-b border-(--border) last:border-none"
                   >
                     <td className="px-6 py-4 font-semibold">{item.date}</td>
                     <td className="px-6 py-4">{cashierName}</td>
@@ -233,7 +233,7 @@ const CashRegisterHistory = () => {
                     </td>
                     <td className="px-6 py-4">
                       <span
-                        className={`flex w-fit items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${item.status === "open" ? "bg-blue-100 text-blue-700" : "bg-gray-100 text-gray-700"}`}
+                        className={`flex w-fit items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${item.status === "open" ? "bg-blue-100 text-blue-700" : "bg-(--surface) text-(--muted)"}`}
                       >
                         {item.status === "open" ? (
                           <Unlock size={12} />
@@ -250,7 +250,7 @@ const CashRegisterHistory = () => {
                 <tr>
                   <td
                     colSpan={8}
-                    className="px-6 py-10 text-center text-gray-500"
+                    className="px-6 py-10 text-center text-(--muted)"
                   >
                     Aucune session de caisse trouvée.
                   </td>
@@ -263,28 +263,5 @@ const CashRegisterHistory = () => {
     </div>
   );
 };
-
-function StatCard({
-  icon: Icon,
-  title,
-  value,
-}: {
-  icon: React.ComponentType<{ size?: number }>;
-  title: string;
-  value: string | number;
-}) {
-  return (
-    <motion.div
-      whileHover={{ y: -4 }}
-      className="rounded-3xl border border-[#eadfce] bg-white p-6"
-    >
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500">{title}</p>
-        <Icon size={22} />
-      </div>
-      <h3 className="mt-4 text-3xl font-bold">{value}</h3>
-    </motion.div>
-  );
-}
 
 export default CashRegisterHistory;

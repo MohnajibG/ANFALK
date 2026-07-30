@@ -178,6 +178,16 @@ const AppointmentForm = ({
         throw new Error("Veuillez sélectionner au moins une prestation");
       }
 
+      const missingEmployee = selectedServices.find(
+        (service) => !service.employee,
+      );
+
+      if (missingEmployee) {
+        throw new Error(
+          `Veuillez choisir un employé pour "${missingEmployee.name}"`,
+        );
+      }
+
       const serviceItems = selectedServices.map((service) => ({
         service: service.service,
 

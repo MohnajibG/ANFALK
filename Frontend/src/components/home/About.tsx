@@ -19,7 +19,7 @@ const stats = [
   },
 ];
 
-export default function About() {
+const About = () => {
   return (
     <section
       id="about"
@@ -118,4 +118,6 @@ export default function About() {
       </div>
     </section>
   );
-}
+};
+
+export default About;

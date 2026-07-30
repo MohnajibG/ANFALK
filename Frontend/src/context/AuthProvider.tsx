@@ -10,7 +10,7 @@ type Props = {
   children: ReactNode;
 };
 
-export function AuthProvider({ children }: Props) {
+export const AuthProvider = ({ children }: Props) => {
   const [user, setUser] = useState<AuthUser | null>(null);
 
   const [loading, setLoading] = useState(true);
@@ -72,4 +72,4 @@ export function AuthProvider({ children }: Props) {
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
+};

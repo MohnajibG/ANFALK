@@ -52,6 +52,46 @@
 }
 
 /* ================================
+   EN-TÊTES DE PAGE (kicker / texte muet)
+================================ */
+
+.ak-kicker {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.35em;
+  color: var(--brown);
+}
+
+.ak-muted {
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+/* ================================
+   THÈMES DE CHROME PAR RÔLE
+   (barre latérale / en-tête uniquement —
+   le contenu des pages reste sur les
+   tokens globaux ci-dessus pour les 3 rôles)
+================================ */
+
+.role-cashier {
+  --role-shell-bg: #151515;
+  --role-shell-text: #fff4d6;
+  --role-shell-accent: #d8b98a;
+  --role-shell-accent-text: #151515;
+  --role-shell-border: rgba(216, 185, 138, 0.2);
+}
+
+.role-employee {
+  --role-shell-bg: #fbf6f0;
+  --role-shell-text: #4a3226;
+  --role-shell-accent: #b5714b;
+  --role-shell-accent-text: #fbf6f0;
+  --role-shell-border: #e8d9c9;
+}
+
+/* ================================
    RESET
 ================================ */
 

@@ -29,7 +29,7 @@ const statusStyle: Record<WaitlistStatus, string> = {
   cancelled: "bg-red-100 text-red-800",
 };
 
-export default function Waitlist() {
+const Waitlist = () => {
   const [entries, setEntries] = useState<WaitlistEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -349,4 +349,6 @@ export default function Waitlist() {
       )}
     </section>
   );
-}
+};
+
+export default Waitlist;

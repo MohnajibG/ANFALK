@@ -52,7 +52,7 @@ const TodayAppointments = ({ onSelect }: Props) => {
 
   if (loading) {
     return (
-      <section className="rounded-3xl border border-[#D8B98A]/30 bg-white p-5 text-sm text-gray-500">
+      <section className="rounded-3xl border border-(--border) bg-white p-5 text-sm text-(--muted)">
         Chargement des rendez-vous du jour...
       </section>
     );
@@ -61,7 +61,7 @@ const TodayAppointments = ({ onSelect }: Props) => {
   if (!appointments.length) return null;
 
   return (
-    <section className="rounded-3xl border border-[#D8B98A]/30 bg-white p-5">
+    <section className="rounded-3xl border border-(--border) bg-white p-5">
       <div className="mb-4 flex items-center gap-3">
         <CalendarClock size={20} />
         <h2 className="font-semibold">
@@ -83,8 +83,8 @@ const TodayAppointments = ({ onSelect }: Props) => {
               onClick={() => billable && onSelect(appointment)}
               className={`flex items-center justify-between rounded-2xl p-4 text-left transition ${
                 billable
-                  ? "bg-[#F7F2EA] hover:bg-[#EFE3D2]"
-                  : "cursor-not-allowed bg-gray-50 opacity-60"
+                  ? "bg-(--surface) hover:bg-(--cream)"
+                  : "cursor-not-allowed bg-(--surface)/60 opacity-60"
               }`}
             >
               <div>
@@ -92,7 +92,7 @@ const TodayAppointments = ({ onSelect }: Props) => {
                   <User size={16} />
                   {client ? `${client.firstName} ${client.lastName}` : "Client"}
                 </div>
-                <p className="mt-1 flex items-center gap-1 text-xs text-gray-500">
+                <p className="mt-1 flex items-center gap-1 text-xs text-(--muted)">
                   <Clock size={13} />
                   {appointment.startTime} - {appointment.endTime}
                 </p>

@@ -11,7 +11,7 @@ const WaitingAppointments = ({ appointments, selectAppointment }: Props) => {
   if (!appointments.length) return null;
 
   return (
-    <section className="rounded-3xl border border-[#D8B98A]/30 bg-white p-5">
+    <section className="rounded-3xl border border-(--border) bg-white p-5">
       <div className="mb-4 flex items-center gap-3">
         <CalendarClock size={20} />
         <h2 className="font-semibold">Rendez-vous en attente</h2>
@@ -23,7 +23,7 @@ const WaitingAppointments = ({ appointments, selectAppointment }: Props) => {
             key={appointment._id}
             type="button"
             onClick={() => selectAppointment(appointment)}
-            className="flex w-full items-center justify-between rounded-2xl bg-[#F7F2EA] p-4 text-left hover:bg-[#EFE3D2]"
+            className="flex w-full items-center justify-between rounded-2xl bg-(--surface) p-4 text-left hover:bg-(--cream)"
           >
             <div>
               <div className="flex items-center gap-2 font-semibold">
@@ -33,10 +33,10 @@ const WaitingAppointments = ({ appointments, selectAppointment }: Props) => {
                   : "Client"}
               </div>
 
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-(--muted)">
                 {appointment.startTime} - {appointment.endTime}
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-(--muted)">
                 {appointment.services.length} prestation(s)
               </p>
             </div>

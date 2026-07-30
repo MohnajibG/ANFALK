@@ -16,11 +16,11 @@ categoryApi.interceptors.request.use((config) => {
   return config;
 });
 
-export async function getCategories(): Promise<Category[]> {
+export const getCategories = async (): Promise<Category[]> => {
   const { data } = await categoryApi.get("/categories");
 
   return data.categories ?? [];
-}
+};
 
 export const createCategory = async (payload: {
   name: string;

@@ -30,16 +30,16 @@ const RegisterStatusBar = ({ register, onRequestClose }: Props) => {
     register.totals.cash + register.totals.card + register.totals.transfer;
 
   return (
-    <div className="flex flex-col gap-4 rounded-3xl border border-[#D8B98A]/30 bg-[#151515] p-5 text-[#FFF4D6] sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-4 rounded-3xl border border-(--border) bg-(--black) p-5 text-(--cream) sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#D8B98A]/20">
-          <Wallet size={22} className="text-[#D8B98A]" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-(--champagne)/20">
+          <Wallet size={22} className="text-(--champagne)" />
         </div>
         <div>
-          <p className="text-xs uppercase tracking-[0.3em] text-[#D8B98A]">
+          <p className="text-xs uppercase tracking-[0.3em] text-(--champagne)">
             Caisse ouverte
           </p>
-          <div className="mt-1 flex items-center gap-2 text-sm text-white/70">
+          <div className="mt-1 flex items-center gap-2 text-sm text-(--cream)/70">
             <Clock size={14} />
             Depuis {duration} • Fond {register.openingAmount} DA
           </div>
@@ -48,8 +48,10 @@ const RegisterStatusBar = ({ register, onRequestClose }: Props) => {
 
       <div className="flex items-center gap-6">
         <div className="text-right">
-          <p className="text-xs text-white/50">Encaissé aujourd'hui</p>
-          <p className="text-xl font-bold text-[#D8B98A]">{totalToday} DA</p>
+          <p className="text-xs text-(--cream)/50">Encaissé aujourd'hui</p>
+          <p className="text-xl font-bold text-(--champagne)">
+            {totalToday} DA
+          </p>
         </div>
 
         <button

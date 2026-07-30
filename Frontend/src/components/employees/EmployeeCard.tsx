@@ -13,14 +13,14 @@ interface EmployeeCardProps {
   onSchedule: (id: string) => void;
 }
 
-export default function EmployeeCard({
+const EmployeeCard = ({
   employee,
   onStatusChange,
   onDelete,
   onView,
   onEdit,
   onSchedule,
-}: EmployeeCardProps) {
+}: EmployeeCardProps) => {
   return (
     <motion.div
       whileHover={{ backgroundColor: "var(--surface)" }}
@@ -90,4 +90,6 @@ export default function EmployeeCard({
       </div>
     </motion.div>
   );
-}
+};
+
+export default EmployeeCard;
