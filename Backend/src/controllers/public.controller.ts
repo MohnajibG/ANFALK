@@ -101,7 +101,10 @@ export const createOnlineAppointmentController = async (
   res: Response,
 ) => {
   try {
-    const appointment = await createOnlineAppointment(req.body);
+    const appointment = await createOnlineAppointment({
+      ...req.body,
+      date: new Date(req.body.date),
+    });
 
     res.status(201).json({
       success: true,

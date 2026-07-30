@@ -15,10 +15,15 @@ const DEFAULT_WEEKLY_HOURS: Record<DayOfWeek, IDayHours> = {
   sunday: { isOpen: false },
 };
 
-const dateKey = (date: Date) => date.toISOString().slice(0, 10);
+// Défensif : certains appelants transmettent encore une chaîne (payload
+// JSON non converti) plutôt qu'un vrai objet Date
+const asDate = (date: Date | string) =>
+  date instanceof Date ? date : new Date(date);
 
-const getDayOfWeek = (date: Date): DayOfWeek => {
-  const jsDay = date.getDay();
+const dateKey = (date: Date | string) => asDate(date).toISOString().slice(0, 10);
+
+const getDayOfWeek = (date: Date | string): DayOfWeek => {
+  const jsDay = asDate(date).getDay();
   return DAYS_OF_WEEK[(jsDay + 6) % 7] as DayOfWeek;
 };
 
@@ -91,7 +96,7 @@ export interface EffectiveHours {
 
 export const getEffectiveHours = async (
   employeeId: string,
-  date: Date,
+  date: Date | string,
 ): Promise<EffectiveHours> => {
   const schedule = await getOrCreateSchedule(employeeId);
 
