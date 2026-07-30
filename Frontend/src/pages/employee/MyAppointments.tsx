@@ -14,7 +14,7 @@ interface EmployeeAppointment {
   status: string;
 }
 
-export default function MyAppointments() {
+const MyAppointments = () => {
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [appointments, setAppointments] = useState<EmployeeAppointment[]>([]);
 
@@ -40,7 +40,7 @@ export default function MyAppointments() {
 
   if (!employee) {
     return (
-      <div className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-(--shadow-sm) p-6">
+      <div className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm)">
         Chargement...
       </div>
     );
@@ -52,10 +52,10 @@ export default function MyAppointments() {
 
   return (
     <div className="flex w-full flex-col gap-6">
-      <div className="rounded-md border border-(--border) bg-white p-6 shadow-(--shadow-sm) sm:p-8">
+      <div className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm) sm:p-8">
         <p className="ak-kicker">Espace employé</p>
 
-        <h1 className="mt-3 font-[Cinzel] text-3xl font-bold">
+        <h1 className="mt-3 font-title text-3xl font-bold">
           Mes rendez-vous
         </h1>
 
@@ -84,11 +84,11 @@ export default function MyAppointments() {
         />
       </div>
 
-      <div className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-5 sm:p-6">
+      <div className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm)">
         <h2 className="mb-5 font-semibold">Planning du jour</h2>
 
         {appointments.length === 0 ? (
-          <div className="text-center text-sm text-stone-500">
+          <div className="text-center text-sm text-(--muted)">
             Aucun rendez-vous disponible
           </div>
         ) : (
@@ -107,7 +107,7 @@ export default function MyAppointments() {
                   <div>
                     <p className="font-bold">{appointment.time}</p>
 
-                    <p className="text-xs text-stone-500">
+                    <p className="text-xs text-(--muted)">
                       {appointment.duration}
                     </p>
                   </div>
@@ -119,7 +119,7 @@ export default function MyAppointments() {
                   <div>
                     <p className="font-semibold">{appointment.client}</p>
 
-                    <p className="text-xs text-stone-500">Client</p>
+                    <p className="text-xs text-(--muted)">Client</p>
                   </div>
                 </div>
 
@@ -129,7 +129,7 @@ export default function MyAppointments() {
                   <div>
                     <p className="font-semibold">{appointment.service}</p>
 
-                    <p className="text-xs text-stone-500">Prestation</p>
+                    <p className="text-xs text-(--muted)">Prestation</p>
                   </div>
                 </div>
 
@@ -143,9 +143,9 @@ export default function MyAppointments() {
       </div>
     </div>
   );
-}
+};
 
-function InfoCard({
+const InfoCard = ({
   title,
   value,
   icon,
@@ -153,21 +153,21 @@ function InfoCard({
   title: string;
   value: string;
   icon: React.ReactNode;
-}) {
-  return (
-    <motion.div
-      whileHover={{ y: -4 }}
-      className="flex flex-1 items-center justify-between rounded-3xl border border-(--border) bg-white p-6"
-    >
-      <div>
-        <p className="text-sm text-stone-500">{title}</p>
+}) => (
+  <motion.div
+    whileHover={{ y: -4 }}
+    className="flex flex-1 items-center justify-between rounded-3xl border border-(--border) bg-white p-6"
+  >
+    <div>
+      <p className="text-sm text-(--muted)">{title}</p>
 
-        <h3 className="mt-2 text-3xl font-bold">{value}</h3>
-      </div>
+      <h3 className="mt-2 text-3xl font-bold">{value}</h3>
+    </div>
 
-      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-(--cream)">
-        {icon}
-      </div>
-    </motion.div>
-  );
-}
+    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-(--cream)">
+      {icon}
+    </div>
+  </motion.div>
+);
+
+export default MyAppointments;

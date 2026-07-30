@@ -11,15 +11,15 @@ type Props = {
   updatePrice: (index: number, price: number) => void;
 };
 
-export default function TicketCart({
+const TicketCart = ({
   cart,
   employees,
   removeItem,
   updateEmployee,
   updatePrice,
-}: Props) {
+}: Props) => {
   return (
-    <section className="rounded-3xl border border-[#D8B98A]/30 bg-white p-6">
+    <section className="rounded-3xl border border-(--border) bg-white p-6">
       <div className="flex justify-between">
         <h2 className="text-xl font-bold">Ticket</h2>
         <Receipt />
@@ -27,18 +27,18 @@ export default function TicketCart({
 
       <div className="mt-5 space-y-4">
         {!cart.length && (
-          <p className="text-sm text-gray-400">Aucun service ajouté</p>
+          <p className="text-sm text-(--muted)">Aucun service ajouté</p>
         )}
 
         {cart.map((item, index) => (
           <div
             key={`${item.service._id}-${index}`}
-            className="rounded-2xl border p-4"
+            className="rounded-2xl border border-(--border) p-4"
           >
             <div className="flex items-start justify-between">
               <div>
                 <p className="font-semibold">{item.service.name}</p>
-                <p className="text-xs text-gray-500">{item.duration} min</p>
+                <p className="text-xs text-(--muted)">{item.duration} min</p>
               </div>
 
               <button
@@ -61,7 +61,7 @@ export default function TicketCart({
                   );
                   if (employee) updateEmployee(index, employee);
                 }}
-                className="mt-2 w-full rounded-xl border p-3 outline-none"
+                className="mt-2 w-full rounded-xl border border-(--border) p-3 outline-none"
               >
                 <option value="">Choisir un employé</option>
 
@@ -81,7 +81,7 @@ export default function TicketCart({
                 type="number"
                 value={item.finalPrice}
                 onChange={(e) => updatePrice(index, Number(e.target.value))}
-                className="mt-2 w-full rounded-xl border p-3 outline-none"
+                className="mt-2 w-full rounded-xl border border-(--border) p-3 outline-none"
               />
             </div>
           </div>
@@ -89,4 +89,6 @@ export default function TicketCart({
       </div>
     </section>
   );
-}
+};
+
+export default TicketCart;

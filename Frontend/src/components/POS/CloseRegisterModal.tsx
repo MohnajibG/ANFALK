@@ -35,7 +35,7 @@ const CloseRegisterModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-lg rounded-3xl bg-white p-8 shadow-2xl">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -43,10 +43,10 @@ const CloseRegisterModal = ({
               <Lock size={22} />
             </div>
             <div>
-              <h2 className="font-[Cinzel] text-2xl font-bold">
+              <h2 className="font-title text-2xl font-bold">
                 Fermeture de caisse
               </h2>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-(--muted)">
                 Résumé de la journée du {register.date}
               </p>
             </div>
@@ -54,33 +54,35 @@ const CloseRegisterModal = ({
 
           <button
             onClick={onCancel}
-            className="rounded-xl border border-[#eadfce] p-2 hover:bg-[#fff4d6]"
+            className="rounded-xl border border-(--border) p-2 hover:bg-(--cream)"
           >
             <X size={18} />
           </button>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-3 rounded-2xl bg-[#FFFDF8] p-4 text-sm">
+        <div className="mt-6 grid grid-cols-2 gap-3 rounded-2xl bg-(--surface) p-4 text-sm">
           <div>
-            <p className="text-gray-500">Fond de départ</p>
+            <p className="text-(--muted)">Fond de départ</p>
             <p className="font-semibold">{register.openingAmount} DA</p>
           </div>
           <div>
-            <p className="text-gray-500">Tickets encaissés</p>
+            <p className="text-(--muted)">Tickets encaissés</p>
             <p className="font-semibold">{register.totals.ticketsCount}</p>
           </div>
           <div>
-            <p className="text-gray-500">Espèces encaissées</p>
+            <p className="text-(--muted)">Espèces encaissées</p>
             <p className="font-semibold">{register.totals.cash} DA</p>
           </div>
           <div>
-            <p className="text-gray-500">Carte / Virement</p>
+            <p className="text-(--muted)">Carte / Virement</p>
             <p className="font-semibold">
               {register.totals.card + register.totals.transfer} DA
             </p>
           </div>
-          <div className="col-span-2 border-t border-[#eadfce] pt-3">
-            <p className="text-gray-500">Montant attendu en caisse (espèces)</p>
+          <div className="col-span-2 border-t border-(--border) pt-3">
+            <p className="text-(--muted)">
+              Montant attendu en caisse (espèces)
+            </p>
             <p className="text-lg font-bold">{expected} DA</p>
           </div>
         </div>
@@ -95,7 +97,7 @@ const CloseRegisterModal = ({
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="Montant compté en caisse"
-              className="mt-2 w-full rounded-2xl border border-[#eadfce] p-3 text-lg font-semibold outline-none"
+              className="mt-2 w-full rounded-2xl border border-(--border) p-3 text-lg font-semibold outline-none"
             />
           </div>
 
@@ -127,7 +129,7 @@ const CloseRegisterModal = ({
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Remarque (optionnel)..."
             rows={2}
-            className="rounded-2xl border border-[#eadfce] p-3 outline-none"
+            className="rounded-2xl border border-(--border) p-3 outline-none"
           />
 
           {error && (
@@ -140,7 +142,7 @@ const CloseRegisterModal = ({
             <button
               type="button"
               onClick={onCancel}
-              className="flex-1 rounded-2xl border border-[#eadfce] py-3"
+              className="flex-1 rounded-2xl border border-(--border) py-3"
             >
               Annuler
             </button>

@@ -130,7 +130,7 @@ const CashierDashboard = () => {
       <section className="grid gap-6 xl:grid-cols-3">
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6 xl:col-span-2"
+          className="rounded-md border border-(--border) bg-white p-6 shadow-(--shadow-sm) xl:col-span-2"
         >
           <div className="mb-5 flex items-center justify-between">
             <h2 className="font-semibold text-(--black)">Tickets du jour</h2>
@@ -176,7 +176,7 @@ const CashierDashboard = () => {
 
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6"
+          className="rounded-md border border-(--border) bg-white p-6 shadow-(--shadow-sm)"
         >
           <h2 className="mb-5 font-semibold text-(--black)">
             Services populaires

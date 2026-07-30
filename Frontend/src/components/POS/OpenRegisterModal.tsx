@@ -18,25 +18,25 @@ const OpenRegisterModal = ({ onOpen, loading, error }: Props) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
         <div className="flex flex-col items-center text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#151515] text-[#D8B98A]">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-(--black) text-(--champagne)">
             <Lock size={28} />
           </div>
 
-          <h2 className="mt-5 font-[Cinzel] text-2xl font-bold">
+          <h2 className="mt-5 font-title text-2xl font-bold">
             Ouverture de caisse
           </h2>
 
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-(--muted)">
             Saisissez le fond de caisse de départ pour commencer votre journée.
           </p>
         </div>
 
         <form onSubmit={submit} className="mt-8 flex flex-col gap-4">
-          <div className="flex items-center gap-3 rounded-2xl border border-[#D8B98A]/30 bg-[#FFFDF8] px-4 py-3">
-            <Wallet size={20} className="text-[#D8B98A]" />
+          <div className="flex items-center gap-3 rounded-2xl border border-(--border) bg-(--cream) px-4 py-3">
+            <Wallet size={20} className="text-(--champagne)" />
             <input
               autoFocus
               type="number"
@@ -57,7 +57,7 @@ const OpenRegisterModal = ({ onOpen, loading, error }: Props) => {
 
           <button
             disabled={loading || amount === ""}
-            className="flex items-center justify-center gap-2 rounded-2xl bg-[#151515] py-4 font-semibold text-[#FFF4D6] transition hover:bg-[#3E2C23] disabled:opacity-50"
+            className="flex items-center justify-center gap-2 rounded-2xl bg-(--black) py-4 font-semibold text-(--cream) transition hover:bg-(--brown-dark) disabled:opacity-50"
           >
             {loading ? (
               <>

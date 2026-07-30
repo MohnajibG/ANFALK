@@ -14,57 +14,26 @@ type Props = {
   checkout: () => void;
 };
 
-export default function PaymentBox({
+const PaymentBox = ({
   total,
   paymentMethod,
   setPaymentMethod,
   saving,
   checkout,
-}: Props) {
-  const buttonClass = (active: boolean) => `
-
-rounded-xl
-p-3
-${active ? "bg-[#151515] text-[#FFF4D6]" : "bg-[#F7F2EA]"}
-
-`;
+}: Props) => {
+  const buttonClass = (active: boolean) =>
+    `rounded-xl p-3 ${active ? "bg-(--black) text-(--cream)" : "bg-(--surface)"}`;
 
   return (
-    <section
-      className="
-mt-5
-rounded-3xl
-border border-[#D8B98A]/30
-bg-white
-p-6
-"
-    >
-      <div
-        className="
-border-t
-pt-5
-"
-      >
-        <div
-          className="
-flex
-justify-between
-text-xl
-"
-        >
+    <section className="mt-5 rounded-3xl border border-(--border) bg-white p-6">
+      <div className="border-t border-(--border) pt-5">
+        <div className="flex justify-between text-xl">
           <span>Total</span>
 
           <strong>{total} DA</strong>
         </div>
 
-        <div
-          className="
-mt-5
-grid
-grid-cols-3
-gap-2
-"
-        >
+        <div className="mt-5 grid grid-cols-3 gap-2">
           <button
             onClick={() => setPaymentMethod("cash")}
             className={buttonClass(paymentMethod === "cash")}
@@ -90,20 +59,13 @@ gap-2
         <button
           disabled={saving}
           onClick={checkout}
-          className="
-mt-5
-w-full
-rounded-xl
-bg-[#D8B98A]
-py-4
-font-bold
-text-[#151515]
-disabled:opacity-50
-"
+          className="mt-5 w-full rounded-xl bg-(--black) py-4 font-bold text-(--cream) transition hover:bg-(--brown-dark) disabled:opacity-50"
         >
           {saving ? "Création..." : "Valider le paiement"}
         </button>
       </div>
     </section>
   );
-}
+};
+
+export default PaymentBox;

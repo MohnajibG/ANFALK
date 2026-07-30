@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 const links = [
-  { label: "Dashboard", icon: LayoutDashboard, path: "/cashier/dashboard" },
+  { label: "Tableau de bord", icon: LayoutDashboard, path: "/cashier/dashboard" },
   { label: "Point de vente", icon: ShoppingCart, path: "/cashier/pos" },
   { label: "Clients", icon: Users, path: "/cashier/customers" },
   { label: "Rendez-vous", icon: CalendarDays, path: "/cashier/appointments" },
@@ -23,7 +23,7 @@ const links = [
   { label: "Profil", icon: UserRound, path: "/cashier/profile" },
 ];
 
-export default function CashierLayout() {
+const CashierLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
@@ -39,36 +39,36 @@ export default function CashierLayout() {
   const active = (path: string) => location.pathname.startsWith(path);
 
   return (
-    <div className="flex min-h-screen bg-[#F7F2EA]">
+    <div className="role-cashier flex min-h-screen bg-(--cream)">
       {/* MOBILE HEADER */}
-      <header className="fixed left-0 top-0 z-40 flex h-16 w-full items-center justify-between border-b border-[#D8B98A]/20 bg-[#151515] px-5 md:hidden">
+      <header className="fixed left-0 top-0 z-40 flex h-16 w-full items-center justify-between border-b border-(--role-shell-border) bg-(--role-shell-bg) px-5 md:hidden">
         <div>
-          <h1 className="font-[Cinzel] text-xl tracking-widest text-[#FFF4D6]">
+          <h1 className="font-title text-xl tracking-widest text-(--role-shell-text)">
             ANFAL K
           </h1>
-          <p className="text-[10px] tracking-[0.4em] text-[#D8B98A]">
+          <p className="text-[10px] tracking-[0.4em] text-(--role-shell-accent)">
             INSTITUTE
           </p>
-          <p className="text-xs text-[#FFF4D6]/60">
-            {user.firstName || "Cashier"}
+          <p className="text-xs text-(--role-shell-text)/60">
+            {user.firstName || "Caissier"}
           </p>
         </div>
 
         <button
           onClick={logout}
-          className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#D8B98A] text-[#151515]"
+          className="flex h-10 w-10 items-center justify-center rounded-xl bg-(--role-shell-accent) text-(--role-shell-accent-text)"
         >
           <LogOut size={18} />
         </button>
       </header>
 
       {/* MOBILE NAV */}
-      <nav className="fixed bottom-0 left-0 z-50 flex h-20 w-full items-center justify-around border-t border-[#D8B98A]/20 bg-[#151515] md:hidden">
+      <nav className="fixed bottom-0 left-0 z-50 flex h-20 w-full items-center justify-around border-t border-(--role-shell-border) bg-(--role-shell-bg) md:hidden">
         {links.slice(0, 5).map(({ path, icon: Icon }) => (
           <button
             key={path}
             onClick={() => navigate(path)}
-            className={`flex h-11 w-11 items-center justify-center rounded-xl transition ${active(path) ? "bg-[#D8B98A] text-[#151515]" : "text-[#FFF4D6]"}`}
+            className={`flex h-11 w-11 items-center justify-center rounded-xl transition ${active(path) ? "bg-(--role-shell-accent) text-(--role-shell-accent-text)" : "text-(--role-shell-text)"}`}
           >
             <Icon size={20} />
           </button>
@@ -76,8 +76,8 @@ export default function CashierLayout() {
       </nav>
 
       {/* TABLET SIDEBAR */}
-      <aside className="fixed left-0 top-0 hidden h-screen w-20 flex-col items-center border-r border-[#D8B98A]/20 bg-[#151515] py-6 md:flex lg:hidden">
-        <h1 className="mb-8 font-[Cinzel] text-xl text-[#FFF4D6]">AK</h1>
+      <aside className="fixed left-0 top-0 hidden h-screen w-20 flex-col items-center border-r border-(--role-shell-border) bg-(--role-shell-bg) py-6 md:flex lg:hidden">
+        <h1 className="mb-8 font-title text-xl text-(--role-shell-text)">AK</h1>
 
         <nav className="flex flex-1 flex-col gap-3">
           {links.map(({ path, icon: Icon, label }) => (
@@ -85,7 +85,7 @@ export default function CashierLayout() {
               key={path}
               title={label}
               onClick={() => navigate(path)}
-              className={`flex h-11 w-11 items-center justify-center rounded-xl transition ${active(path) ? "bg-[#D8B98A] text-[#151515]" : "text-[#FFF4D6] hover:bg-white/10"}`}
+              className={`flex h-11 w-11 items-center justify-center rounded-xl transition ${active(path) ? "bg-(--role-shell-accent) text-(--role-shell-accent-text)" : "text-(--role-shell-text) hover:bg-white/10"}`}
             >
               <Icon size={20} />
             </button>
@@ -102,22 +102,22 @@ export default function CashierLayout() {
 
       {/* DESKTOP SIDEBAR */}
       <aside
-        className={`fixed left-0 top-0 hidden h-screen flex-col border-r border-[#D8B98A]/20 bg-[#151515] transition-all duration-300 lg:flex ${collapsed ? "w-24" : "w-72"}`}
+        className={`fixed left-0 top-0 hidden h-screen flex-col border-r border-(--role-shell-border) bg-(--role-shell-bg) transition-all duration-300 lg:flex ${collapsed ? "w-24" : "w-72"}`}
       >
-        <div className="relative border-b border-[#D8B98A]/20 p-6">
-          <h1 className="font-[Cinzel] text-2xl tracking-widest text-[#FFF4D6]">
+        <div className="relative border-b border-(--role-shell-border) p-6">
+          <h1 className="font-title text-2xl tracking-widest text-(--role-shell-text)">
             {collapsed ? "AK" : "ANFAL K"}
           </h1>
 
           {!collapsed && (
             <>
-              <p className="mt-2 text-[11px] tracking-[0.45em] text-[#D8B98A]">
+              <p className="mt-2 text-[11px] tracking-[0.45em] text-(--role-shell-accent)">
                 INSTITUTE
               </p>
-              <p className="mt-4 text-xs uppercase tracking-[0.3em] text-[#FFF4D6]/60">
-                CASHIER
+              <p className="mt-4 text-xs uppercase tracking-[0.3em] text-(--role-shell-text)/60">
+                CAISSIER
               </p>
-              <p className="mt-2 text-sm text-[#FFF4D6]/70">
+              <p className="mt-2 text-sm text-(--role-shell-text)/70">
                 {user.firstName} {user.lastName}
               </p>
             </>
@@ -125,7 +125,7 @@ export default function CashierLayout() {
 
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="absolute -right-4 top-8 flex h-8 w-8 items-center justify-center rounded-full border border-[#D8B98A]/30 bg-[#151515] text-[#FFF4D6]"
+            className="absolute -right-4 top-8 flex h-8 w-8 items-center justify-center rounded-full border border-(--role-shell-border) bg-(--role-shell-bg) text-(--role-shell-text)"
           >
             {collapsed ? <ChevronRight size={17} /> : <ChevronLeft size={17} />}
           </button>
@@ -136,7 +136,7 @@ export default function CashierLayout() {
             <button
               key={path}
               onClick={() => navigate(path)}
-              className={`flex items-center rounded-xl transition ${collapsed ? "justify-center py-3" : "gap-4 px-4 py-3"} ${active(path) ? "bg-[#D8B98A] text-[#151515]" : "text-[#FFF4D6]/70 hover:bg-white/10"}`}
+              className={`flex items-center rounded-xl transition ${collapsed ? "justify-center py-3" : "gap-4 px-4 py-3"} ${active(path) ? "bg-(--role-shell-accent) text-(--role-shell-accent-text)" : "text-(--role-shell-text)/70 hover:bg-white/10"}`}
             >
               <Icon size={20} />
 
@@ -147,7 +147,7 @@ export default function CashierLayout() {
 
         <button
           onClick={logout}
-          className="m-4 flex items-center justify-center gap-3 rounded-xl bg-[#D8B98A] py-3 text-[#151515]"
+          className="m-4 flex items-center justify-center gap-3 rounded-xl bg-(--role-shell-accent) py-3 text-(--role-shell-accent-text)"
         >
           <LogOut size={18} />
 
@@ -165,4 +165,6 @@ export default function CashierLayout() {
       </main>
     </div>
   );
-}
+};
+
+export default CashierLayout;

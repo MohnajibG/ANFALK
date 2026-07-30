@@ -13,7 +13,7 @@ import { getMyEmployeeProfile } from "../../api/employee.api";
 
 import type { Employee } from "../../types/employee";
 
-export default function Profile() {
+const Profile = () => {
   const [employee, setEmployee] = useState<Employee | null>(null);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export default function Profile() {
 
   if (!employee) {
     return (
-      <div className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6">
+      <div className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm)">
         Chargement du profil...
       </div>
     );
@@ -51,17 +51,17 @@ export default function Profile() {
           opacity: 1,
           y: 0,
         }}
-        className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-8"
+        className="rounded-3xl border border-(--border) bg-white p-8 shadow-(--shadow-sm)"
       >
         <div className="flex flex-col gap-6 md:flex-row md:items-center">
-          <div className="flex h-32 w-32 items-center justify-center rounded-full bg-[#3E2C23] text-[#FFF4D6]">
+          <div className="flex h-32 w-32 items-center justify-center rounded-full bg-(--black) text-(--cream)">
             <User size={55} />
           </div>
 
           <div>
             <p className="ak-kicker">Profil employé</p>
 
-            <h1 className="mt-2 font-[Cinzel] text-3xl font-bold">
+            <h1 className="mt-2 font-title text-3xl font-bold">
               {employee.firstName} {employee.lastName}
             </h1>
 
@@ -96,7 +96,7 @@ export default function Profile() {
 
       <div className="grid gap-5 lg:grid-cols-2">
         <motion.div
-          className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6"
+          className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm)"
           whileHover={{
             scale: 1.01,
           }}
@@ -129,7 +129,7 @@ export default function Profile() {
         </motion.div>
 
         <motion.div
-          className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6"
+          className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm)"
           whileHover={{
             scale: 1.01,
           }}
@@ -156,31 +156,29 @@ export default function Profile() {
 
       {/* ACTION */}
 
-      <div className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6">
-        <button className="rounded-xl bg-[#3E2C23] px-6 py-3 font-semibold text-[#FFF4D6] transition hover:scale-105">
+      <div className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm)">
+        <button className="rounded-xl bg-(--black) px-6 py-3 font-semibold text-(--cream) transition hover:bg-(--brown-dark)">
           Modifier mon profil
         </button>
       </div>
     </div>
   );
-}
+};
 
-function StatCard({ title, value }: { title: string; value: string }) {
-  return (
-    <motion.div
-      whileHover={{
-        y: -4,
-      }}
-      className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6"
-    >
-      <p className="ak-muted text-sm">{title}</p>
+const StatCard = ({ title, value }: { title: string; value: string }) => (
+  <motion.div
+    whileHover={{
+      y: -4,
+    }}
+    className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm)"
+  >
+    <p className="ak-muted text-sm">{title}</p>
 
-      <h2 className="mt-2 text-3xl font-bold">{value}</h2>
-    </motion.div>
-  );
-}
+    <h2 className="mt-2 text-3xl font-bold">{value}</h2>
+  </motion.div>
+);
 
-function Info({
+const Info = ({
   icon,
   label,
   value,
@@ -188,16 +186,16 @@ function Info({
   icon: React.ReactNode;
   label: string;
   value: string;
-}) {
-  return (
-    <div className="flex items-center gap-4">
-      <div className="rounded-xl bg-[#FFF4D6] p-3 text-[#3E2C23]">{icon}</div>
+}) => (
+  <div className="flex items-center gap-4">
+    <div className="rounded-xl bg-(--cream) p-3 text-(--black)">{icon}</div>
 
-      <div>
-        <p className="ak-muted text-xs">{label}</p>
+    <div>
+      <p className="ak-muted text-xs">{label}</p>
 
-        <p className="font-semibold">{value}</p>
-      </div>
+      <p className="font-semibold">{value}</p>
     </div>
-  );
-}
+  </div>
+);
+
+export default Profile;

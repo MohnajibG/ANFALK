@@ -78,7 +78,7 @@ const EmployeeDashboard = () => {
       <section className="grid gap-4 lg:grid-cols-3">
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-5 sm:p-6 lg:col-span-2"
+          className="rounded-md border border-(--border) bg-white p-6 shadow-(--shadow-sm) sm:p-6 lg:col-span-2"
         >
           <h2 className="mb-4 font-semibold text-(--black)">Performance</h2>
 
@@ -99,7 +99,7 @@ const EmployeeDashboard = () => {
 
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-5 sm:p-6"
+          className="rounded-md border border-(--border) bg-white shadow-(--shadow-sm) p-5 sm:p-6"
         >
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-semibold text-(--black)">Ma spécialité</h2>
@@ -119,7 +119,7 @@ const EmployeeDashboard = () => {
 
         <motion.div
           whileHover={{ scale: 1.01 }}
-          className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-5 sm:p-6 lg:col-span-3"
+          className="rounded-md border border-(--border) bg-white p-6 shadow-(--shadow-sm) sm:p-6 lg:col-span-3"
         >
           <div className="mb-4 flex items-center gap-2">
             <CalendarCheck size={20} className="text-(--brown)" />

@@ -15,7 +15,7 @@ interface EmployeeService {
   status: string;
 }
 
-export default function Services() {
+const Services = () => {
   const [employee, setEmployee] = useState<Employee | null>(null);
   const [services, setServices] = useState<EmployeeService[]>([]);
 
@@ -41,7 +41,7 @@ export default function Services() {
 
   if (!employee) {
     return (
-      <div className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6">
+      <div className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm)">
         Chargement...
       </div>
     );
@@ -49,10 +49,10 @@ export default function Services() {
 
   return (
     <div className="w-full space-y-6">
-      <div className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] px-5 py-7 sm:px-8">
+      <div className="rounded-3xl border border-(--border) bg-white px-5 py-7 shadow-(--shadow-sm) sm:px-8">
         <p className="ak-kicker">Espace employé</p>
 
-        <h1 className="mt-3 font-[Cinzel] text-3xl font-bold">
+        <h1 className="mt-3 font-title text-3xl font-bold">
           Mes prestations
         </h1>
 
@@ -60,7 +60,7 @@ export default function Services() {
       </div>
 
       {services.length === 0 ? (
-        <div className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6 text-center text-gray-500">
+        <div className="rounded-3xl border border-(--border) bg-white p-6 text-center text-(--muted) shadow-(--shadow-sm)">
           Aucune prestation disponible
         </div>
       ) : (
@@ -69,12 +69,12 @@ export default function Services() {
             <motion.div
               key={service._id}
               whileHover={{ y: -3 }}
-              className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-6"
+              className="rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm)"
             >
               <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="rounded-2xl bg-[#FFF4D6] p-4">
-                    <Scissors size={25} className="text-[#3E2C23]" />
+                  <div className="rounded-2xl bg-(--cream) p-4">
+                    <Scissors size={25} className="text-(--black)" />
                   </div>
 
                   <div>
@@ -115,4 +115,6 @@ export default function Services() {
       )}
     </div>
   );
-}
+};
+
+export default Services;

@@ -45,21 +45,21 @@ const Customers = () => {
 
   if (loading)
     return (
-      <div className="flex min-h-100 items-center justify-center text-gray-500">
+      <div className="flex min-h-100 items-center justify-center text-(--muted)">
         Chargement des clientes...
       </div>
     );
 
   return (
     <div className="w-full space-y-6">
-      <section className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between">
+      <section className="flex flex-col gap-5 rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm) sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="ak-kicker">CRM</p>
-          <h1 className="mt-3 font-[Cinzel] text-3xl font-bold">Customers</h1>
+          <h1 className="mt-3 font-title text-3xl font-bold">Clients</h1>
           <p className="ak-muted mt-2">Gestion des clientes du salon</p>
         </div>
 
-        <button className="flex items-center justify-center gap-2 rounded-xl bg-[#3E2C23] px-5 py-3 text-[#FFF4D6] transition hover:opacity-90">
+        <button className="flex items-center justify-center gap-2 rounded-xl bg-(--black) px-5 py-3 text-(--cream) transition hover:bg-(--brown-dark)">
           <UserPlus size={18} />
           Nouvelle cliente
         </button>
@@ -69,9 +69,9 @@ const Customers = () => {
         <div className="rounded-2xl bg-red-50 p-4 text-red-600">{error}</div>
       )}
 
-      <section className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] p-5">
-        <div className="flex items-center gap-3 rounded-2xl border border-[#D8B98A]/30 bg-[#FFFDF8] p-4">
-          <Search size={18} className="text-[#D8B98A]" />
+      <section className="rounded-3xl border border-(--border) bg-white p-5 shadow-(--shadow-sm)">
+        <div className="flex items-center gap-3 rounded-2xl border border-(--border) bg-(--cream) p-4">
+          <Search size={18} className="text-(--champagne)" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -87,10 +87,10 @@ const Customers = () => {
             key={client._id}
             whileHover={{ y: -6 }}
             transition={{ duration: 0.2 }}
-            className="rounded-[var(--radius-md)] border border-(--border) bg-white p-6 shadow-[var(--shadow-sm)] w-full p-6 sm:w-[calc(50%-12px)] xl:w-[calc(33.333%-16px)]"
+            className="w-full rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm) sm:w-[calc(50%-12px)] xl:w-[calc(33.333%-16px)]"
           >
             <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#3E2C23] font-[Cinzel] text-xl font-bold text-[#FFF4D6]">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-(--black) font-title text-xl font-bold text-(--cream)">
                 {client.firstName?.charAt(0)}
                 {client.lastName?.charAt(0)}
               </div>
@@ -99,23 +99,23 @@ const Customers = () => {
                 <h2 className="text-lg font-bold">
                   {client.firstName} {client.lastName}
                 </h2>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-(--muted)">
                   {client.phone || "Téléphone non renseigné"}
                 </p>
               </div>
             </div>
 
             <div className="mt-6 flex gap-3">
-              <div className="flex-1 rounded-2xl bg-[#F7F2EA] p-3">
-                <div className="flex items-center gap-2 text-xs text-gray-500">
+              <div className="flex-1 rounded-2xl bg-(--surface) p-3">
+                <div className="flex items-center gap-2 text-xs text-(--muted)">
                   <CalendarDays size={15} />
                   Visites
                 </div>
                 <p className="mt-2 font-bold">{client.visitCount ?? 0}</p>
               </div>
 
-              <div className="flex-1 rounded-2xl bg-[#F7F2EA] p-3">
-                <div className="flex items-center gap-2 text-xs text-gray-500">
+              <div className="flex-1 rounded-2xl bg-(--surface) p-3">
+                <div className="flex items-center gap-2 text-xs text-(--muted)">
                   <WalletCards size={15} />
                   Total
                 </div>
@@ -123,15 +123,15 @@ const Customers = () => {
               </div>
             </div>
 
-            <div className="mt-5 flex items-center justify-between rounded-xl border border-[#D8B98A]/30 p-3">
+            <div className="mt-5 flex items-center justify-between rounded-xl border border-(--border) p-3">
               <div className="flex items-center gap-2 text-sm">
-                <Star size={16} className="text-[#D8B98A]" />
+                <Star size={16} className="text-(--champagne)" />
                 Fidélité
               </div>
               <strong>{client.loyaltyPoints ?? 0}</strong>
             </div>
 
-            <button className="mt-6 w-full rounded-xl border border-[#3E2C23] py-3 text-sm font-semibold text-[#3E2C23] transition hover:bg-[#3E2C23] hover:text-[#FFF4D6]">
+            <button className="mt-6 w-full rounded-xl border border-(--black) py-3 text-sm font-semibold text-(--black) transition hover:bg-(--black) hover:text-(--cream)">
               Voir historique
             </button>
           </motion.article>

@@ -22,7 +22,7 @@ const POS = () => {
 
   if (cashRegister.loading || pos.loading) {
     return (
-      <div className="flex min-h-100 items-center justify-center text-gray-500">
+      <div className="flex min-h-100 items-center justify-center text-(--muted)">
         Chargement de la caisse...
       </div>
     );
@@ -45,20 +45,20 @@ const POS = () => {
 
   return (
     <div className="w-full space-y-6">
-      <section className="flex flex-col gap-5 rounded-3xl border border-[#D8B98A]/30 bg-white p-6 lg:flex-row lg:items-center lg:justify-between">
+      <section className="flex flex-col gap-5 rounded-3xl border border-(--border) bg-white p-6 shadow-(--shadow-sm) lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.4em] text-[#D8B98A]">
-            Cashier
+          <p className="text-xs uppercase tracking-[0.4em] text-(--champagne)">
+            Caisse
           </p>
-          <h1 className="mt-3 font-[Cinzel] text-3xl font-bold">ANFAL K POS</h1>
-          <p className="mt-2 text-sm text-gray-500">
+          <h1 className="mt-3 font-title text-3xl font-bold">ANFAL K POS</h1>
+          <p className="mt-2 text-sm text-(--muted)">
             Création d'un nouveau ticket
           </p>
         </div>
 
         <div
           onClick={pos.newTicket}
-          className="flex cursor-pointer items-center gap-3 rounded-xl bg-[#F7F2EA] px-5 py-3"
+          className="flex cursor-pointer items-center gap-3 rounded-xl bg-(--cream) px-5 py-3"
         >
           <Receipt size={20} />
           Nouvelle vente
