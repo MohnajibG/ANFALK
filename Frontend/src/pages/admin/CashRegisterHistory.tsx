@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import {
+  ChevronDown,
+  ChevronUp,
   Download,
-  hand-coins,
+  HandCoins,
   Lock,
   Receipt,
   Search,
@@ -11,8 +13,11 @@ import {
 } from "lucide-react";
 
 import { getCashRegisterHistory } from "../../api/cashRegister.api";
+import { getTickets } from "../../api/ticket.api";
 import type { CashRegister } from "../../types/cashRegister";
+import type { Ticket } from "../../types/ticket";
 import StatCard from "../../components/ui/StatCard";
+import Badge from "../../components/ui/Badge";
 
 const CashRegisterHistory = () => {
   const [history, setHistory] = useState<CashRegister[]>([]);
@@ -20,6 +25,44 @@ const CashRegisterHistory = () => {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<"all" | "open" | "closed">("all");
+
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [ticketsByRegister, setTicketsByRegister] = useState<
+    Record<string, Ticket[]>
+  >({});
+  const [loadingTickets, setLoadingTickets] = useState<
+    Record<string, boolean>
+  >({});
+  const [ticketsError, setTicketsError] = useState<Record<string, string>>(
+    {},
+  );
+
+  const toggleExpand = async (registerId: string) => {
+    if (expandedId === registerId) {
+      setExpandedId(null);
+      return;
+    }
+
+    setExpandedId(registerId);
+
+    if (ticketsByRegister[registerId]) return;
+
+    setLoadingTickets((prev) => ({ ...prev, [registerId]: true }));
+    setTicketsError((prev) => ({ ...prev, [registerId]: "" }));
+
+    try {
+      const data = await getTickets({ cashRegister: registerId });
+      setTicketsByRegister((prev) => ({ ...prev, [registerId]: data }));
+    } catch (err) {
+      console.error("[CashRegisterHistory] getTickets:", err);
+      setTicketsError((prev) => ({
+        ...prev,
+        [registerId]: "Impossible de charger les ventes de cette caisse",
+      }));
+    } finally {
+      setLoadingTickets((prev) => ({ ...prev, [registerId]: false }));
+    }
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -147,7 +190,7 @@ const CashRegisterHistory = () => {
         </div>
         <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(33.333%-10.667px)]">
           <StatCard
-            icon={hand-coins}
+            icon={HandCoins}
             title="Total encaissé"
             value={`${totalRevenue} DA`}
           />
@@ -202,6 +245,7 @@ const CashRegisterHistory = () => {
                 <th className="px-6 py-4 text-sm font-semibold">Virement</th>
                 <th className="px-6 py-4 text-sm font-semibold">Écart</th>
                 <th className="px-6 py-4 text-sm font-semibold">Statut</th>
+                <th className="px-6 py-4 text-sm font-semibold"></th>
               </tr>
             </thead>
             <tbody>
@@ -210,52 +254,145 @@ const CashRegisterHistory = () => {
                   typeof item.cashier === "object"
                     ? `${item.cashier.firstName} ${item.cashier.lastName}`
                     : "-";
+                const isExpanded = expandedId === item._id;
+                const tickets = ticketsByRegister[item._id] ?? [];
+
                 return (
-                  <tr
-                    key={item._id}
-                    className="border-b border-(--border) last:border-none"
-                  >
-                    <td className="px-6 py-4 font-semibold">{item.date}</td>
-                    <td className="px-6 py-4">{cashierName}</td>
-                    <td className="px-6 py-4">{item.openingAmount} DA</td>
-                    <td className="px-6 py-4">{item.totals.cash} DA</td>
-                    <td className="px-6 py-4">{item.totals.card} DA</td>
-                    <td className="px-6 py-4">{item.totals.transfer} DA</td>
-                    <td className="px-6 py-4">
-                      {item.difference === undefined ? (
-                        "-"
-                      ) : item.difference === 0 ? (
-                        <span className="text-green-600">Juste</span>
-                      ) : item.difference > 0 ? (
-                        <span className="flex items-center gap-1 text-blue-600">
-                          <TrendingUp size={14} />+{item.difference} DA
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-1 text-red-600">
-                          <TrendingDown size={14} />
-                          {item.difference} DA
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`flex w-fit items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${item.status === "open" ? "bg-blue-100 text-blue-700" : "bg-(--surface) text-(--muted)"}`}
-                      >
-                        {item.status === "open" ? (
-                          <Unlock size={12} />
+                  <Fragment key={item._id}>
+                    <tr
+                      onClick={() => toggleExpand(item._id)}
+                      className="cursor-pointer border-b border-(--border) transition hover:bg-(--surface) last:border-none"
+                    >
+                      <td className="px-6 py-4 font-semibold">{item.date}</td>
+                      <td className="px-6 py-4">{cashierName}</td>
+                      <td className="px-6 py-4">{item.openingAmount} DA</td>
+                      <td className="px-6 py-4">{item.totals.cash} DA</td>
+                      <td className="px-6 py-4">{item.totals.card} DA</td>
+                      <td className="px-6 py-4">{item.totals.transfer} DA</td>
+                      <td className="px-6 py-4">
+                        {item.difference === undefined ? (
+                          "-"
+                        ) : item.difference === 0 ? (
+                          <span className="text-green-600">Juste</span>
+                        ) : item.difference > 0 ? (
+                          <span className="flex items-center gap-1 text-blue-600">
+                            <TrendingUp size={14} />+{item.difference} DA
+                          </span>
                         ) : (
-                          <Lock size={12} />
+                          <span className="flex items-center gap-1 text-red-600">
+                            <TrendingDown size={14} />
+                            {item.difference} DA
+                          </span>
                         )}
-                        {item.status === "open" ? "Ouverte" : "Fermée"}
-                      </span>
-                    </td>
-                  </tr>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`flex w-fit items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${item.status === "open" ? "bg-blue-100 text-blue-700" : "bg-(--surface) text-(--muted)"}`}
+                        >
+                          {item.status === "open" ? (
+                            <Unlock size={12} />
+                          ) : (
+                            <Lock size={12} />
+                          )}
+                          {item.status === "open" ? "Ouverte" : "Fermée"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-(--muted)">
+                        {isExpanded ? (
+                          <ChevronUp size={18} />
+                        ) : (
+                          <ChevronDown size={18} />
+                        )}
+                      </td>
+                    </tr>
+                    {isExpanded && (
+                      <tr className="border-b border-(--border) last:border-none">
+                        <td colSpan={9} className="bg-(--surface) px-6 py-5">
+                          {loadingTickets[item._id] && (
+                            <p className="text-sm text-(--muted)">
+                              Chargement des ventes...
+                            </p>
+                          )}
+
+                          {ticketsError[item._id] && (
+                            <p className="text-sm text-red-600">
+                              {ticketsError[item._id]}
+                            </p>
+                          )}
+
+                          {!loadingTickets[item._id] &&
+                            !ticketsError[item._id] &&
+                            !tickets.length && (
+                              <p className="text-sm text-(--muted)">
+                                Aucune vente enregistrée pour cette caisse.
+                              </p>
+                            )}
+
+                          {!loadingTickets[item._id] && tickets.length > 0 && (
+                            <div className="space-y-2">
+                              {tickets.map((ticket) => {
+                                const client =
+                                  typeof ticket.client === "object"
+                                    ? ticket.client
+                                    : null;
+
+                                return (
+                                  <div
+                                    key={ticket._id}
+                                    className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-(--border) bg-white p-4"
+                                  >
+                                    <div>
+                                      <p className="font-semibold">
+                                        {ticket.ticketNumber}
+                                      </p>
+                                      <p className="text-xs text-(--muted)">
+                                        {client
+                                          ? `${client.firstName} ${client.lastName}`
+                                          : "-"}{" "}
+                                        ·{" "}
+                                        {new Date(
+                                          ticket.createdAt,
+                                        ).toLocaleTimeString("fr-FR", {
+                                          hour: "2-digit",
+                                          minute: "2-digit",
+                                        })}
+                                      </p>
+                                    </div>
+
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-xs capitalize text-(--muted)">
+                                        {ticket.paymentMethod}
+                                      </span>
+                                      <Badge
+                                        variant={
+                                          ticket.status === "paid"
+                                            ? "success"
+                                            : "danger"
+                                        }
+                                      >
+                                        {ticket.status === "paid"
+                                          ? "Payé"
+                                          : "Annulé"}
+                                      </Badge>
+                                      <span className="font-semibold">
+                                        {ticket.total} DA
+                                      </span>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
                 );
               })}
               {!filteredHistory.length && (
                 <tr>
                   <td
-                    colSpan={8}
+                    colSpan={9}
                     className="px-6 py-10 text-center text-(--muted)"
                   >
                     Aucune session de caisse trouvée.

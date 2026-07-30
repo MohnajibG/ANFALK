@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import {
   Award,
   CalendarCheck,
-  hand-coins,
+  HandCoins,
   Receipt,
   ShoppingBag,
   TrendingDown,
@@ -130,7 +130,7 @@ const Dashboard = () => {
       <section className="flex flex-wrap gap-4">
         <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(25%-12px)]">
           <StatCard
-            icon={hand-coins}
+            icon={HandCoins}
             title="Chiffre d'affaires"
             value={`${data.sales.current.revenue.toLocaleString("fr-FR")} DA`}
             trend={{ value: Math.round(data.sales.change.revenue) }}
