@@ -89,4 +89,32 @@ describe("buildAppointmentSnapshot - correspondance spécialité", () => {
     expect(result.totalDuration).toBe(45);
     expect(result.estimatedPrice).toBe(1500);
   });
+
+  it("n'applique pas la contrainte sur une prestation sans spécialité définie (donnée héritée)", async () => {
+    mockedServiceFind.mockResolvedValue([
+      {
+        _id: { toString: () => SERVICE_ID },
+        name: "Ancienne prestation",
+        speciality: undefined,
+        price: 800,
+        duration: 20,
+      },
+    ]);
+
+    mockedUserFind.mockResolvedValue([
+      {
+        _id: { toString: () => EMPLOYEE_ID },
+        firstName: "Sarah",
+        lastName: "Martin",
+        speciality: "Hair",
+      },
+    ]);
+
+    const result = await buildAppointmentSnapshot({
+      client: CLIENT_ID,
+      services: [{ service: SERVICE_ID, employee: EMPLOYEE_ID }],
+    });
+
+    expect(result.serviceSnapshot).toHaveLength(1);
+  });
 });

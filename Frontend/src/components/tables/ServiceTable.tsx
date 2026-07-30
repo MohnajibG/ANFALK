@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Clock, Euro, Eye, Pencil, Power, Trash2 } from "lucide-react";
 import type { Service } from "../../types/service";
+import { SPECIALITY_LABELS } from "../../types/speciality";
 import Badge from "../ui/Badge";
 
 interface Props {
@@ -90,7 +91,11 @@ const ServiceTable = ({
             <Badge variant={service.isActive ? "success" : "danger"}>
               {service.isActive ? "Actif" : "Inactif"}
             </Badge>
-            <span>{service.speciality}</span>
+            <span>
+              {service.speciality
+                ? SPECIALITY_LABELS[service.speciality]
+                : "Non définie"}
+            </span>
             <Actions
               service={service}
               onView={onView}

@@ -82,7 +82,14 @@ export const buildAppointmentSnapshot = async (data: {
     const service = services.find((s) => s._id.toString() === item.service);
     const employee = employees.find((e) => e._id.toString() === item.employee);
 
-    if (service && employee && service.speciality !== employee.speciality) {
+    // Les prestations créées avant l'ajout du champ spécialité n'en ont pas
+    // encore : on ne bloque pas la prise de rendez-vous dans ce cas
+    if (
+      service &&
+      employee &&
+      service.speciality &&
+      service.speciality !== employee.speciality
+    ) {
       throw new Error(
         `${employee.firstName} ${employee.lastName} (${employee.speciality}) ne peut pas réaliser "${service.name}" (spécialité requise : ${service.speciality})`,
       );

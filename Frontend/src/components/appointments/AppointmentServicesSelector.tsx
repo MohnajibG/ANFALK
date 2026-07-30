@@ -4,6 +4,7 @@ import { Check, ChevronDown, Scissors } from "lucide-react";
 import type { Service } from "../../types/service";
 import type { Employee } from "../../types/employee";
 import type { AppointmentService } from "../../types/appointment";
+import { SPECIALITY_LABELS } from "../../types/speciality";
 
 interface AppointmentServicesSelectorProps {
   services: Service[];
@@ -50,6 +51,23 @@ const AppointmentServicesSelector = ({
     return selectedServices.some((item) => item.service === id);
   };
 
+  // Les prestations créées avant l'ajout du champ spécialité n'en ont pas
+  // encore : dans ce cas on ne filtre pas (l'admin doit la renseigner dans
+  // Services, mais ça ne doit pas empêcher de prendre rendez-vous)
+  const eligibleEmployeesFor = (service: Service) => {
+    const employeesOnly = employees.filter(
+      (employee) => employee.role === "employee",
+    );
+
+    if (!service.speciality) {
+      return employeesOnly;
+    }
+
+    return employeesOnly.filter(
+      (employee) => employee.speciality === service.speciality,
+    );
+  };
+
   const toggleService = (service: Service) => {
     if (selected(service._id)) {
       onChange(selectedServices.filter((item) => item.service !== service._id));
@@ -57,11 +75,14 @@ const AppointmentServicesSelector = ({
       return;
     }
 
-    const defaultEmployee = employees.find(
-      (employee) =>
-        employee._id === defaultEmployeeId &&
-        employee.speciality === service.speciality,
-    );
+    const eligibleEmployees = eligibleEmployeesFor(service);
+
+    // Chaque employé n'a qu'un seul poste : on choisit automatiquement
+    // l'employé préféré (créneau cliqué en vue Jour) ou, à défaut, le
+    // premier employé compatible avec la prestation
+    const autoEmployee =
+      eligibleEmployees.find((employee) => employee._id === defaultEmployeeId) ??
+      eligibleEmployees[0];
 
     onChange([
       ...selectedServices,
@@ -69,7 +90,7 @@ const AppointmentServicesSelector = ({
       {
         service: service._id,
 
-        employee: defaultEmployee?._id ?? "",
+        employee: autoEmployee?._id ?? "",
 
         name: service.name,
 
@@ -274,16 +295,15 @@ const AppointmentServicesSelector = ({
                           </label>
 
                           {(() => {
-                            const eligibleEmployees = employees.filter(
-                              (employee) =>
-                                employee.speciality === service.speciality,
-                            );
+                            const eligibleEmployees =
+                              eligibleEmployeesFor(service);
 
                             if (eligibleEmployees.length === 0) {
                               return (
                                 <p className="mt-2 rounded-xl bg-red-50 p-3 text-xs text-red-600">
-                                  Aucun employé pour la spécialité{" "}
-                                  {service.speciality}
+                                  {service.speciality
+                                    ? `Aucun employé pour la spécialité ${SPECIALITY_LABELS[service.speciality]}`
+                                    : "Aucun employé disponible"}
                                 </p>
                               );
                             }

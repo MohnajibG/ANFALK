@@ -155,7 +155,7 @@ export const createOnlineAppointment = async (
   }
 
   const mismatchedService = services.find(
-    (service) => service.speciality !== employee.speciality,
+    (service) => service.speciality && service.speciality !== employee.speciality,
   );
 
   if (mismatchedService) {

@@ -18,7 +18,7 @@ const AddCategoryModal = ({ onCreated, onClose }: Props) => {
     e.preventDefault();
 
     if (!name.trim()) {
-      setError("Category name is required");
+      setError("Le nom de la catégorie est obligatoire");
       return;
     }
 
@@ -34,49 +34,72 @@ const AddCategoryModal = ({ onCreated, onClose }: Props) => {
       onCreated(category);
       onClose();
     } catch {
-      setError("Unable to create category");
+      setError("Impossible de créer la catégorie");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-lg rounded-3xl bg-white p-8 shadow-xl"
+        className="relative w-full max-w-lg rounded-3xl bg-white p-6 shadow-xl"
       >
-        <div className="mb-6 flex justify-between">
-          <h2 className="font-serif text-2xl font-bold">Add Category</h2>
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-5 top-5 flex h-9 w-9 items-center justify-center rounded-full bg-(--cream)"
+        >
+          <X size={18} />
+        </button>
 
-          <button type="button" onClick={onClose}>
-            <X />
-          </button>
+        <div className="mb-6">
+          <p className="text-xs uppercase tracking-[0.3em] text-(--brown)">
+            Administration
+          </p>
+
+          <h2 className="mt-2 font-title text-2xl font-bold text-(--black)">
+            Ajouter une catégorie
+          </h2>
         </div>
 
         {error && (
-          <p className="mb-4 rounded-xl bg-red-50 p-3 text-red-600">{error}</p>
+          <p className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+            {error}
+          </p>
         )}
 
-        <input
-          className="input mb-4"
-          placeholder="Category name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+        <div className="flex flex-col gap-4">
+          <div>
+            <label className="mb-2 block text-sm font-medium">Nom</label>
+            <input
+              className="h-11 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
+              placeholder="Nom de la catégorie"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
 
-        <textarea
-          className="input mb-4 min-h-24"
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
+          <div>
+            <label className="mb-2 block text-sm font-medium">
+              Description
+            </label>
+            <textarea
+              rows={3}
+              className="w-full rounded-2xl border border-(--border) bg-(--cream) p-4"
+              placeholder="Description (optionnel)"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
+        </div>
 
         <button
           disabled={loading}
-          className="w-full rounded-xl bg-[#111] py-3 text-white disabled:opacity-50"
+          className="mt-6 w-full rounded-2xl bg-(--black) py-3 text-(--cream) transition hover:bg-(--brown-dark) disabled:opacity-50"
         >
-          {loading ? "Saving..." : "Save"}
+          {loading ? "Enregistrement..." : "Enregistrer"}
         </button>
       </form>
     </div>

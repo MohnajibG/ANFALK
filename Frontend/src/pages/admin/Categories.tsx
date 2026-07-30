@@ -112,7 +112,7 @@ const Categories = () => {
                     {category.name}
                   </h3>
                   <Badge variant={category.isActive ? "success" : "danger"}>
-                    {category.isActive ? "Active" : "Inactive"}
+                    {category.isActive ? "Actif" : "Inactif"}
                   </Badge>
                 </div>
 
