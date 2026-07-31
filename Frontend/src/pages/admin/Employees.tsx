@@ -11,6 +11,7 @@ import type { Employee } from "../../types/employee";
 
 import EmployeeCard from "../../components/employees/EmployeeCard";
 import EmployeeModal from "../../components/employees/EmployeeModal";
+import EditEmployeeModal from "../../components/employees/EditEmployeeModal";
 import EmployeeScheduleModal from "../../components/employees/EmployeeScheduleModal";
 import EmployeeStats from "../../components/employees/EmployeeStats";
 
@@ -25,6 +26,7 @@ const Employees = () => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [editEmployee, setEditEmployee] = useState<Employee | null>(null);
   const [scheduleEmployeeId, setScheduleEmployeeId] = useState<string | null>(
     null,
   );
@@ -102,7 +104,11 @@ const Employees = () => {
               onStatusChange={handleStatus}
               onDelete={handleDelete}
               onView={(id) => navigate(`/admin/employees/${id}`)}
-              onEdit={(id) => navigate(`/admin/employees/${id}/edit`)}
+              onEdit={(id) =>
+                setEditEmployee(
+                  employees.find((employee) => employee._id === id) ?? null,
+                )
+              }
               onSchedule={(id) => setScheduleEmployeeId(id)}
             />
           ))
@@ -113,6 +119,12 @@ const Employees = () => {
         open={showModal}
         onClose={() => setShowModal(false)}
         onCreated={loadEmployees}
+      />
+
+      <EditEmployeeModal
+        employee={editEmployee}
+        onClose={() => setEditEmployee(null)}
+        onUpdated={loadEmployees}
       />
 
       {scheduleEmployeeId && (

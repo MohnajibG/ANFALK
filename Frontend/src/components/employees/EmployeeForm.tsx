@@ -11,6 +11,8 @@ interface EmployeeFormProps {
   initialValues?: EmployeeFormType;
   loading?: boolean;
   onSubmit: (data: EmployeeFormType) => void;
+  submitLabel?: string;
+  loadingLabel?: string;
 }
 
 const roles: {
@@ -74,6 +76,8 @@ const EmployeeForm = ({
   initialValues = defaultValues,
   loading = false,
   onSubmit,
+  submitLabel = "Créer l'employé",
+  loadingLabel = "Création...",
 }: EmployeeFormProps) => {
   const [form, setForm] = useState<EmployeeFormType>(initialValues);
 
@@ -206,7 +210,7 @@ const EmployeeForm = ({
         disabled={loading}
         className="mt-2 rounded-xl bg-(--black) px-5 py-3 text-(--cream) disabled:opacity-50"
       >
-        {loading ? "Création..." : "Créer l'employé"}
+        {loading ? loadingLabel : submitLabel}
       </button>
     </form>
   );
