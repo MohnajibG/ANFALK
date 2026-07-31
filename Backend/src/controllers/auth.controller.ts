@@ -28,6 +28,10 @@ const formatUser = (user: any) => ({
   mustChangePassword: user.mustChangePassword,
 
   isActive: user.isActive,
+
+  lastLogin: user.lastLogin,
+
+  createdAt: user.createdAt,
 });
 
 /**
@@ -68,6 +72,9 @@ export const login = async (req: Request, res: Response) => {
       id: user._id.toString(),
       role: user.role,
     });
+
+    user.lastLogin = new Date();
+    await user.save();
 
     return res.status(200).json({
       success: true,

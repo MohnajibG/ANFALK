@@ -58,12 +58,14 @@ const EmployeeCard = ({
       <div className="flex gap-2">
         <button
           onClick={() => onView(employee._id)}
+          aria-label="Voir"
           className="flex h-10 w-10 items-center justify-center rounded-xl bg-(--cream)"
         >
           <Eye size={17} />
         </button>
         <button
           onClick={() => onEdit(employee._id)}
+          aria-label="Modifier"
           className="flex h-10 w-10 items-center justify-center rounded-xl bg-(--black) text-white"
         >
           <Pencil size={17} />
@@ -71,18 +73,21 @@ const EmployeeCard = ({
         <button
           onClick={() => onSchedule(employee._id)}
           title="Horaires de travail"
+          aria-label="Horaires de travail"
           className="flex h-10 w-10 items-center justify-center rounded-xl bg-(--cream)"
         >
           <Clock size={17} />
         </button>
         <button
           onClick={() => onStatusChange(employee._id, !employee.isActive)}
+          aria-label={employee.isActive ? "Désactiver" : "Activer"}
           className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-600"
         >
           <Power size={17} />
         </button>
         <button
           onClick={() => onDelete(employee._id)}
+          aria-label="Supprimer"
           className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 text-gray-600"
         >
           <Trash2 size={17} />

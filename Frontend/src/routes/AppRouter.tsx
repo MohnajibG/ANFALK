@@ -24,6 +24,7 @@ import Appointments from "../pages/Appointments";
 import Tickets from "../pages/admin/ticket";
 import CashRegisterHistory from "../pages/admin/CashRegisterHistory";
 import Waitlist from "../pages/admin/Waitlist";
+import Settings from "../pages/admin/Settings";
 
 // Cashier pages
 import CashierDashboard from "../pages/cashier/Dashboard";
@@ -80,6 +81,7 @@ const AppRouter = () => {
             <Route path="appointments" element={<Appointments />} />
             <Route path="waitlist" element={<Waitlist />} />
             <Route path="tickets" element={<Tickets />} />
+            <Route path="settings" element={<Settings />} />
           </Route>
         </Route>
 

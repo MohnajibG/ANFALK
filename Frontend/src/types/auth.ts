@@ -5,10 +5,13 @@ export interface AuthUser {
   firstName: string;
   lastName: string;
   email: string;
+  phone?: string;
   role: AuthRole;
   speciality?: string;
   mustChangePassword: boolean;
   isActive: boolean;
+  lastLogin?: string;
+  createdAt?: string;
 }
 
 export interface LoginPayload {

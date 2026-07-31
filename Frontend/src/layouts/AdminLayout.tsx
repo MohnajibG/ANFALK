@@ -13,6 +13,7 @@ import {
   MoreHorizontal,
   Receipt,
   Scissors,
+  Settings,
   UserCog,
   Users,
   Wallet,
@@ -29,6 +30,7 @@ const links = [
   { label: "Liste d'attente", icon: ListTodo, path: "/admin/waitlist" },
   { label: "Tickets", icon: Receipt, path: "/admin/tickets" },
   { label: "Caisses", icon: Wallet, path: "/admin/cash-register" },
+  { label: "Paramètres", icon: Settings, path: "/admin/settings" },
 ];
 
 const AdminLayout = () => {
