@@ -5,7 +5,10 @@ import Client from "../models/Client";
 import User from "../models/User";
 import Service from "../models/Service";
 import Appointment from "../models/Appointment";
-import { getCurrentCashRegister } from "./cashRegister.service";
+import {
+  getCurrentCashRegister,
+  recalculateTotals,
+} from "./cashRegister.service";
 
 interface CreateTicketData {
   client: string;
@@ -125,6 +128,8 @@ export const createTicket = async (data: CreateTicketData) => {
     lastVisit: new Date(),
   });
 
+  await recalculateTotals(cashRegister._id.toString());
+
   return ticket;
 };
 
@@ -182,6 +187,10 @@ export const cancelTicket = async (id: string, userId: string) => {
   ticket.cancelledAt = new Date();
 
   await ticket.save();
+
+  if (ticket.cashRegister) {
+    await recalculateTotals(ticket.cashRegister.toString());
+  }
 
   return ticket;
 };

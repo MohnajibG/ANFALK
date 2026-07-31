@@ -15,8 +15,8 @@ import CloseRegisterModal from "../../components/POS/CloseRegisterModal";
 import RegisterStatusBar from "../../components/POS/RegisterStatusBar";
 
 const POS = () => {
-  const pos = usePOS();
   const cashRegister = useCashRegister();
+  const pos = usePOS({ onCheckoutSuccess: cashRegister.refresh });
 
   const [showCloseModal, setShowCloseModal] = useState(false);
 

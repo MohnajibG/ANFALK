@@ -51,9 +51,15 @@ const ViewTicketModal = ({ ticket, onClose }: ViewTicketModalProps) => {
           </div>
 
           <div className="w-full sm:w-[calc(50%-8px)]">
-            <p className="text-xs text-(--muted)">Date</p>
+            <p className="text-xs text-(--muted)">Date et heure du paiement</p>
             <p className="font-medium">
-              {new Date(ticket.createdAt).toLocaleDateString()}
+              {new Date(ticket.createdAt).toLocaleString("fr-FR", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
             </p>
           </div>
         </div>

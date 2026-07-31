@@ -21,7 +21,11 @@ export type CartItem = {
   duration: number;
 };
 
-const usePOS = () => {
+type UsePOSOptions = {
+  onCheckoutSuccess?: () => void;
+};
+
+const usePOS = (options?: UsePOSOptions) => {
   const [services, setServices] = useState<Service[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [waitingAppointments, setWaitingAppointments] = useState<Appointment[]>(
@@ -62,7 +66,9 @@ const usePOS = () => {
 
         setEmployees(
           Array.isArray(employeesData)
-            ? employeesData.filter((e) => e.role === "employee")
+            ? employeesData.filter(
+                (e) => e.role === "employee" && e.isActive,
+              )
             : [],
         );
 
@@ -94,11 +100,17 @@ const usePOS = () => {
   );
 
   const addService = (service: Service) => {
+    const matchingEmployees = employees.filter(
+      (employee) => employee.speciality === service.speciality,
+    );
+    const autoEmployee =
+      matchingEmployees.length === 1 ? matchingEmployees[0] : null;
+
     setCart((prev) => [
       ...prev,
       {
         service,
-        employee: null,
+        employee: autoEmployee,
         originalPrice: service.price,
         finalPrice: service.price,
         duration: service.duration,
@@ -228,9 +240,13 @@ const usePOS = () => {
       await createTicket(payload);
 
       newTicket();
+      options?.onCheckoutSuccess?.();
     } catch (error) {
       console.error("[POS checkout]", error);
-      setError("Erreur création ticket");
+      const message =
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message ?? "Erreur création ticket";
+      setError(message);
     } finally {
       setSaving(false);
     }
