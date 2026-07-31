@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Clock, Lock, Wallet } from "lucide-react";
+import { CalendarDays, Clock, Lock, Wallet } from "lucide-react";
 
 import type { CashRegister } from "../../types/cashRegister";
 
@@ -14,6 +14,20 @@ const formatDuration = (start: string) => {
   const minutes = Math.floor((diff % 3600000) / 60000);
   return `${hours}h${minutes.toString().padStart(2, "0")}`;
 };
+
+const formatDate = (value: string) =>
+  new Date(value).toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+
+const formatTime = (value: string) =>
+  new Date(value).toLocaleTimeString("fr-FR", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
 const RegisterStatusBar = ({ register, onRequestClose }: Props) => {
   const [duration, setDuration] = useState(formatDuration(register.openedAt));
@@ -39,9 +53,14 @@ const RegisterStatusBar = ({ register, onRequestClose }: Props) => {
           <p className="text-xs uppercase tracking-[0.3em] text-(--champagne)">
             Caisse ouverte
           </p>
-          <div className="mt-1 flex items-center gap-2 text-sm text-(--cream)/70">
+          <div className="mt-1 flex items-center gap-1.5 text-sm text-(--cream)/70">
+            <CalendarDays size={14} />
+            <span className="capitalize">{formatDate(register.date)}</span>
+          </div>
+          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-(--cream)/70">
             <Clock size={14} />
-            Depuis {duration} • Fond {register.openingAmount} DA
+            Ouverte à {formatTime(register.openedAt)} • Depuis {duration} •
+            Fond {register.openingAmount} DA
           </div>
         </div>
       </div>
