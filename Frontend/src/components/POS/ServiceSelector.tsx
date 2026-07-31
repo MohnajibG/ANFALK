@@ -60,7 +60,7 @@ const ServiceSelector = ({
         <div className="mt-5 space-y-5">
           {groupedServices.map(([categoryName, groupServices]) => (
             <div key={categoryName}>
-              <h3 className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-(--muted)">
+              <h3 className="mb-3 text-l font-bold uppercase tracking-[0.2em] text-(--muted)">
                 {categoryName}
               </h3>
 
