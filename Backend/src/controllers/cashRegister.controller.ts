@@ -7,6 +7,9 @@ import {
   getCurrentCashRegister,
   getCashRegisterHistory,
   getCashRegisterById,
+  adminCloseCashRegister,
+  adminOpenCashRegister,
+  finalizeCashRegister,
 } from "../services/cashRegister.service";
 
 export const openCashRegisterController = async (
@@ -76,11 +79,65 @@ export const getCashRegisterHistoryController = async (
       cashier: cashier as string | undefined,
       from: from as string | undefined,
       to: to as string | undefined,
-      status: status as "open" | "closed" | undefined,
+      status: status as "open" | "closed" | "finalized" | undefined,
     });
 
     return res.json({ success: true, history });
   } catch (error: any) {
     return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const adminOpenCashRegisterController = async (
+  req: AuthRequest,
+  res: Response,
+) => {
+  try {
+    const { cashier, openingAmount } = req.body;
+
+    const register = await adminOpenCashRegister(
+      cashier,
+      Number(openingAmount),
+    );
+
+    return res.status(201).json({ success: true, register });
+  } catch (error: any) {
+    return res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const adminCloseCashRegisterController = async (
+  req: AuthRequest,
+  res: Response,
+) => {
+  try {
+    const { closingAmount, notes } = req.body;
+
+    const register = await adminCloseCashRegister(
+      req.params.id as string,
+      req.user!.id,
+      Number(closingAmount),
+      notes,
+    );
+
+    return res.json({ success: true, register });
+  } catch (error: any) {
+    return res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+export const finalizeCashRegisterController = async (
+  req: AuthRequest,
+  res: Response,
+) => {
+  try {
+    const register = await finalizeCashRegister(
+      req.params.id as string,
+      req.user!.id,
+    );
+
+    return res.json({ success: true, register });
+  } catch (error: any) {
+    return res.status(400).json({ success: false, message: error.message });
   }
 };

@@ -5,6 +5,7 @@ import {
   getTicketsController,
   getTicketByIdController,
   cancelTicketController,
+  updateTicketController,
   createTicketFromAppointment,
 } from "../controllers/ticket.controller";
 
@@ -39,6 +40,13 @@ router.patch(
   authenticate,
   authorize("admin"),
   cancelTicketController,
+);
+
+router.patch(
+  "/:id",
+  authenticate,
+  authorize("admin"),
+  updateTicketController,
 );
 
 router.post(

@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { History, X } from "lucide-react";
 
 import type { Ticket } from "../../types/ticket";
 
@@ -6,6 +6,9 @@ interface ViewTicketModalProps {
   ticket: Ticket;
   onClose: () => void;
 }
+
+const idOf = (value: string | { _id: string }) =>
+  typeof value === "string" ? value : value._id;
 
 const ViewTicketModal = ({ ticket, onClose }: ViewTicketModalProps) => {
   const client = typeof ticket.client === "object" ? ticket.client : null;
@@ -68,9 +71,9 @@ const ViewTicketModal = ({ ticket, onClose }: ViewTicketModalProps) => {
           <h3 className="mb-3 font-semibold">Prestations</h3>
 
           <div className="space-y-3">
-            {ticket.items.map((item) => (
+            {ticket.items.map((item, index) => (
               <div
-                key={item.service}
+                key={`${idOf(item.service)}-${index}`}
                 className="flex items-center justify-between rounded-2xl border border-(--border) p-4"
               >
                 <div>
@@ -105,6 +108,49 @@ const ViewTicketModal = ({ ticket, onClose }: ViewTicketModalProps) => {
           <div className="mt-5 rounded-2xl border border-(--border) p-4">
             <p className="text-xs text-(--muted)">Note</p>
             <p>{ticket.notes}</p>
+          </div>
+        )}
+
+        {!!ticket.edits?.length && (
+          <div className="mt-5">
+            <div className="mb-3 flex items-center gap-2">
+              <History size={16} className="text-(--brown)" />
+              <h3 className="font-semibold">Historique des modifications</h3>
+            </div>
+
+            <div className="space-y-2">
+              {ticket.edits.map((edit, index) => {
+                const editor =
+                  typeof edit.editedBy === "object" ? edit.editedBy : null;
+
+                return (
+                  <div
+                    key={index}
+                    className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm"
+                  >
+                    <p className="font-medium text-amber-800">
+                      Modifié par{" "}
+                      {editor
+                        ? `${editor.firstName} ${editor.lastName}`
+                        : "un administrateur"}{" "}
+                      le{" "}
+                      {new Date(edit.editedAt).toLocaleString("fr-FR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                    <p className="mt-1 text-xs text-amber-700">
+                      Ancien total : {edit.previous.total} DA (
+                      {edit.previous.items.length} prestation
+                      {edit.previous.items.length > 1 ? "s" : ""})
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

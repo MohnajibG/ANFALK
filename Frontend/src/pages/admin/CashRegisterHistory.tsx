@@ -1,35 +1,48 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import {
+  CircleCheckBig,
   ChevronDown,
   ChevronUp,
   Download,
   HandCoins,
   Lock,
+  Pencil,
   Plus,
   Receipt,
   Search,
+  ShieldCheck,
   Trash2,
   TrendingDown,
   TrendingUp,
   Unlock,
 } from "lucide-react";
 
-import { getCashRegisterHistory } from "../../api/cashRegister.api";
+import {
+  getCashRegisterHistory,
+  adminOpenCashRegister,
+  adminCloseCashRegister,
+  finalizeCashRegister,
+} from "../../api/cashRegister.api";
 import { getTickets } from "../../api/ticket.api";
 import { getExpenses, deleteExpense } from "../../api/expense.api";
+import { getEmployees } from "../../api/employee.api";
 import type { CashRegister } from "../../types/cashRegister";
 import type { Ticket } from "../../types/ticket";
 import type { Expense } from "../../types/expense";
+import type { Employee } from "../../types/employee";
 import StatCard from "../../components/ui/StatCard";
 import Badge from "../../components/ui/Badge";
 import AddExpenseModal from "../../components/expenses/AddExpenseModal";
+import CloseRegisterModal from "../../components/POS/CloseRegisterModal";
+import AdminOpenRegisterModal from "../../components/cashRegister/AdminOpenRegisterModal";
+import EditTicketModal from "../../components/ticket/EditTicketModal";
 
 const CashRegisterHistory = () => {
   const [history, setHistory] = useState<CashRegister[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<"all" | "open" | "closed">("all");
+  const [status, setStatus] = useState<"all" | "open" | "closed" | "finalized">("all");
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [ticketsByRegister, setTicketsByRegister] = useState<
@@ -109,23 +122,99 @@ const CashRegisterHistory = () => {
     }
   };
 
+  const loadHistory = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await getCashRegisterHistory(
+        status !== "all" ? { status } : undefined,
+      );
+      setHistory(data);
+    } catch (err) {
+      console.error("[CashRegisterHistory]", err);
+      setError("Impossible de charger l'historique des caisses");
+    } finally {
+      setLoading(false);
+    }
+  }, [status]);
+
   useEffect(() => {
-    const load = async () => {
+    loadHistory();
+  }, [loadHistory]);
+
+  const [cashiers, setCashiers] = useState<Employee[]>([]);
+  const [showAdminOpenModal, setShowAdminOpenModal] = useState(false);
+  const [adminCloseTarget, setAdminCloseTarget] = useState<CashRegister | null>(
+    null,
+  );
+  const [adminCloseLoading, setAdminCloseLoading] = useState(false);
+  const [adminCloseError, setAdminCloseError] = useState("");
+  const [finalizingId, setFinalizingId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState("");
+  const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
+
+  useEffect(() => {
+    const loadCashiers = async () => {
       try {
-        setLoading(true);
-        const data = await getCashRegisterHistory(
-          status !== "all" ? { status } : undefined,
-        );
-        setHistory(data);
+        const data = await getEmployees({ role: "cashier" });
+        setCashiers(data);
       } catch (err) {
-        console.error("[CashRegisterHistory]", err);
-        setError("Impossible de charger l'historique des caisses");
-      } finally {
-        setLoading(false);
+        console.error("[CashRegisterHistory] getEmployees:", err);
       }
     };
-    load();
-  }, [status]);
+    loadCashiers();
+  }, []);
+
+  const handleAdminOpen = async (cashierId: string, openingAmount: number) => {
+    await adminOpenCashRegister({ cashier: cashierId, openingAmount });
+    await loadHistory();
+  };
+
+  const handleAdminClose = async (closingAmount: number, notes?: string) => {
+    if (!adminCloseTarget) return;
+
+    try {
+      setAdminCloseLoading(true);
+      setAdminCloseError("");
+      await adminCloseCashRegister(adminCloseTarget._id, {
+        closingAmount,
+        notes,
+      });
+      setAdminCloseTarget(null);
+      await loadHistory();
+    } catch (err) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message ?? "Impossible de fermer cette caisse";
+      setAdminCloseError(message);
+      throw err;
+    } finally {
+      setAdminCloseLoading(false);
+    }
+  };
+
+  const handleFinalize = async (registerId: string) => {
+    if (
+      !window.confirm(
+        "Finaliser définitivement cette caisse ? Plus aucune modification ne sera possible sur elle ni sur ses tickets.",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setFinalizingId(registerId);
+      setActionError("");
+      await finalizeCashRegister(registerId);
+      await loadHistory();
+    } catch (err) {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message ?? "Impossible de finaliser cette caisse";
+      setActionError(message);
+    } finally {
+      setFinalizingId(null);
+    }
+  };
 
   const filteredHistory = useMemo(() => {
     const query = search.toLowerCase();
@@ -222,6 +311,14 @@ const CashRegisterHistory = () => {
 
         <div className="flex flex-wrap gap-3">
           <button
+            onClick={() => setShowAdminOpenModal(true)}
+            className="flex items-center justify-center gap-2 rounded-xl border border-(--border) px-5 py-3 text-(--black) transition hover:bg-(--cream)"
+          >
+            <Unlock size={18} />
+            Ouvrir pour un caissier
+          </button>
+
+          <button
             onClick={() => setShowExpenseModal(true)}
             className="flex items-center justify-center gap-2 rounded-xl border border-(--border) px-5 py-3 text-(--black) transition hover:bg-(--cream)"
           >
@@ -238,6 +335,12 @@ const CashRegisterHistory = () => {
           </button>
         </div>
       </section>
+
+      {actionError && (
+        <div className="rounded-2xl bg-red-50 p-4 text-red-600">
+          {actionError}
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-4">
         <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(33.333%-10.667px)]">
@@ -277,13 +380,14 @@ const CashRegisterHistory = () => {
         <select
           value={status}
           onChange={(e) =>
-            setStatus(e.target.value as "all" | "open" | "closed")
+            setStatus(e.target.value as "all" | "open" | "closed" | "finalized")
           }
           className="rounded-xl border border-(--border) px-4 py-2"
         >
           <option value="all">Tous les statuts</option>
           <option value="open">Ouvertes</option>
           <option value="closed">Fermées</option>
+          <option value="finalized">Finalisées</option>
         </select>
       </div>
 
@@ -300,6 +404,9 @@ const CashRegisterHistory = () => {
                 <th className="px-6 py-4 text-sm font-semibold">Virement</th>
                 <th className="px-6 py-4 text-sm font-semibold">Écart</th>
                 <th className="px-6 py-4 text-sm font-semibold">Statut</th>
+                <th className="px-6 py-4 text-sm font-semibold">
+                  Actions admin
+                </th>
                 <th className="px-6 py-4 text-sm font-semibold"></th>
               </tr>
             </thead>
@@ -341,16 +448,72 @@ const CashRegisterHistory = () => {
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <span
-                          className={`flex w-fit items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${item.status === "open" ? "bg-blue-100 text-blue-700" : "bg-(--surface) text-(--muted)"}`}
-                        >
-                          {item.status === "open" ? (
-                            <Unlock size={12} />
-                          ) : (
-                            <Lock size={12} />
+                        <div className="flex flex-col gap-1">
+                          <span
+                            className={`flex w-fit items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${
+                              item.status === "open"
+                                ? "bg-blue-100 text-blue-700"
+                                : item.status === "finalized"
+                                  ? "bg-emerald-100 text-emerald-700"
+                                  : "bg-(--surface) text-(--muted)"
+                            }`}
+                          >
+                            {item.status === "open" ? (
+                              <Unlock size={12} />
+                            ) : item.status === "finalized" ? (
+                              <ShieldCheck size={12} />
+                            ) : (
+                              <Lock size={12} />
+                            )}
+                            {item.status === "open"
+                              ? "Ouverte"
+                              : item.status === "finalized"
+                                ? "Finalisée"
+                                : "Fermée"}
+                          </span>
+
+                          {item.autoClosed && (
+                            <span className="w-fit rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-700">
+                              Auto-fermée
+                            </span>
                           )}
-                          {item.status === "open" ? "Ouverte" : "Fermée"}
-                        </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        {item.status === "open" && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setAdminCloseTarget(item);
+                            }}
+                            className="flex items-center gap-1.5 rounded-xl border border-(--border) px-3 py-2 text-xs font-semibold transition hover:bg-(--cream)"
+                          >
+                            <Lock size={14} />
+                            Fermer
+                          </button>
+                        )}
+
+                        {item.status === "closed" && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleFinalize(item._id);
+                            }}
+                            disabled={finalizingId === item._id}
+                            className="flex items-center gap-1.5 rounded-xl border border-(--border) px-3 py-2 text-xs font-semibold transition hover:bg-(--cream) disabled:opacity-50"
+                          >
+                            <CircleCheckBig size={14} />
+                            {finalizingId === item._id
+                              ? "Finalisation..."
+                              : "Finaliser"}
+                          </button>
+                        )}
+
+                        {item.status === "finalized" && (
+                          <span className="text-xs text-(--muted)">
+                            Verrouillée
+                          </span>
+                        )}
                       </td>
                       <td className="px-6 py-4 text-(--muted)">
                         {isExpanded ? (
@@ -362,7 +525,7 @@ const CashRegisterHistory = () => {
                     </tr>
                     {isExpanded && (
                       <tr className="border-b border-(--border) last:border-none">
-                        <td colSpan={9} className="bg-(--surface) px-6 py-5">
+                        <td colSpan={10} className="bg-(--surface) px-6 py-5">
                           {loadingTickets[item._id] && (
                             <p className="text-sm text-(--muted)">
                               Chargement des ventes...
@@ -432,6 +595,19 @@ const CashRegisterHistory = () => {
                                       <span className="font-semibold">
                                         {ticket.total} DA
                                       </span>
+
+                                      {ticket.status === "paid" &&
+                                        item.status !== "finalized" && (
+                                          <button
+                                            onClick={() =>
+                                              setEditingTicket(ticket)
+                                            }
+                                            aria-label="Modifier"
+                                            className="rounded-xl border border-(--border) p-2 transition hover:bg-(--cream)"
+                                          >
+                                            <Pencil size={14} />
+                                          </button>
+                                        )}
                                     </div>
                                   </div>
                                 );
@@ -447,7 +623,7 @@ const CashRegisterHistory = () => {
               {!filteredHistory.length && (
                 <tr>
                   <td
-                    colSpan={9}
+                    colSpan={10}
                     className="px-6 py-10 text-center text-(--muted)"
                   >
                     Aucune session de caisse trouvée.
@@ -543,6 +719,46 @@ const CashRegisterHistory = () => {
         onClose={() => setShowExpenseModal(false)}
         onCreated={loadExpenses}
       />
+
+      <AdminOpenRegisterModal
+        open={showAdminOpenModal}
+        cashiers={cashiers}
+        onClose={() => setShowAdminOpenModal(false)}
+        onOpen={handleAdminOpen}
+      />
+
+      {adminCloseTarget && (
+        <CloseRegisterModal
+          register={adminCloseTarget}
+          onClose={handleAdminClose}
+          onCancel={() => {
+            setAdminCloseTarget(null);
+            setAdminCloseError("");
+          }}
+          loading={adminCloseLoading}
+          error={adminCloseError}
+        />
+      )}
+
+      {editingTicket && (
+        <EditTicketModal
+          ticket={editingTicket}
+          onClose={() => setEditingTicket(null)}
+          onSaved={(updated) => {
+            setTicketsByRegister((prev) => {
+              const next: typeof prev = {};
+              for (const key of Object.keys(prev)) {
+                next[key] = prev[key].map((t) =>
+                  t._id === updated._id ? updated : t,
+                );
+              }
+              return next;
+            });
+            setEditingTicket(null);
+            loadHistory();
+          }}
+        />
+      )}
     </div>
   );
 };

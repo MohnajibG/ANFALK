@@ -28,12 +28,33 @@ export interface TicketAppointment {
   status: string;
 }
 
+export interface TicketItemService {
+  _id: string;
+  name: string;
+  price: number;
+  duration: number;
+}
+
 export interface TicketItem {
-  service: string;
+  service: string | TicketItemService;
+  employee: string | TicketEmployee;
   name: string;
   originalPrice: number;
   finalPrice: number;
   duration?: number;
+}
+
+export interface TicketEdit {
+  editedBy: string | TicketUser;
+  editedAt: string;
+  previous: {
+    items: TicketItem[];
+    subtotal: number;
+    discount: number;
+    total: number;
+    paymentMethod: PaymentMethod;
+    notes?: string;
+  };
 }
 
 export interface Ticket {
@@ -58,6 +79,8 @@ export interface Ticket {
   createdBy: TicketUser;
   cancelledBy?: TicketUser;
   cancelledAt?: string;
+
+  edits?: TicketEdit[];
 
   createdAt: string;
   updatedAt: string;
@@ -85,7 +108,13 @@ export interface CreateTicketPayload {
 }
 
 export interface UpdateTicketPayload {
+  items?: {
+    service: string;
+    employee: string;
+    finalPrice: number;
+  }[];
   discount?: number;
+  paymentMethod?: PaymentMethod;
   notes?: string;
 }
 

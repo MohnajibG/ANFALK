@@ -6,6 +6,7 @@ import {
   getTickets,
   getTicketById,
   cancelTicket,
+  updateTicketAdmin,
   createTicketFromAppointment,
 } from "../services/ticket.service";
 
@@ -79,6 +80,29 @@ export const cancelTicketController = async (
 ) => {
   try {
     const ticket = await cancelTicket(req.params.id as string, req.user!.id);
+
+    return res.json({
+      success: true,
+      ticket,
+    });
+  } catch (error: any) {
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const updateTicketController = async (
+  req: AuthRequest,
+  res: Response,
+) => {
+  try {
+    const ticket = await updateTicketAdmin(
+      req.params.id as string,
+      req.body,
+      req.user!.id,
+    );
 
     return res.json({
       success: true,

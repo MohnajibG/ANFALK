@@ -4,6 +4,7 @@ import type {
   CashRegister,
   OpenCashRegisterPayload,
   CloseCashRegisterPayload,
+  AdminOpenCashRegisterPayload,
 } from "../types/cashRegister";
 
 const API_URL = "/cash-register";
@@ -33,4 +34,26 @@ export const getCashRegisterHistory = async (
 ): Promise<CashRegister[]> => {
   const { data } = await api.get(`${API_URL}/history`, { params });
   return data.history ?? [];
+};
+
+export const adminOpenCashRegister = async (
+  payload: AdminOpenCashRegisterPayload,
+): Promise<CashRegister> => {
+  const { data } = await api.post(`${API_URL}/admin/open`, payload);
+  return data.register;
+};
+
+export const adminCloseCashRegister = async (
+  id: string,
+  payload: CloseCashRegisterPayload,
+): Promise<CashRegister> => {
+  const { data } = await api.patch(`${API_URL}/${id}/admin-close`, payload);
+  return data.register;
+};
+
+export const finalizeCashRegister = async (
+  id: string,
+): Promise<CashRegister> => {
+  const { data } = await api.patch(`${API_URL}/${id}/finalize`);
+  return data.register;
 };

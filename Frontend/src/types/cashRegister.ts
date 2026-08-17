@@ -1,4 +1,4 @@
-export type CashRegisterStatus = "open" | "closed";
+export type CashRegisterStatus = "open" | "closed" | "finalized";
 
 export interface CashRegisterCashier {
   _id: string;
@@ -24,6 +24,10 @@ export interface CashRegister {
   expectedAmount?: number;
   difference?: number;
   status: CashRegisterStatus;
+  autoClosed?: boolean;
+  closedByAdmin?: string | CashRegisterCashier;
+  finalizedAt?: string;
+  finalizedBy?: string | CashRegisterCashier;
   totals: CashRegisterTotals;
   notes?: string;
   createdAt: string;
@@ -37,4 +41,9 @@ export interface OpenCashRegisterPayload {
 export interface CloseCashRegisterPayload {
   closingAmount: number;
   notes?: string;
+}
+
+export interface AdminOpenCashRegisterPayload {
+  cashier: string;
+  openingAmount: number;
 }

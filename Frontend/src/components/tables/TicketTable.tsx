@@ -1,14 +1,15 @@
-import { Eye, XCircle } from "lucide-react";
+import { Eye, Pencil, XCircle } from "lucide-react";
 import type { Ticket } from "../../types/ticket";
 import Badge from "../ui/Badge";
 
 interface TicketTableProps {
   tickets: Ticket[];
   onView: (ticket: Ticket) => void;
+  onEdit: (ticket: Ticket) => void;
   onCancel: (ticket: Ticket) => void;
 }
 
-const TicketTable = ({ tickets, onView, onCancel }: TicketTableProps) => {
+const TicketTable = ({ tickets, onView, onEdit, onCancel }: TicketTableProps) => {
   if (!tickets.length) {
     return (
       <div className="rounded-3xl border border-(--border) bg-white p-8 text-center text-(--muted)">
@@ -80,6 +81,15 @@ const TicketTable = ({ tickets, onView, onCancel }: TicketTableProps) => {
                       >
                         <Eye size={18} />
                       </button>
+                      {ticket.status === "paid" && (
+                        <button
+                          onClick={() => onEdit(ticket)}
+                          className="rounded-xl border border-(--border) p-2 transition hover:bg-(--cream)"
+                          title="Modifier"
+                        >
+                          <Pencil size={18} />
+                        </button>
+                      )}
                       {ticket.status === "paid" && (
                         <button
                           onClick={() => onCancel(ticket)}

@@ -6,6 +6,7 @@ import type { Ticket, TicketStatus, PaymentMethod } from "../../types/ticket";
 
 import TicketTable from "../../components/tables/TicketTable";
 import ViewTicketModal from "../../components/ticket/ViewTicketModal";
+import EditTicketModal from "../../components/ticket/EditTicketModal";
 import CancelTicketModal from "../../components/ticket/CancelTicketModal";
 
 import PageHeader from "../../components/ui/PageHeader";
@@ -13,7 +14,7 @@ import StatCard from "../../components/ui/StatCard";
 import SearchBar from "../../components/ui/SearchBar";
 import LoadingState from "../../components/ui/LoadingState";
 
-type ModalType = "view" | "cancel" | null;
+type ModalType = "view" | "edit" | "cancel" | null;
 
 const Tickets = () => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -185,6 +186,10 @@ const Tickets = () => {
           setSelectedTicket(t);
           setModal("view");
         }}
+        onEdit={(t) => {
+          setSelectedTicket(t);
+          setModal("edit");
+        }}
         onCancel={(t) => {
           setSelectedTicket(t);
           setModal("cancel");
@@ -195,6 +200,20 @@ const Tickets = () => {
         <ViewTicketModal
           ticket={selectedTicket}
           onClose={() => setModal(null)}
+        />
+      )}
+      {modal === "edit" && selectedTicket && (
+        <EditTicketModal
+          ticket={selectedTicket}
+          onClose={() => setModal(null)}
+          onSaved={(updated) => {
+            setTickets((current) =>
+              current.map((item) =>
+                item._id === updated._id ? updated : item,
+              ),
+            );
+            setSelectedTicket(null);
+          }}
         />
       )}
       {modal === "cancel" && selectedTicket && (

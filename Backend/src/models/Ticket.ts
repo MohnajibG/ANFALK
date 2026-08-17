@@ -99,6 +99,29 @@ const ticketSchema = new Schema(
       ref: "CashRegister",
     },
     cancelledAt: Date,
+
+    edits: [
+      {
+        editedBy: {
+          type: Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        editedAt: {
+          type: Date,
+          required: true,
+          default: Date.now,
+        },
+        previous: {
+          items: Schema.Types.Mixed,
+          subtotal: Number,
+          discount: Number,
+          total: Number,
+          paymentMethod: String,
+          notes: String,
+        },
+      },
+    ],
   },
   {
     timestamps: true,

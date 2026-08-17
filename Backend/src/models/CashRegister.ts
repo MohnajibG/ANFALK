@@ -1,6 +1,6 @@
 import { Schema, model, Document, Types } from "mongoose";
 
-export type CashRegisterStatus = "open" | "closed";
+export type CashRegisterStatus = "open" | "closed" | "finalized";
 
 export interface ICashRegister extends Document {
   cashier: Types.ObjectId;
@@ -12,6 +12,10 @@ export interface ICashRegister extends Document {
   expectedAmount?: number;
   difference?: number;
   status: CashRegisterStatus;
+  autoClosed?: boolean;
+  closedByAdmin?: Types.ObjectId;
+  finalizedAt?: Date;
+  finalizedBy?: Types.ObjectId;
   totals: {
     cash: number;
     card: number;
@@ -36,7 +40,15 @@ const cashRegisterSchema = new Schema<ICashRegister>(
     expectedAmount: { type: Number },
     difference: { type: Number },
 
-    status: { type: String, enum: ["open", "closed"], default: "open" },
+    status: {
+      type: String,
+      enum: ["open", "closed", "finalized"],
+      default: "open",
+    },
+    autoClosed: { type: Boolean, default: false },
+    closedByAdmin: { type: Schema.Types.ObjectId, ref: "User" },
+    finalizedAt: { type: Date },
+    finalizedBy: { type: Schema.Types.ObjectId, ref: "User" },
 
     totals: {
       cash: { type: Number, default: 0 },

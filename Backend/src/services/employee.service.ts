@@ -109,12 +109,18 @@ export const createEmployee = async (
   };
 };
 
-export const getEmployees = async (search?: string) => {
+export const getEmployees = async (filters?: {
+  search?: string;
+  role?: "employee" | "cashier";
+  isActive?: boolean;
+}) => {
   const query: any = {
-    role: "employee",
+    role: filters?.role ?? "employee",
     isDeleted: false,
-    isActive: true,
+    isActive: filters?.isActive ?? true,
   };
+
+  const search = filters?.search;
 
   if (search) {
     query.$or = [

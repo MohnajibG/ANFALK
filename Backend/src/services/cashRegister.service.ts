@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import CashRegister from "../models/CashRegister";
 import Ticket from "../models/Ticket";
 
@@ -74,23 +75,11 @@ export const recalculateTotals = async (registerId: string) => {
   return totals;
 };
 
-export const closeCashRegister = async (
-  cashierId: string,
+const applyClose = async (
+  register: InstanceType<typeof CashRegister>,
   closingAmount: number,
   notes?: string,
 ) => {
-  const date = getTodayString();
-
-  const register = await CashRegister.findOne({
-    cashier: cashierId,
-    date,
-    status: "open",
-  });
-
-  if (!register) {
-    throw new Error("Aucune caisse ouverte à fermer");
-  }
-
   const totals = await recalculateTotals(register._id.toString());
 
   const expectedAmount = register.openingAmount + totals.cash;
@@ -109,11 +98,131 @@ export const closeCashRegister = async (
   return register;
 };
 
+export const closeCashRegister = async (
+  cashierId: string,
+  closingAmount: number,
+  notes?: string,
+) => {
+  const date = getTodayString();
+
+  const register = await CashRegister.findOne({
+    cashier: cashierId,
+    date,
+    status: "open",
+  });
+
+  if (!register) {
+    throw new Error("Aucune caisse ouverte à fermer");
+  }
+
+  return applyClose(register, closingAmount, notes);
+};
+
+/**
+ * Fermeture forcée par un admin, quelle que soit la caisse.
+ */
+export const adminCloseCashRegister = async (
+  registerId: string,
+  adminId: string,
+  closingAmount: number,
+  notes?: string,
+) => {
+  const register = await CashRegister.findById(registerId);
+
+  if (!register) {
+    throw new Error("Session de caisse introuvable");
+  }
+
+  if (register.status !== "open") {
+    throw new Error("Cette caisse n'est pas ouverte");
+  }
+
+  await applyClose(register, closingAmount, notes);
+
+  register.closedByAdmin = new mongoose.Types.ObjectId(adminId);
+
+  await register.save();
+
+  return register;
+};
+
+/**
+ * Ouverture par un admin pour le compte d'un caissier
+ * (ex : le caissier n'a pas encore ouvert sa caisse).
+ */
+export const adminOpenCashRegister = async (
+  cashierId: string,
+  openingAmount: number,
+) => {
+  return openCashRegister(cashierId, openingAmount);
+};
+
+/**
+ * Verrouillage définitif par l'admin : plus aucune modification
+ * possible sur la caisse ni sur les tickets qui lui sont rattachés.
+ */
+export const finalizeCashRegister = async (
+  registerId: string,
+  adminId: string,
+) => {
+  const register = await CashRegister.findById(registerId);
+
+  if (!register) {
+    throw new Error("Session de caisse introuvable");
+  }
+
+  if (register.status !== "closed") {
+    throw new Error(
+      "La caisse doit être fermée avant de pouvoir être finalisée",
+    );
+  }
+
+  register.status = "finalized";
+  register.finalizedAt = new Date();
+  register.finalizedBy = new mongoose.Types.ObjectId(adminId);
+
+  await register.save();
+
+  return register;
+};
+
+/**
+ * Ferme automatiquement les caisses restées ouvertes après leur
+ * journée (oubli du caissier). Le comptage réel étant impossible
+ * après coup, le montant de fermeture = montant attendu (écart nul),
+ * et la caisse est marquée autoClosed pour rester traçable.
+ */
+export const autoCloseStaleRegisters = async () => {
+  const today = getTodayString();
+
+  const staleRegisters = await CashRegister.find({
+    status: "open",
+    date: { $lt: today },
+  });
+
+  for (const register of staleRegisters) {
+    const totals = await recalculateTotals(register._id.toString());
+    const expectedAmount = register.openingAmount + totals.cash;
+
+    register.closingAmount = expectedAmount;
+    register.expectedAmount = expectedAmount;
+    register.difference = 0;
+    register.closedAt = new Date();
+    register.status = "closed";
+    register.autoClosed = true;
+    register.totals = totals;
+
+    await register.save();
+  }
+
+  return staleRegisters.length;
+};
+
 export const getCashRegisterHistory = async (filters: {
   cashier?: string;
   from?: string;
   to?: string;
-  status?: "open" | "closed";
+  status?: "open" | "closed" | "finalized";
 }) => {
   const query: any = {};
 

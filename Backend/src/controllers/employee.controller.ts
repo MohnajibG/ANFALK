@@ -76,7 +76,17 @@ export const getEmployeesController = async (
     const search =
       typeof req.query.search === "string" ? req.query.search : undefined;
 
-    const employees = await getEmployees(search);
+    const role =
+      req.query.role === "employee" || req.query.role === "cashier"
+        ? req.query.role
+        : undefined;
+
+    const isActive =
+      req.query.isActive === undefined
+        ? undefined
+        : req.query.isActive === "true";
+
+    const employees = await getEmployees({ search, role, isActive });
 
     return res.status(200).json({
       success: true,

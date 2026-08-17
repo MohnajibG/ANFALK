@@ -6,6 +6,9 @@ import {
   getCurrentCashRegisterController,
   getCashRegisterByIdController,
   getCashRegisterHistoryController,
+  adminOpenCashRegisterController,
+  adminCloseCashRegisterController,
+  finalizeCashRegisterController,
 } from "../controllers/cashRegister.controller";
 
 import { authenticate } from "../middlewares/auth";
@@ -27,6 +30,23 @@ router.get(
   getCurrentCashRegisterController,
 );
 router.get("/history", authorize("admin"), getCashRegisterHistoryController);
+
+router.post(
+  "/admin/open",
+  authorize("admin"),
+  adminOpenCashRegisterController,
+);
+router.patch(
+  "/:id/admin-close",
+  authorize("admin"),
+  adminCloseCashRegisterController,
+);
+router.patch(
+  "/:id/finalize",
+  authorize("admin"),
+  finalizeCashRegisterController,
+);
+
 router.get("/:id", authorize("admin"), getCashRegisterByIdController);
 
 export default router;
