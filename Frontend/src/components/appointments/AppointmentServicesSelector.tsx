@@ -214,6 +214,8 @@ const AppointmentServicesSelector = ({
                   );
 
                   const isActive = !!item;
+                  const eligibleEmployees = eligibleEmployeesFor(service);
+                  const disabled = !isActive && eligibleEmployees.length === 0;
 
                   return (
                     <div
@@ -225,12 +227,15 @@ const AppointmentServicesSelector = ({
                       ${
                         isActive
                           ? "border-(--black) bg-(--black) text-(--cream)"
-                          : "border-(--border) bg-white"
+                          : disabled
+                            ? "border-(--border) bg-stone-100 opacity-60"
+                            : "border-(--border) bg-white"
                       }
                       `}
                     >
                       <button
                         type="button"
+                        disabled={disabled}
                         onClick={() => toggleService(service)}
                         className="
                         flex
@@ -238,6 +243,7 @@ const AppointmentServicesSelector = ({
                         items-center
                         justify-between
                         text-left
+                        disabled:cursor-not-allowed
                         "
                       >
                         <div>
@@ -260,6 +266,14 @@ const AppointmentServicesSelector = ({
                             {" • "}
                             {service.duration} min
                           </p>
+
+                          {disabled && (
+                            <p className="mt-1 text-xs text-red-600">
+                              {service.speciality
+                                ? `Aucun employé actif pour la spécialité ${SPECIALITY_LABELS[service.speciality]}`
+                                : "Aucun employé actif disponible"}
+                            </p>
+                          )}
                         </div>
 
                         {isActive && (
