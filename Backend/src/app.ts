@@ -12,6 +12,7 @@ import ticketRoutes from "./routes/ticket.routes";
 import publicRoutes from "./routes/public.routes";
 import cashRegisterRoutes from "./routes/cashRegister.routes";
 import waitlistRoutes from "./routes/waitlist.routes";
+import expenseRoutes from "./routes/expense.routes";
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use("/api/tickets", ticketRoutes);
 app.use("/api/public", publicRoutes);
 app.use("/api/cash-register", cashRegisterRoutes);
 app.use("/api/waitlist", waitlistRoutes);
+app.use("/api/expenses", expenseRoutes);
 
 /* Test Route */
 

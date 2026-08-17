@@ -3,6 +3,7 @@ import Ticket from "../models/Ticket";
 import Client from "../models/Client";
 import User from "../models/User";
 import Appointment from "../models/Appointment";
+import Expense from "../models/Expense";
 
 export type DashboardPeriod = "day" | "week" | "month" | "year" | "custom";
 
@@ -379,6 +380,38 @@ export const getAdminDashboard = async (filters: DashboardFilters = {}) => {
     { $sort: { _id: 1 } },
   ]);
 
+  const expenseBreakdown = await Expense.aggregate([
+    {
+      $match: {
+        date: { $gte: range.start, $lte: range.end },
+      },
+    },
+    {
+      $group: {
+        _id: "$type",
+        total: { $sum: "$amount" },
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
+  const expensesEvolution = await Expense.aggregate([
+    {
+      $match: {
+        date: { $gte: range.start, $lte: range.end },
+      },
+    },
+    {
+      $group: {
+        _id: { $dateToString: { format: dateFormat, date: "$date" } },
+        total: { $sum: "$amount" },
+      },
+    },
+    { $sort: { _id: 1 } },
+  ]);
+
+  const totalExpenses = expenseBreakdown.reduce((sum, e) => sum + e.total, 0);
+
   return {
     range: {
       start: range.start,
@@ -441,6 +474,12 @@ export const getAdminDashboard = async (filters: DashboardFilters = {}) => {
     },
 
     evolution,
+
+    expenses: {
+      total: totalExpenses,
+      breakdown: expenseBreakdown,
+      evolution: expensesEvolution,
+    },
   };
 };
 

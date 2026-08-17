@@ -1,12 +1,14 @@
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import {
   ChevronDown,
   ChevronUp,
   Download,
   HandCoins,
   Lock,
+  Plus,
   Receipt,
   Search,
+  Trash2,
   TrendingDown,
   TrendingUp,
   Unlock,
@@ -14,10 +16,13 @@ import {
 
 import { getCashRegisterHistory } from "../../api/cashRegister.api";
 import { getTickets } from "../../api/ticket.api";
+import { getExpenses, deleteExpense } from "../../api/expense.api";
 import type { CashRegister } from "../../types/cashRegister";
 import type { Ticket } from "../../types/ticket";
+import type { Expense } from "../../types/expense";
 import StatCard from "../../components/ui/StatCard";
 import Badge from "../../components/ui/Badge";
+import AddExpenseModal from "../../components/expenses/AddExpenseModal";
 
 const CashRegisterHistory = () => {
   const [history, setHistory] = useState<CashRegister[]>([]);
@@ -35,6 +40,46 @@ const CashRegisterHistory = () => {
   >({});
   const [ticketsError, setTicketsError] = useState<Record<string, string>>(
     {},
+  );
+
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [loadingExpenses, setLoadingExpenses] = useState(true);
+  const [expensesError, setExpensesError] = useState("");
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
+
+  const loadExpenses = useCallback(async () => {
+    try {
+      setLoadingExpenses(true);
+      setExpensesError("");
+      const data = await getExpenses();
+      setExpenses(data);
+    } catch (err) {
+      console.error("[CashRegisterHistory] getExpenses:", err);
+      setExpensesError("Impossible de charger les charges");
+    } finally {
+      setLoadingExpenses(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadExpenses();
+  }, [loadExpenses]);
+
+  const handleDeleteExpense = async (id: string) => {
+    if (!window.confirm("Supprimer cette charge ?")) return;
+
+    try {
+      await deleteExpense(id);
+      setExpenses((prev) => prev.filter((expense) => expense._id !== id));
+    } catch (err) {
+      console.error("[CashRegisterHistory] deleteExpense:", err);
+      setExpensesError("Impossible de supprimer cette charge");
+    }
+  };
+
+  const totalExpenses = useMemo(
+    () => expenses.reduce((sum, expense) => sum + expense.amount, 0),
+    [expenses],
   );
 
   const toggleExpand = async (registerId: string) => {
@@ -175,13 +220,23 @@ const CashRegisterHistory = () => {
           </p>
         </div>
 
-        <button
-          onClick={exportCSV}
-          className="flex items-center justify-center gap-2 rounded-xl bg-(--black) px-5 py-3 text-(--cream) transition hover:bg-(--brown-dark)"
-        >
-          <Download size={18} />
-          Exporter CSV
-        </button>
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={() => setShowExpenseModal(true)}
+            className="flex items-center justify-center gap-2 rounded-xl border border-(--border) px-5 py-3 text-(--black) transition hover:bg-(--cream)"
+          >
+            <Plus size={18} />
+            Ajouter une charge
+          </button>
+
+          <button
+            onClick={exportCSV}
+            className="flex items-center justify-center gap-2 rounded-xl bg-(--black) px-5 py-3 text-(--cream) transition hover:bg-(--brown-dark)"
+          >
+            <Download size={18} />
+            Exporter CSV
+          </button>
+        </div>
       </section>
 
       <div className="flex flex-wrap gap-4">
@@ -403,6 +458,91 @@ const CashRegisterHistory = () => {
           </table>
         </div>
       </div>
+
+      <div className="rounded-3xl border border-(--border) bg-white p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="font-title text-xl font-bold text-(--black)">
+              Charges variables & semi-variables
+            </h2>
+            <p className="mt-1 text-sm text-(--muted)">
+              Achats de produits, fournitures et autres dépenses courantes
+            </p>
+          </div>
+
+          <Badge variant="neutral">{totalExpenses} DA au total</Badge>
+        </div>
+
+        {expensesError && (
+          <div className="mt-4 rounded-2xl bg-red-50 p-4 text-red-600">
+            {expensesError}
+          </div>
+        )}
+
+        <div className="mt-5 space-y-2">
+          {loadingExpenses && (
+            <p className="text-sm text-(--muted)">Chargement des charges...</p>
+          )}
+
+          {!loadingExpenses && !expenses.length && (
+            <p className="text-sm text-(--muted)">
+              Aucune charge enregistrée pour l'instant.
+            </p>
+          )}
+
+          {!loadingExpenses &&
+            expenses.map((expense) => {
+              const creator =
+                typeof expense.createdBy === "object"
+                  ? expense.createdBy
+                  : null;
+
+              return (
+                <div
+                  key={expense._id}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-(--border) p-4"
+                >
+                  <div>
+                    <p className="font-semibold">{expense.description}</p>
+                    <p className="text-xs text-(--muted)">
+                      {new Date(expense.date).toLocaleDateString("fr-FR")}
+                      {creator &&
+                        ` · ${creator.firstName} ${creator.lastName}`}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <Badge
+                      variant={
+                        expense.type === "variable" ? "warning" : "info"
+                      }
+                    >
+                      {expense.type === "variable"
+                        ? "Variable"
+                        : "Semi-variable"}
+                    </Badge>
+
+                    <span className="font-semibold">{expense.amount} DA</span>
+
+                    <button
+                      onClick={() => handleDeleteExpense(expense._id)}
+                      aria-label="Supprimer"
+                      className="rounded-xl p-2 text-red-600 transition hover:bg-red-50"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+        </div>
+      </div>
+
+      <AddExpenseModal
+        open={showExpenseModal}
+        onClose={() => setShowExpenseModal(false)}
+        onCreated={loadExpenses}
+      />
     </div>
   );
 };

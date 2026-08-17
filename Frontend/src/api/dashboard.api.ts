@@ -95,6 +95,19 @@ export interface DashboardData {
     revenue: number;
     tickets: number;
   }[];
+
+  expenses: {
+    total: number;
+    breakdown: {
+      _id: "variable" | "semi-variable";
+      total: number;
+      count: number;
+    }[];
+    evolution: {
+      _id: string;
+      total: number;
+    }[];
+  };
 }
 
 export const getAdminDashboard = async (

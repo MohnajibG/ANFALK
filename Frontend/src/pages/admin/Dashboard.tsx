@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import {
   Award,
   CalendarCheck,
+  ClipboardList,
   HandCoins,
   Receipt,
   ShoppingBag,
@@ -38,6 +39,11 @@ const paymentLabels: Record<string, string> = {
   cash: "Espèces",
   card: "Carte",
   transfer: "Virement",
+};
+
+const expenseLabels: Record<string, string> = {
+  variable: "Variables",
+  "semi-variable": "Semi-variables",
 };
 
 const Dashboard = () => {
@@ -98,6 +104,10 @@ const Dashboard = () => {
     1,
   );
   const maxEvolution = Math.max(...data.evolution.map((e) => e.revenue), 1);
+  const maxExpenseTotal = Math.max(
+    ...(data.expenses?.breakdown ?? []).map((e) => e.total),
+    1,
+  );
   const totalPayments =
     data.paymentBreakdown.reduce((s, p) => s + p.revenue, 0) || 1;
 
@@ -274,6 +284,56 @@ const Dashboard = () => {
             ) : (
               <p className="text-sm text-(--muted)">
                 Aucun paiement enregistré
+              </p>
+            )}
+          </div>
+        </motion.div>
+
+        <motion.div
+          whileHover={{ scale: 1.005 }}
+          className="w-full rounded-3xl border border-(--border) bg-white p-6 lg:w-[calc(33.333%-16px)]"
+        >
+          <div className="mb-5 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ClipboardList size={20} className="text-(--brown)" />
+              <h2 className="font-semibold text-(--black)">
+                Charges variables & semi-variables
+              </h2>
+            </div>
+
+            <strong className="text-(--black)">
+              {data.expenses.total.toLocaleString("fr-FR")} DA
+            </strong>
+          </div>
+
+          <div className="space-y-4">
+            {data.expenses.breakdown.length ? (
+              data.expenses.breakdown.map((e) => (
+                <div key={e._id}>
+                  <div className="flex justify-between text-sm">
+                    <span className="font-medium text-(--black)">
+                      {expenseLabels[e._id] ?? e._id}
+                    </span>
+                    <strong>
+                      {e.total.toLocaleString("fr-FR")} DA
+                      <span className="ml-2 font-normal text-(--muted)">
+                        ({e.count})
+                      </span>
+                    </strong>
+                  </div>
+                  <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-(--surface)">
+                    <div
+                      className="h-full rounded-full bg-red-400"
+                      style={{
+                        width: `${(e.total / maxExpenseTotal) * 100}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-(--muted)">
+                Aucune charge enregistrée
               </p>
             )}
           </div>
