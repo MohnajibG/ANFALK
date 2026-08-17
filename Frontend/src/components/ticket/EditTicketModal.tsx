@@ -294,11 +294,15 @@ const EditTicketModal = ({ ticket, onClose, onSaved }: EditTicketModalProps) => 
               }
               className="w-full rounded-xl border border-(--border) bg-white p-3 outline-none"
             >
+              {/* Carte et virement désactivés temporairement, seul
+              l'espèce reste sélectionnable :
               {(Object.keys(paymentLabels) as PaymentMethod[]).map((key) => (
                 <option key={key} value={key}>
                   {paymentLabels[key]}
                 </option>
               ))}
+              */}
+              <option value="cash">{paymentLabels.cash}</option>
             </select>
           </div>
         </div>

@@ -115,7 +115,8 @@ export const updateAppointmentController = async (
   res: Response,
 ) => {
   try {
-    const { date, startTime, services, status, notes } = req.body;
+    const { date, startTime, services, status, notes, noShowReason } =
+      req.body;
 
     const appointment = await updateAppointment(req.params.id as string, {
       date: date ? new Date(date) : undefined,
@@ -123,6 +124,7 @@ export const updateAppointmentController = async (
       services,
       status,
       notes,
+      noShowReason,
       updatedBy: req.user!.id,
     });
 

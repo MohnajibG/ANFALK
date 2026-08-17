@@ -21,6 +21,10 @@ export interface IClient extends Document {
 
   visitCount: number;
 
+  noShowCount: number;
+
+  attendedCount: number;
+
   lastVisit?: Date;
 
   isActive: boolean;
@@ -93,6 +97,18 @@ const clientSchema = new Schema<IClient>(
     },
 
     visitCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    noShowCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    attendedCount: {
       type: Number,
       default: 0,
       min: 0,

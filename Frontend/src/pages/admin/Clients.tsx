@@ -17,6 +17,7 @@ import StatCard from "../../components/ui/StatCard";
 import SearchBar from "../../components/ui/SearchBar";
 import EmptyState from "../../components/ui/EmptyState";
 import LoadingState from "../../components/ui/LoadingState";
+import ClientReliabilityBadge from "../../components/clients/ClientReliabilityBadge";
 
 interface Client {
   _id: string;
@@ -25,6 +26,8 @@ interface Client {
   phone: string;
   email?: string;
   visitCount: number;
+  noShowCount: number;
+  attendedCount: number;
   totalSpent: number;
   lastVisit?: string;
 }
@@ -159,6 +162,17 @@ const Clients = () => {
                 <div className="text-sm">
                   <p className="text-(--muted)">Visites</p>
                   <p className="font-semibold">{client.visitCount}</p>
+                </div>
+
+                <div className="text-sm">
+                  <p className="text-(--muted)">Fiabilité</p>
+                  <ClientReliabilityBadge client={client} />
+                  {client.noShowCount > 0 && (
+                    <p className="mt-1 text-xs text-(--muted)">
+                      {client.noShowCount} absence
+                      {client.noShowCount > 1 ? "s" : ""}
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2 text-sm">

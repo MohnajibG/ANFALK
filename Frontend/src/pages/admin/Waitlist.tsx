@@ -11,11 +11,22 @@ import { getServices } from "../../api/service.api";
 import { getEmployees } from "../../api/employee.api";
 
 import ClientAutocomplete from "../../components/appointments/ClientAutocomplete";
+import AppointmentServicesSelector from "../../components/appointments/AppointmentServicesSelector";
 
 import type { WaitlistEntry, WaitlistStatus } from "../../types/waitlist";
+import type { AppointmentService } from "../../types/appointment";
 import type { Client } from "../../types/client";
 import type { Service } from "../../types/service";
 import type { Employee } from "../../types/employee";
+
+// Formatage en heure locale du navigateur (pas toISOString, qui est en
+// UTC et peut décaler le jour selon le fuseau horaire)
+const toLocalDateValue = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 const statusLabels: Record<WaitlistStatus, string> = {
   waiting: "En attente",
@@ -38,8 +49,10 @@ const Waitlist = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
 
   const [client, setClient] = useState<Client | null>(null);
-  const [selectedServiceIds, setSelectedServiceIds] = useState<string[]>([]);
-  const [employeeId, setEmployeeId] = useState("");
+  const [selectedServices, setSelectedServices] = useState<
+    AppointmentService[]
+  >([]);
+  const [todayLocal] = useState(() => toLocalDateValue(new Date()));
   const [desiredDateFrom, setDesiredDateFrom] = useState("");
   const [desiredDateTo, setDesiredDateTo] = useState("");
   const [notes, setNotes] = useState("");
@@ -82,20 +95,11 @@ const Waitlist = () => {
 
   const resetForm = () => {
     setClient(null);
-    setSelectedServiceIds([]);
-    setEmployeeId("");
+    setSelectedServices([]);
     setDesiredDateFrom("");
     setDesiredDateTo("");
     setNotes("");
     setError("");
-  };
-
-  const toggleService = (id: string) => {
-    setSelectedServiceIds((current) =>
-      current.includes(id)
-        ? current.filter((item) => item !== id)
-        : [...current, id],
-    );
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -106,15 +110,28 @@ const Waitlist = () => {
       setError("");
 
       if (!client) throw new Error("Veuillez sélectionner une cliente");
-      if (!selectedServiceIds.length)
+      if (!selectedServices.length)
         throw new Error("Veuillez sélectionner au moins une prestation");
       if (!desiredDateFrom)
         throw new Error("Veuillez choisir une date souhaitée");
+      if (desiredDateFrom < todayLocal)
+        throw new Error(
+          "Impossible d'ajouter une entrée avec une date passée",
+        );
+      if (desiredDateTo && desiredDateTo < desiredDateFrom)
+        throw new Error(
+          "La date de fin ne peut pas être antérieure à la date de début",
+        );
 
       await createWaitlistEntry({
         client: client._id,
-        services: selectedServiceIds,
-        employee: employeeId || undefined,
+        services: selectedServices.map((item) => ({
+          service: item.service,
+          employee:
+            typeof item.employee === "string"
+              ? item.employee || undefined
+              : item.employee?._id,
+        })),
         desiredDateFrom,
         desiredDateTo: desiredDateTo || undefined,
         notes,
@@ -189,47 +206,18 @@ const Waitlist = () => {
 
             <ClientAutocomplete value={client} onChange={setClient} />
 
-            <div>
-              <label className="mb-2 block text-sm font-medium">
-                Prestations souhaitées
-              </label>
+            <AppointmentServicesSelector
+              services={services}
+              employees={employees}
+              selectedServices={selectedServices}
+              onChange={setSelectedServices}
+            />
 
-              <div className="flex flex-wrap gap-2">
-                {services.map((service) => (
-                  <button
-                    key={service._id}
-                    type="button"
-                    onClick={() => toggleService(service._id)}
-                    className={`rounded-xl border px-4 py-2 text-sm ${
-                      selectedServiceIds.includes(service._id)
-                        ? "border-(--black) bg-(--black) text-(--cream)"
-                        : "border-(--border) bg-white"
-                    }`}
-                  >
-                    {service.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium">
-                Employé préféré (optionnel)
-              </label>
-
-              <select
-                value={employeeId}
-                onChange={(event) => setEmployeeId(event.target.value)}
-                className="h-12 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
-              >
-                <option value="">Peu importe</option>
-                {employees.map((employee) => (
-                  <option key={employee._id} value={employee._id}>
-                    {employee.firstName} {employee.lastName}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <p className="-mt-2 text-xs text-stone-500">
+              L'employé dédié est attribué automatiquement selon la
+              spécialité. Laissez vide pour accepter n'importe quel employé
+              disponible.
+            </p>
 
             <div className="flex flex-col gap-4 md:flex-row">
               <div className="md:flex-1">
@@ -240,6 +228,7 @@ const Waitlist = () => {
                 <input
                   type="date"
                   value={desiredDateFrom}
+                  min={todayLocal}
                   onChange={(event) => setDesiredDateFrom(event.target.value)}
                   className="h-12 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
                 />
@@ -253,6 +242,7 @@ const Waitlist = () => {
                 <input
                   type="date"
                   value={desiredDateTo}
+                  min={desiredDateFrom || todayLocal}
                   onChange={(event) => setDesiredDateTo(event.target.value)}
                   className="h-12 w-full rounded-2xl border border-(--border) bg-(--cream) px-4"
                 />
@@ -308,12 +298,23 @@ const Waitlist = () => {
                     </h3>
 
                     <p className="text-sm text-stone-500">
-                      {Array.isArray(entry.services) &&
-                        entry.services
-                          .map((service) =>
-                            typeof service === "string" ? service : service.name,
-                          )
-                          .join(", ")}
+                      {entry.services
+                        .map((item) => {
+                          const name =
+                            typeof item.service === "string"
+                              ? item.service
+                              : item.service.name;
+
+                          const employeeName =
+                            item.employee && typeof item.employee === "object"
+                              ? `${item.employee.firstName} ${item.employee.lastName}`
+                              : null;
+
+                          return employeeName
+                            ? `${name} (${employeeName})`
+                            : name;
+                        })
+                        .join(", ")}
                     </p>
                   </div>
                 </div>

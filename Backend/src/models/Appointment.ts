@@ -43,6 +43,8 @@ export interface IAppointment extends Document {
 
   notes?: string;
 
+  noShowReason?: string;
+
   createdBy: Types.ObjectId;
 
   updatedBy?: Types.ObjectId;
@@ -149,6 +151,12 @@ const appointmentSchema = new Schema<IAppointment>(
     },
 
     notes: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    noShowReason: {
       type: String,
       default: "",
       trim: true,

@@ -9,6 +9,12 @@ type Props = {
   onCancel: () => void;
   loading: boolean;
   error: string;
+  title?: string;
+  subtitle?: string;
+  amountLabel?: string;
+  submitLabel?: string;
+  loadingLabel?: string;
+  showPreviousClose?: boolean;
 };
 
 const CloseRegisterModal = ({
@@ -17,6 +23,12 @@ const CloseRegisterModal = ({
   onCancel,
   loading,
   error,
+  title = "Fermeture de caisse",
+  subtitle = `Résumé de la journée du ${register.date}`,
+  amountLabel = "Comptage réel (DA)",
+  submitLabel = "Clôturer la caisse",
+  loadingLabel = "Fermeture...",
+  showPreviousClose = false,
 }: Props) => {
   const [amount, setAmount] = useState("");
   const [notes, setNotes] = useState("");
@@ -43,12 +55,8 @@ const CloseRegisterModal = ({
               <Lock size={22} />
             </div>
             <div>
-              <h2 className="font-title text-2xl font-bold">
-                Fermeture de caisse
-              </h2>
-              <p className="text-sm text-(--muted)">
-                Résumé de la journée du {register.date}
-              </p>
+              <h2 className="font-title text-2xl font-bold">{title}</h2>
+              <p className="text-sm text-(--muted)">{subtitle}</p>
             </div>
           </div>
 
@@ -87,9 +95,45 @@ const CloseRegisterModal = ({
           </div>
         </div>
 
+        {showPreviousClose && register.closingAmount !== undefined && (
+          <div className="mt-4 rounded-2xl border border-(--border) p-4 text-sm">
+            <p className="mb-2 font-semibold text-(--black)">
+              Comptage déclaré à la fermeture
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <div className="w-[calc(50%-6px)]">
+                <p className="text-(--muted)">Comptage</p>
+                <p className="font-semibold">{register.closingAmount} DA</p>
+              </div>
+              <div className="w-[calc(50%-6px)]">
+                <p className="text-(--muted)">Écart</p>
+                <p
+                  className={`font-semibold ${
+                    !register.difference
+                      ? "text-green-700"
+                      : register.difference > 0
+                        ? "text-blue-700"
+                        : "text-red-700"
+                  }`}
+                >
+                  {register.difference === 0
+                    ? "Aucun"
+                    : `${register.difference && register.difference > 0 ? "+" : ""}${register.difference} DA`}
+                </p>
+              </div>
+              {register.notes && (
+                <div className="w-full">
+                  <p className="text-(--muted)">Note</p>
+                  <p>{register.notes}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         <form onSubmit={submit} className="mt-6 flex flex-col gap-4">
           <div>
-            <label className="text-sm font-medium">Comptage réel (DA)</label>
+            <label className="text-sm font-medium">{amountLabel}</label>
             <input
               autoFocus
               type="number"
@@ -154,10 +198,10 @@ const CloseRegisterModal = ({
               {loading ? (
                 <>
                   <Loader2 size={18} className="animate-spin" />
-                  Fermeture...
+                  {loadingLabel}
                 </>
               ) : (
-                "Clôturer la caisse"
+                submitLabel
               )}
             </button>
           </div>

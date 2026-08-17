@@ -45,6 +45,9 @@ const AppointmentDetailPanel = ({
   const [startTime, setStartTime] = useState(appointment.startTime);
   const [status, setStatus] = useState<AppointmentStatus>(appointment.status);
   const [notes, setNotes] = useState(appointment.notes ?? "");
+  const [noShowReason, setNoShowReason] = useState(
+    appointment.noShowReason ?? "",
+  );
   const [saving, setSaving] = useState(false);
 
   const clientLabel =
@@ -64,6 +67,7 @@ const AppointmentDetailPanel = ({
         startTime,
         status,
         notes,
+        noShowReason: status === "no_show" ? noShowReason : undefined,
       });
 
       toast.success("Rendez-vous mis à jour");
@@ -204,6 +208,22 @@ const AppointmentDetailPanel = ({
             ))}
           </select>
         </div>
+
+        {status === "no_show" && (
+          <div className="mt-4">
+            <label className="mb-2 block text-sm font-medium text-amber-700">
+              Motif de l'absence (optionnel)
+            </label>
+            <textarea
+              rows={2}
+              value={noShowReason}
+              disabled={!canEdit}
+              onChange={(e) => setNoShowReason(e.target.value)}
+              placeholder="Ex : n'a pas répondu, contretemps signalé après coup..."
+              className="w-full rounded-2xl border border-amber-200 bg-amber-50 p-4 disabled:opacity-60"
+            />
+          </div>
+        )}
 
         <div className="mt-4">
           <label className="mb-2 block text-sm font-medium">Notes</label>

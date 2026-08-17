@@ -33,8 +33,40 @@ interface UpdateAppointmentData {
   services?: { service: string; employee: string }[];
   status?: AppointmentStatus;
   notes?: string;
+  noShowReason?: string;
   updatedBy: string;
 }
+
+const ATTENDED_STATUSES: AppointmentStatus[] = ["completed", "paid"];
+
+/**
+ * Répercute un changement de statut sur les compteurs de fiabilité
+ * du client (présence / absence), en ne comptant que la traversée
+ * de frontière (ex: completed -> paid ne recompte pas une 2e fois).
+ */
+const applyClientReliabilityDelta = async (
+  clientId: unknown,
+  previousStatus: AppointmentStatus,
+  nextStatus: AppointmentStatus,
+) => {
+  if (previousStatus === nextStatus) return;
+
+  const wasAttended = ATTENDED_STATUSES.includes(previousStatus);
+  const isAttended = ATTENDED_STATUSES.includes(nextStatus);
+  const wasNoShow = previousStatus === "no_show";
+  const isNoShow = nextStatus === "no_show";
+
+  const inc: Record<string, number> = {};
+
+  if (!wasAttended && isAttended) inc.attendedCount = 1;
+  if (wasAttended && !isAttended) inc.attendedCount = -1;
+  if (!wasNoShow && isNoShow) inc.noShowCount = 1;
+  if (wasNoShow && !isNoShow) inc.noShowCount = -1;
+
+  if (Object.keys(inc).length) {
+    await Client.findByIdAndUpdate(clientId, { $inc: inc });
+  }
+};
 
 /**
  * Valide client/services/employés et construit le snapshot des services
@@ -233,6 +265,8 @@ export const updateAppointment = async (
     return null;
   }
 
+  const previousStatus = appointment.status;
+
   const scheduleChanged = Boolean(
     data.date || data.startTime || data.services,
   );
@@ -277,9 +311,19 @@ export const updateAppointment = async (
   appointment.updatedBy = data.updatedBy as any;
 
   if (data.notes !== undefined) appointment.notes = data.notes;
+  if (data.noShowReason !== undefined)
+    appointment.noShowReason = data.noShowReason;
   if (data.status) appointment.status = data.status;
 
   await appointment.save();
+
+  if (data.status) {
+    await applyClientReliabilityDelta(
+      appointment.client,
+      previousStatus,
+      appointment.status,
+    );
+  }
 
   return appointment;
 };
@@ -326,7 +370,15 @@ export const deleteAppointment = async (id: string) => {
  * Annulation
  */
 export const cancelAppointment = async (id: string, userId: string) => {
-  return Appointment.findByIdAndUpdate(
+  const existing = await Appointment.findById(id);
+
+  if (!existing) {
+    return null;
+  }
+
+  const previousStatus = existing.status;
+
+  const appointment = await Appointment.findByIdAndUpdate(
     id,
     {
       status: "cancelled",
@@ -337,6 +389,10 @@ export const cancelAppointment = async (id: string, userId: string) => {
       new: true,
     },
   );
+
+  await applyClientReliabilityDelta(existing.client, previousStatus, "cancelled");
+
+  return appointment;
 };
 
 /**
@@ -356,10 +412,18 @@ export const completeAppointment = async (id: string, userId: string) => {
     throw new Error("Rendez-vous impossible à terminer");
   }
 
+  const previousStatus = appointment.status;
+
   appointment.status = "completed";
   appointment.updatedBy = userId as any;
 
   await appointment.save();
+
+  await applyClientReliabilityDelta(
+    appointment.client,
+    previousStatus,
+    "completed",
+  );
 
   const ticket = await Ticket.create({
     client: appointment.client,
@@ -404,6 +468,12 @@ export const payAppointment = async (id: string, userId: string) => {
   appointment.updatedBy = userId as any;
 
   await appointment.save();
+
+  await applyClientReliabilityDelta(
+    appointment.client,
+    "waiting_payment",
+    "paid",
+  );
 
   return appointment;
 };

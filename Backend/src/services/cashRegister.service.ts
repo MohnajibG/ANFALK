@@ -164,6 +164,8 @@ export const adminOpenCashRegister = async (
 export const finalizeCashRegister = async (
   registerId: string,
   adminId: string,
+  finalAmount: number,
+  notes?: string,
 ) => {
   const register = await CashRegister.findById(registerId);
 
@@ -176,6 +178,16 @@ export const finalizeCashRegister = async (
       "La caisse doit être fermée avant de pouvoir être finalisée",
     );
   }
+
+  if (Number.isNaN(finalAmount)) {
+    throw new Error("Le montant recompté est invalide");
+  }
+
+  const expectedAmount = register.openingAmount + register.totals.cash;
+
+  register.finalAmount = finalAmount;
+  register.finalDifference = finalAmount - expectedAmount;
+  register.finalNotes = notes ?? register.finalNotes;
 
   register.status = "finalized";
   register.finalizedAt = new Date();

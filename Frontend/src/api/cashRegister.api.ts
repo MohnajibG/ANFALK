@@ -5,6 +5,7 @@ import type {
   OpenCashRegisterPayload,
   CloseCashRegisterPayload,
   AdminOpenCashRegisterPayload,
+  FinalizeCashRegisterPayload,
 } from "../types/cashRegister";
 
 const API_URL = "/cash-register";
@@ -53,7 +54,8 @@ export const adminCloseCashRegister = async (
 
 export const finalizeCashRegister = async (
   id: string,
+  payload: FinalizeCashRegisterPayload,
 ): Promise<CashRegister> => {
-  const { data } = await api.patch(`${API_URL}/${id}/finalize`);
+  const { data } = await api.patch(`${API_URL}/${id}/finalize`, payload);
   return data.register;
 };

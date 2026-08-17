@@ -23,13 +23,12 @@ export const createWaitlistEntryController = async (
   res: Response,
 ) => {
   try {
-    const { client, services, employee, desiredDateFrom, desiredDateTo, notes } =
+    const { client, services, desiredDateFrom, desiredDateTo, notes } =
       req.body;
 
     const entry = await createWaitlistEntry({
       client,
       services,
-      employee,
       desiredDateFrom: new Date(desiredDateFrom),
       desiredDateTo: desiredDateTo ? new Date(desiredDateTo) : undefined,
       notes,

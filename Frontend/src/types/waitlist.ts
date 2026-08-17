@@ -3,11 +3,15 @@ import type { Service } from "./service";
 
 export type WaitlistStatus = "waiting" | "matched" | "cancelled";
 
+export interface WaitlistServiceEntry {
+  service: string | Service;
+  employee?: string | AppointmentEmployee;
+}
+
 export interface WaitlistEntry {
   _id: string;
   client: string | AppointmentClient;
-  services: string[] | Service[];
-  employee?: string | AppointmentEmployee;
+  services: WaitlistServiceEntry[];
   desiredDateFrom: string;
   desiredDateTo?: string;
   notes?: string;
@@ -20,8 +24,7 @@ export interface WaitlistEntry {
 
 export interface CreateWaitlistEntryPayload {
   client: string;
-  services: string[];
-  employee?: string;
+  services: { service: string; employee?: string }[];
   desiredDateFrom: string;
   desiredDateTo?: string;
   notes?: string;

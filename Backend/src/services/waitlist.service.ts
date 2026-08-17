@@ -1,12 +1,13 @@
 import Waitlist from "../models/Waitlist";
 import Client from "../models/Client";
 import Service from "../models/Service";
+import User from "../models/User";
 import { createAppointment } from "./appointment.service";
+import { isPastCalendarDate } from "../utils/time";
 
 interface CreateWaitlistEntryData {
   client: string;
-  services: string[];
-  employee?: string;
+  services: { service: string; employee?: string }[];
   desiredDateFrom: Date;
   desiredDateTo?: Date;
   notes?: string;
@@ -24,20 +25,47 @@ export const createWaitlistEntry = async (data: CreateWaitlistEntryData) => {
     throw new Error("Client introuvable ou désactivé");
   }
 
+  if (!data.services?.length) {
+    throw new Error("Veuillez sélectionner au moins une prestation");
+  }
+
+  if (isPastCalendarDate(data.desiredDateFrom)) {
+    throw new Error(
+      "Impossible d'ajouter une entrée en liste d'attente dans le passé",
+    );
+  }
+
+  const serviceIds = data.services.map((item) => item.service);
+
   const services = await Service.find({
-    _id: { $in: data.services },
+    _id: { $in: serviceIds },
     isDeleted: false,
     isActive: true,
   });
 
-  if (services.length !== data.services.length) {
+  if (services.length !== new Set(serviceIds).size) {
     throw new Error("Service invalide");
+  }
+
+  const employeeIds = data.services
+    .map((item) => item.employee)
+    .filter((id): id is string => !!id);
+
+  if (employeeIds.length) {
+    const employees = await User.find({
+      _id: { $in: employeeIds },
+      role: "employee",
+      isActive: true,
+    });
+
+    if (employees.length !== new Set(employeeIds).size) {
+      throw new Error("Employé invalide");
+    }
   }
 
   return Waitlist.create({
     client: data.client,
     services: data.services,
-    employee: data.employee,
     desiredDateFrom: data.desiredDateFrom,
     desiredDateTo: data.desiredDateTo,
     notes: data.notes,
@@ -53,8 +81,8 @@ export const getWaitlist = async (filter: { status?: string } = {}) => {
 
   return Waitlist.find(query)
     .populate("client", "firstName lastName phone")
-    .populate("services", "name price duration")
-    .populate("employee", "firstName lastName speciality")
+    .populate("services.service", "name price duration")
+    .populate("services.employee", "firstName lastName speciality")
     .sort({ createdAt: 1 });
 };
 
@@ -71,18 +99,23 @@ export const findMatchesForSlot = async ({
 }: FindMatchesParams) => {
   const entries = await Waitlist.find({
     status: "waiting",
-    services: { $in: serviceIds },
+    services: employeeId
+      ? {
+          $elemMatch: {
+            service: { $in: serviceIds },
+            $or: [{ employee: { $exists: false } }, { employee: employeeId }],
+          },
+        }
+      : { $elemMatch: { service: { $in: serviceIds } } },
     desiredDateFrom: { $lte: date },
     $or: [
       { desiredDateTo: { $exists: false } },
       { desiredDateTo: { $gte: date } },
     ],
-    ...(employeeId && {
-      $and: [{ $or: [{ employee: { $exists: false } }, { employee: employeeId }] }],
-    }),
   })
     .populate("client", "firstName lastName phone")
-    .populate("services", "name price duration")
+    .populate("services.service", "name price duration")
+    .populate("services.employee", "firstName lastName speciality")
     .sort({ createdAt: 1 });
 
   return entries;

@@ -16,6 +16,9 @@ export interface ICashRegister extends Document {
   closedByAdmin?: Types.ObjectId;
   finalizedAt?: Date;
   finalizedBy?: Types.ObjectId;
+  finalAmount?: number;
+  finalDifference?: number;
+  finalNotes?: string;
   totals: {
     cash: number;
     card: number;
@@ -49,6 +52,9 @@ const cashRegisterSchema = new Schema<ICashRegister>(
     closedByAdmin: { type: Schema.Types.ObjectId, ref: "User" },
     finalizedAt: { type: Date },
     finalizedBy: { type: Schema.Types.ObjectId, ref: "User" },
+    finalAmount: { type: Number },
+    finalDifference: { type: Number },
+    finalNotes: { type: String, default: "", trim: true },
 
     totals: {
       cash: { type: Number, default: 0 },

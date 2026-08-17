@@ -28,6 +28,9 @@ export interface CashRegister {
   closedByAdmin?: string | CashRegisterCashier;
   finalizedAt?: string;
   finalizedBy?: string | CashRegisterCashier;
+  finalAmount?: number;
+  finalDifference?: number;
+  finalNotes?: string;
   totals: CashRegisterTotals;
   notes?: string;
   createdAt: string;
@@ -46,4 +49,9 @@ export interface CloseCashRegisterPayload {
 export interface AdminOpenCashRegisterPayload {
   cashier: string;
   openingAmount: number;
+}
+
+export interface FinalizeCashRegisterPayload {
+  finalAmount: number;
+  notes?: string;
 }

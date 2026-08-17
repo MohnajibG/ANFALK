@@ -148,8 +148,11 @@ const CashRegisterHistory = () => {
   );
   const [adminCloseLoading, setAdminCloseLoading] = useState(false);
   const [adminCloseError, setAdminCloseError] = useState("");
-  const [finalizingId, setFinalizingId] = useState<string | null>(null);
-  const [actionError, setActionError] = useState("");
+  const [finalizeTarget, setFinalizeTarget] = useState<CashRegister | null>(
+    null,
+  );
+  const [finalizeLoading, setFinalizeLoading] = useState(false);
+  const [finalizeError, setFinalizeError] = useState("");
   const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
 
   useEffect(() => {
@@ -192,27 +195,23 @@ const CashRegisterHistory = () => {
     }
   };
 
-  const handleFinalize = async (registerId: string) => {
-    if (
-      !window.confirm(
-        "Finaliser définitivement cette caisse ? Plus aucune modification ne sera possible sur elle ni sur ses tickets.",
-      )
-    ) {
-      return;
-    }
+  const handleFinalize = async (finalAmount: number, notes?: string) => {
+    if (!finalizeTarget) return;
 
     try {
-      setFinalizingId(registerId);
-      setActionError("");
-      await finalizeCashRegister(registerId);
+      setFinalizeLoading(true);
+      setFinalizeError("");
+      await finalizeCashRegister(finalizeTarget._id, { finalAmount, notes });
+      setFinalizeTarget(null);
       await loadHistory();
     } catch (err) {
       const message =
         (err as { response?: { data?: { message?: string } } })?.response
           ?.data?.message ?? "Impossible de finaliser cette caisse";
-      setActionError(message);
+      setFinalizeError(message);
+      throw err;
     } finally {
-      setFinalizingId(null);
+      setFinalizeLoading(false);
     }
   };
 
@@ -336,11 +335,6 @@ const CashRegisterHistory = () => {
         </div>
       </section>
 
-      {actionError && (
-        <div className="rounded-2xl bg-red-50 p-4 text-red-600">
-          {actionError}
-        </div>
-      )}
 
       <div className="flex flex-wrap gap-4">
         <div className="w-full *:h-full sm:w-[calc(50%-8px)] xl:w-[calc(33.333%-10.667px)]">
@@ -497,15 +491,12 @@ const CashRegisterHistory = () => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleFinalize(item._id);
+                              setFinalizeTarget(item);
                             }}
-                            disabled={finalizingId === item._id}
-                            className="flex items-center gap-1.5 rounded-xl border border-(--border) px-3 py-2 text-xs font-semibold transition hover:bg-(--cream) disabled:opacity-50"
+                            className="flex items-center gap-1.5 rounded-xl border border-(--border) px-3 py-2 text-xs font-semibold transition hover:bg-(--cream)"
                           >
                             <CircleCheckBig size={14} />
-                            {finalizingId === item._id
-                              ? "Finalisation..."
-                              : "Finaliser"}
+                            Finaliser
                           </button>
                         )}
 
@@ -737,6 +728,25 @@ const CashRegisterHistory = () => {
           }}
           loading={adminCloseLoading}
           error={adminCloseError}
+        />
+      )}
+
+      {finalizeTarget && (
+        <CloseRegisterModal
+          register={finalizeTarget}
+          onClose={handleFinalize}
+          onCancel={() => {
+            setFinalizeTarget(null);
+            setFinalizeError("");
+          }}
+          loading={finalizeLoading}
+          error={finalizeError}
+          title="Finalisation de la caisse"
+          subtitle={`Verrouillage définitif — ${finalizeTarget.date}`}
+          amountLabel="Recomptage final (DA)"
+          submitLabel="Finaliser définitivement"
+          loadingLabel="Finalisation..."
+          showPreviousClose
         />
       )}
 

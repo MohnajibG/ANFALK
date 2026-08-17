@@ -2,10 +2,14 @@ import { Schema, model, Document, Types } from "mongoose";
 
 export type WaitlistStatus = "waiting" | "matched" | "cancelled";
 
+export interface IWaitlistService {
+  service: Types.ObjectId;
+  employee?: Types.ObjectId;
+}
+
 export interface IWaitlistEntry extends Document {
   client: Types.ObjectId;
-  services: Types.ObjectId[];
-  employee?: Types.ObjectId;
+  services: IWaitlistService[];
   desiredDateFrom: Date;
   desiredDateTo?: Date;
   notes?: string;
@@ -21,10 +25,15 @@ const waitlistSchema = new Schema<IWaitlistEntry>(
     client: { type: Schema.Types.ObjectId, ref: "Client", required: true },
 
     services: [
-      { type: Schema.Types.ObjectId, ref: "Service", required: true },
+      {
+        service: {
+          type: Schema.Types.ObjectId,
+          ref: "Service",
+          required: true,
+        },
+        employee: { type: Schema.Types.ObjectId, ref: "User" },
+      },
     ],
-
-    employee: { type: Schema.Types.ObjectId, ref: "User" },
 
     desiredDateFrom: { type: Date, required: true },
     desiredDateTo: { type: Date },

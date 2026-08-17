@@ -19,6 +19,10 @@ export interface Client {
 
   visitCount: number;
 
+  noShowCount: number;
+
+  attendedCount: number;
+
   lastVisit?: string;
 
   isActive: boolean;

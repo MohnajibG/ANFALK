@@ -131,9 +131,13 @@ export const finalizeCashRegisterController = async (
   res: Response,
 ) => {
   try {
+    const { finalAmount, notes } = req.body;
+
     const register = await finalizeCashRegister(
       req.params.id as string,
       req.user!.id,
+      Number(finalAmount),
+      notes,
     );
 
     return res.json({ success: true, register });

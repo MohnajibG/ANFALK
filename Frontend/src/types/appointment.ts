@@ -53,6 +53,7 @@ export interface Appointment {
   status: AppointmentStatus;
   source: AppointmentSource;
   notes?: string;
+  noShowReason?: string;
   createdBy: string | AppointmentEmployee;
   recurrenceGroupId?: string;
   createdAt: string;
@@ -130,4 +131,5 @@ export interface UpdateAppointmentPayload {
   status?: AppointmentStatus;
   source?: AppointmentSource;
   notes?: string;
+  noShowReason?: string;
 }
