@@ -12,7 +12,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
 
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/app" replace />;
   }
 
   return <>{children}</>;

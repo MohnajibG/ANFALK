@@ -48,7 +48,7 @@ const AppRouter = () => {
 
         <Route path="/" element={<Home />} />
 
-        <Route path="/login" element={<Login />} />
+        <Route path="/app" element={<Login />} />
 
         <Route
           path="/change-password"

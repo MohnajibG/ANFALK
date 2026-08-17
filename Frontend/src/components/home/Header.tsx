@@ -65,10 +65,10 @@ const Header = () => {
           ))}
 
           <a
-            href="/login"
-            className="group flex items-center gap-2 rounded-full bg-(--black) px-6 py-3 text-xs font-semibold uppercase tracking-[0.15em] text-(--cream) transition hover:bg-(--gold) hover:text-(--black)"
+            href="/app"
+            className="group flex  items-center gap-2 rounded-full bg-(--creem) px-6 py-3 text-xs font-semibold uppercase tracking-[0.15em] text-(--white) transition hover:bg-(--gold) hover:text-(--black)"
           >
-            Connexion
+            APP
             <ArrowRight
               size={15}
               className="transition group-hover:translate-x-1"
@@ -110,11 +110,10 @@ const Header = () => {
               ))}
 
               <a
-                href="/login"
+                href="/app"
                 onClick={() => setOpen(false)}
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-full bg-(--black) py-4 text-sm font-semibold uppercase tracking-[0.15em] text-(--cream) transition hover:bg-(--gold) hover:text-(--black)"
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-fullpy-4 text-sm font-semibold uppercase tracking-[0.15em] text-(--cream) transition hover:bg-(--gold) hover:text-(--black)"
               >
-                Connexion
                 <ArrowRight size={16} />
               </a>
             </div>

@@ -81,7 +81,7 @@ const Contact = () => (
           </div>
 
           <motion.a
-            href="/login"
+            href="/app"
             whileHover={{ scale: 1.05 }}
             className="group mt-12 flex items-center gap-3 rounded-full bg-(--black) px-10 py-4 text-sm font-semibold text-(--cream) transition hover:bg-(--brown-dark)"
           >

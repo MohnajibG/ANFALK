@@ -53,7 +53,7 @@ const EmployeeLayout = () => {
 
   const logout = () => {
     localStorage.removeItem("token");
-    navigate("/login");
+    navigate("/app");
   };
 
   const active = (path: string) => location.pathname.startsWith(path);

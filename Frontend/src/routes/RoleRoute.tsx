@@ -21,7 +21,7 @@ const RoleRoute = ({ allowedRoles }: RoleRouteProps) => {
   const storedUser = localStorage.getItem("user");
 
   if (!storedUser) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/app" replace />;
   }
 
   let user: StoredUser;
@@ -31,7 +31,7 @@ const RoleRoute = ({ allowedRoles }: RoleRouteProps) => {
   } catch {
     localStorage.clear();
 
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/app" replace />;
   }
 
   const role = user.role;
@@ -39,7 +39,7 @@ const RoleRoute = ({ allowedRoles }: RoleRouteProps) => {
   if (!role || !dashboardByRole[role]) {
     localStorage.clear();
 
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/app" replace />;
   }
 
   if (!allowedRoles.includes(role)) {
