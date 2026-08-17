@@ -302,12 +302,12 @@ const Dashboard = () => {
             </div>
 
             <strong className="text-(--black)">
-              {data.expenses.total.toLocaleString("fr-FR")} DA
+              {(data.expenses?.total ?? 0).toLocaleString("fr-FR")} DA
             </strong>
           </div>
 
           <div className="space-y-4">
-            {data.expenses.breakdown.length ? (
+            {data.expenses?.breakdown.length ? (
               data.expenses.breakdown.map((e) => (
                 <div key={e._id}>
                   <div className="flex justify-between text-sm">

@@ -96,7 +96,7 @@ export interface DashboardData {
     tickets: number;
   }[];
 
-  expenses: {
+  expenses?: {
     total: number;
     breakdown: {
       _id: "variable" | "semi-variable";
